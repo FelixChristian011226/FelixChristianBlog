@@ -1,78 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>NeRF和3DGS对比</title>
-    <url>/2024/10/30/NERFvs3DGS/</url>
-    <content><![CDATA[<h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
-                      alt="Refer"
-                ></p>
-<ul>
-<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
-<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
-</ul>
-<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
-                      alt="network"
-                ></p>
-<ul>
-<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
-</ul>
-<h3 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h3><p>​	从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​	获得像素颜色的公式：</p>
-<p>​	<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
-                      alt="color"
-                ></p>
-<p>​	这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
-<h3 id="NeRF2Mesh"><a href="#NeRF2Mesh" class="headerlink" title="NeRF2Mesh"></a>NeRF2Mesh</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
-                      alt="NeRF2Mesh"
-                ></p>
-<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。<br>Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
-<ul>
-<li>Density field</li>
-<li>Appearance Field</li>
-</ul>
-<p>密度分支：用Marching Cubes生成粗Mesh，再进行优化。</p>
-<p>外观分支：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射的分量。</p>
-<h2 id="3D-Gaussian-Splatting"><a href="#3D-Gaussian-Splatting" class="headerlink" title="3D Gaussian Splatting"></a>3D Gaussian Splatting</h2><h3 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
-                      alt="3DGS"
-                ></p>
-<ul>
-<li><strong>构建</strong>：用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。</li>
-<li><strong>Splatting</strong>：三维高斯椭球体被投影到二维图像空间椭圆形，以进行渲染。</li>
-<li><strong>反向传播</strong>：向上更新3D高斯中的参数，向下送入自适应密度控制中，更新点云。</li>
-</ul>
-<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><h3 id="场景绘制"><a href="#场景绘制" class="headerlink" title="场景绘制"></a>场景绘制</h3><ul>
-<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
-<li>3DGS 使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
-</ul>
-<h3 id="3D重建"><a href="#3D重建" class="headerlink" title="3D重建"></a>3D重建</h3><ul>
-<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
-<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mujoco - CoACD简略教程</title>
     <url>/2024/09/29/CoACD_notes/</url>
     <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
@@ -142,6 +70,78 @@
         <tag>mujoco</tag>
         <tag>convex</tag>
         <tag>collision</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeRF和3DGS对比</title>
+    <url>/2024/10/30/NERFvs3DGS/</url>
+    <content><![CDATA[<h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
+                      alt="Refer"
+                ></p>
+<ul>
+<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
+<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
+</ul>
+<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
+                      alt="network"
+                ></p>
+<ul>
+<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
+</ul>
+<h3 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h3><p>​	从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​	获得像素颜色的公式：</p>
+<p>​	<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
+                      alt="color"
+                ></p>
+<p>​	这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<h3 id="NeRF2Mesh"><a href="#NeRF2Mesh" class="headerlink" title="NeRF2Mesh"></a>NeRF2Mesh</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
+                      alt="NeRF2Mesh"
+                ></p>
+<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。<br>Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
+<ul>
+<li>Density field</li>
+<li>Appearance Field</li>
+</ul>
+<p>密度分支：用Marching Cubes生成粗Mesh，再进行优化。</p>
+<p>外观分支：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射的分量。</p>
+<h2 id="3D-Gaussian-Splatting"><a href="#3D-Gaussian-Splatting" class="headerlink" title="3D Gaussian Splatting"></a>3D Gaussian Splatting</h2><h3 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
+                      alt="3DGS"
+                ></p>
+<ul>
+<li><strong>构建</strong>：用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。</li>
+<li><strong>Splatting</strong>：三维高斯椭球体被投影到二维图像空间椭圆形，以进行渲染。</li>
+<li><strong>反向传播</strong>：向上更新3D高斯中的参数，向下送入自适应密度控制中，更新点云。</li>
+</ul>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><h3 id="场景绘制"><a href="#场景绘制" class="headerlink" title="场景绘制"></a>场景绘制</h3><ul>
+<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
+<li>3DGS 使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
+</ul>
+<h3 id="3D重建"><a href="#3D重建" class="headerlink" title="3D重建"></a>3D重建</h3><ul>
+<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
+<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
       </tags>
   </entry>
   <entry>
