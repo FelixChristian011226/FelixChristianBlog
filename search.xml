@@ -1,51 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Mujoco - CoACD简略教程</title>
-    <url>/2024/09/29/CoACD_notes/</url>
-    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
-<h2 id="安装教程"><a href="#安装教程" class="headerlink" title="安装教程"></a>安装教程</h2><h3 id="1-克隆代码："><a href="#1-克隆代码：" class="headerlink" title="(1) 克隆代码："></a>(1) 克隆代码：</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
-
-<h3 id="2-安装依赖："><a href="#2-安装依赖：" class="headerlink" title="(2) 安装依赖："></a>(2) 安装依赖：</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
-
-<blockquote>
-<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
-</blockquote>
-<h3 id="3-编译"><a href="#3-编译" class="headerlink" title="(3) 编译"></a>(3) 编译</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
-
-<p>​	然后编译：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
-
-<blockquote>
-<p>这里出了很多warning，但是好像不影响使用。</p>
-</blockquote>
-<h3 id="4-使用"><a href="#4-使用" class="headerlink" title="(4) 使用"></a>(4) 使用</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
-
-
-
-<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><ul>
-<li><strong>-nm&#x2F;–no-merge</strong> : 禁用合并后处理，默认为false。</li>
-<li><strong>-c&#x2F;–max-convex-hull</strong> : 凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
-<li><strong>-ex&#x2F;–extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
-<li><strong>-am&#x2F;–approximate-mode</strong> : 近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
-<li><strong>–seed</strong> : 随机种子，默认是random()。</li>
-</ul>
-<p><strong>说明</strong>：</p>
-<ol>
-<li>大多数情况下，只需调整<code>threshold</code> （0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
-<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code> 、 <code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>CoACD</tag>
-        <tag>convex</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NeRF和3DGS对比</title>
     <url>/2024/10/30/NERFvs3DGS/</url>
     <content><![CDATA[<h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img  
@@ -118,6 +73,78 @@
       </tags>
   </entry>
   <entry>
+    <title>Mujoco - CoACD简略教程</title>
+    <url>/2024/09/29/CoACD_notes/</url>
+    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
+<h2 id="安装教程"><a href="#安装教程" class="headerlink" title="安装教程"></a>安装教程</h2><h3 id="1-克隆代码："><a href="#1-克隆代码：" class="headerlink" title="(1) 克隆代码："></a>(1) 克隆代码：</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="2-安装依赖："><a href="#2-安装依赖：" class="headerlink" title="(2) 安装依赖："></a>(2) 安装依赖：</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
+</blockquote>
+<h3 id="3-编译"><a href="#3-编译" class="headerlink" title="(3) 编译"></a>(3) 编译</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
+
+<p>​	然后编译：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p>这里出了很多warning，但是好像不影响使用。</p>
+</blockquote>
+<h3 id="4-使用"><a href="#4-使用" class="headerlink" title="(4) 使用"></a>(4) 使用</h3><div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><ul>
+<li><strong>-nm&#x2F;–no-merge</strong> : 禁用合并后处理，默认为false。</li>
+<li><strong>-c&#x2F;–max-convex-hull</strong> : 凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
+<li><strong>-ex&#x2F;–extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
+<li><strong>-am&#x2F;–approximate-mode</strong> : 近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
+<li><strong>–seed</strong> : 随机种子，默认是random()。</li>
+</ul>
+<p><strong>说明</strong>：</p>
+<ol>
+<li>大多数情况下，只需调整<code>threshold</code> （0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
+<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code> 、 <code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>CoACD</tag>
+        <tag>convex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/mujoco_notes/</url>
+    <content><![CDATA[<h2 id="Collision"><a href="#Collision" class="headerlink" title="Collision"></a>Collision</h2><p><a class="link"   href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation - MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms. All primitive types are convex. Height fields are not convex but internally they are treated as unions of triangular prisms (using custom collision pruning beyond the filters described above). Meshes specified by the user can be non-convex, and are rendered as such. For collision purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the user must decompose it into a union of convex geoms (which can be primitive shapes or meshes) and attach them to the same body. Open tools like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> can be used outside MuJoCo to automate this process. Finally, all built-in collision functions can be replaced with custom callbacks. This can be used to incorporate a general-purpose “triangle soup” collision detector for example. However we do not recommend such an approach. Pre-processing the geometry and representing it as a union of convex geoms takes some work, but it pays off at runtime and yields both faster and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD 库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>collision</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mujoco - 高场hfield相关</title>
     <url>/2024/09/26/hfield/</url>
     <content><![CDATA[<blockquote>
@@ -154,33 +181,6 @@
       <tags>
         <tag>mujoco</tag>
         <tag>hfield</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/mujoco_notes/</url>
-    <content><![CDATA[<h2 id="Collision"><a href="#Collision" class="headerlink" title="Collision"></a>Collision</h2><p><a class="link"   href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation - MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms. All primitive types are convex. Height fields are not convex but internally they are treated as unions of triangular prisms (using custom collision pruning beyond the filters described above). Meshes specified by the user can be non-convex, and are rendered as such. For collision purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the user must decompose it into a union of convex geoms (which can be primitive shapes or meshes) and attach them to the same body. Open tools like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> can be used outside MuJoCo to automate this process. Finally, all built-in collision functions can be replaced with custom callbacks. This can be used to incorporate a general-purpose “triangle soup” collision detector for example. However we do not recommend such an approach. Pre-processing the geometry and representing it as a union of convex geoms takes some work, but it pays off at runtime and yields both faster and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD 库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>convex</tag>
-        <tag>collision</tag>
       </tags>
   </entry>
 </search>
