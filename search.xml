@@ -1,6 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>NeRF和3DGS对比</title>
+    <url>/2024/10/30/NERFvs3DGS/</url>
+    <content><![CDATA[<h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
+                      alt="Refer"
+                ></p>
+<ul>
+<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
+<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
+</ul>
+<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
+                      alt="network"
+                ></p>
+<ul>
+<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
+</ul>
+<h3 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h3><p>​	从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​	获得像素颜色的公式：</p>
+<p>​	<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
+                      alt="color"
+                ></p>
+<p>​	这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<h3 id="NeRF2Mesh"><a href="#NeRF2Mesh" class="headerlink" title="NeRF2Mesh"></a>NeRF2Mesh</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
+                      alt="NeRF2Mesh"
+                ></p>
+<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。<br>Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
+<ul>
+<li>Density field</li>
+<li>Appearance Field</li>
+</ul>
+<p>密度分支：用Marching Cubes生成粗Mesh，再进行优化。</p>
+<p>外观分支：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射的分量。</p>
+<h2 id="3D-Gaussian-Splatting"><a href="#3D-Gaussian-Splatting" class="headerlink" title="3D Gaussian Splatting"></a>3D Gaussian Splatting</h2><h3 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h3><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
+                      alt="3DGS"
+                ></p>
+<ul>
+<li><strong>构建</strong>：用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。</li>
+<li><strong>Splatting</strong>：三维高斯椭球体被投影到二维图像空间椭圆形，以进行渲染。</li>
+<li><strong>反向传播</strong>：向上更新3D高斯中的参数，向下送入自适应密度控制中，更新点云。</li>
+</ul>
+<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><h3 id="场景绘制"><a href="#场景绘制" class="headerlink" title="场景绘制"></a>场景绘制</h3><ul>
+<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
+<li>3DGS 使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
+</ul>
+<h3 id="3D重建"><a href="#3D重建" class="headerlink" title="3D重建"></a>3D重建</h3><ul>
+<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
+<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mujoco - CoACD简略教程</title>
     <url>/2024/09/29/CoACD_notes/</url>
     <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
@@ -43,6 +115,72 @@
         <tag>mujoco</tag>
         <tag>CoACD</tag>
         <tag>convex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/mujoco_notes/</url>
+    <content><![CDATA[<h2 id="Collision"><a href="#Collision" class="headerlink" title="Collision"></a>Collision</h2><p><a class="link"   href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation - MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms. All primitive types are convex. Height fields are not convex but internally they are treated as unions of triangular prisms (using custom collision pruning beyond the filters described above). Meshes specified by the user can be non-convex, and are rendered as such. For collision purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the user must decompose it into a union of convex geoms (which can be primitive shapes or meshes) and attach them to the same body. Open tools like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> can be used outside MuJoCo to automate this process. Finally, all built-in collision functions can be replaced with custom callbacks. This can be used to incorporate a general-purpose “triangle soup” collision detector for example. However we do not recommend such an approach. Pre-processing the geometry and representing it as a union of convex geoms takes some work, but it pays off at runtime and yields both faster and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD 库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>collision</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 高场hfield相关</title>
+    <url>/2024/09/26/hfield/</url>
+    <content><![CDATA[<blockquote>
+<p>The <strong>hfield</strong> type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orientation of the height field. The size of the geom is ignored, and the size parameters of the height field asset are used instead. See the description of the <a class="link"   href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> element. Similar to planes, height field geoms can only be attached to the world body or to static children of the world.</p>
+</blockquote>
+<ol>
+<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p>
+</li>
+<li><p>可从bin文件读入，格式如下：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>高度数据可以在编译时保持未定义。</p>
+</li>
+</ol>
+<ul>
+<li>编译器会自动把高度数据归一化到[0,1]</li>
+<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
+<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
+</ul>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ul>
+<li><strong>name</strong>: 名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
+<li><strong>content_type</strong>: 目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
+<li><strong>file</strong>: 文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
+<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0 表示将从文件加载数据。</li>
+<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
+<li><strong>size</strong>: (radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
+</ul>
+<h2 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h2><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>hfield</tag>
       </tags>
   </entry>
   <entry>
@@ -216,7 +354,7 @@
                       alt="Table3"
                 ></p>
 <ul>
-<li>3DGS和SuGaR在基于图像的渲染中，有更卓越的效果，且训练时间更短。</li>
+<li>3DGS和SuGaR在图像的渲染中，有更优的效果（三个参数都更优），且训练时间更短。</li>
 </ul>
 <p><img  
                      lazyload
@@ -230,9 +368,15 @@
 <li>神经辐射场生成的点云，通常包含很多与场景无关的异常值。</li>
 <li>3DGS也存在边缘效应，边缘会模糊。</li>
 </ul>
-<p>（论文这部分没贴图）</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png"
+                      alt="CD"
+                ></p>
+<p>（图源项目网址：<a class="link"   href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
 <ul>
-<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实</li>
+<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
 <li>SuGaR 是一种专为几何对齐设计的方法，排名却倒数。再对SuGaR进行定量分析，发现SuGaR在几何重建方面确实有更好的表现。</li>
 </ul>
 <p><img  
@@ -256,144 +400,6 @@
       <tags>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeRF和3DGS对比</title>
-    <url>/2024/10/30/NERFvs3DGS/</url>
-    <content><![CDATA[<h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
-                      alt="Refer"
-                ></p>
-<ul>
-<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
-<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
-</ul>
-<h3 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
-                      alt="network"
-                ></p>
-<ul>
-<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
-</ul>
-<h3 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h3><p>​	从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​	获得像素颜色的公式：</p>
-<p>​	<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
-                      alt="color"
-                ></p>
-<p>​	这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
-<h3 id="NeRF2Mesh"><a href="#NeRF2Mesh" class="headerlink" title="NeRF2Mesh"></a>NeRF2Mesh</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
-                      alt="NeRF2Mesh"
-                ></p>
-<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。<br>Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
-<ul>
-<li>Density field</li>
-<li>Appearance Field</li>
-</ul>
-<p>密度分支：用Marching Cubes生成粗Mesh，再进行优化。</p>
-<p>外观分支：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射的分量。</p>
-<h2 id="3D-Gaussian-Splatting"><a href="#3D-Gaussian-Splatting" class="headerlink" title="3D Gaussian Splatting"></a>3D Gaussian Splatting</h2><h3 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h3><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
-                      alt="3DGS"
-                ></p>
-<ul>
-<li><strong>构建</strong>：用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。</li>
-<li><strong>Splatting</strong>：三维高斯椭球体被投影到二维图像空间椭圆形，以进行渲染。</li>
-<li><strong>反向传播</strong>：向上更新3D高斯中的参数，向下送入自适应密度控制中，更新点云。</li>
-</ul>
-<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><h3 id="场景绘制"><a href="#场景绘制" class="headerlink" title="场景绘制"></a>场景绘制</h3><ul>
-<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
-<li>3DGS 使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
-</ul>
-<h3 id="3D重建"><a href="#3D重建" class="headerlink" title="3D重建"></a>3D重建</h3><ul>
-<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
-<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 高场hfield相关</title>
-    <url>/2024/09/26/hfield/</url>
-    <content><![CDATA[<blockquote>
-<p>The <strong>hfield</strong> type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orientation of the height field. The size of the geom is ignored, and the size parameters of the height field asset are used instead. See the description of the <a class="link"   href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> element. Similar to planes, height field geoms can only be attached to the world body or to static children of the world.</p>
-</blockquote>
-<ol>
-<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p>
-</li>
-<li><p>可从bin文件读入，格式如下：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p>高度数据可以在编译时保持未定义。</p>
-</li>
-</ol>
-<ul>
-<li>编译器会自动把高度数据归一化到[0,1]</li>
-<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
-<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
-</ul>
-<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ul>
-<li><strong>name</strong>: 名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
-<li><strong>content_type</strong>: 目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
-<li><strong>file</strong>: 文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
-<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0 表示将从文件加载数据。</li>
-<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
-<li><strong>size</strong>: (radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
-</ul>
-<h2 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h2><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>hfield</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/mujoco_notes/</url>
-    <content><![CDATA[<h2 id="Collision"><a href="#Collision" class="headerlink" title="Collision"></a>Collision</h2><p><a class="link"   href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation - MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms. All primitive types are convex. Height fields are not convex but internally they are treated as unions of triangular prisms (using custom collision pruning beyond the filters described above). Meshes specified by the user can be non-convex, and are rendered as such. For collision purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the user must decompose it into a union of convex geoms (which can be primitive shapes or meshes) and attach them to the same body. Open tools like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> can be used outside MuJoCo to automate this process. Finally, all built-in collision functions can be replaced with custom callbacks. This can be used to incorporate a general-purpose “triangle soup” collision detector for example. However we do not recommend such an approach. Pre-processing the geometry and representing it as a union of convex geoms takes some work, but it pays off at runtime and yields both faster and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD 库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>convex</tag>
-        <tag>collision</tag>
       </tags>
   </entry>
 </search>
