@@ -265,6 +265,104 @@
       </tags>
   </entry>
   <entry>
+    <title>SplatSim 论文解读</title>
+    <url>/2024/11/06/SplatSim/</url>
+    <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>Sim2Real是机器人技术中的一个核心问题，涉及将模拟环境中学到的控制策略转移到现实世界环境中。目前的方法基本都依赖于深度、触觉传感或点云输入等感知方式。相比之下，RGB 图像很少用作机器人学习应用中的主要传感方式。优于 Sim2Real 传输中的其他常用方式。它们捕捉关键的视觉细节，例如颜色、纹理、照明和表面反射率等，这对于理解复杂的环境至关重要。此外，RGB 图像很容易在现实环境中使用相机获取，并且与人类感知紧密结合，使其非常适合解释动态和复杂场景中的复杂细节。</p>
+<p>为什么很难将使用 RGB 信息进行模拟训练的策略部署到现实世界呢？是因为机器人在模拟器中观察到的图像分布与它在现实世界中看到的图像分布有很大不同。本文提出了一种新颖的方法来减少 RGB 图像的 Sim2Real 差距。利用 Gaussian Splatting 作为照片级真实感渲染，使用现有模拟器作为物理主干。利用 Gaussian Splatting 作为主要渲染基元，取代现有模拟器中传统的基于网格的表示，以显著提高渲染场景的照片真实感。</p>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><ul>
+<li><strong>关键前提</strong>：准确分割现实场景中高斯分布表示的每个刚体，并识别其相对于模拟器的相应的齐次变换。那么就可以渲染新姿势下的刚体。</li>
+<li><strong>底层表示</strong>：不使用网格图元，而是使用高斯图作为底层表示。</li>
+</ul>
+<h3 id="A-问题描述"><a href="#A-问题描述" class="headerlink" title="A. 问题描述"></a>A. 问题描述</h3><p>$\mathcal{S}<em>{real}$表示真实场景的Gaussian Splat，$\mathcal{S}^{k}</em>{obj}$表示场景中第k个object的Gaussian Splat。我们的目标是为任何模拟器中的机器人，使用$\mathcal{S}_{real}$来生成真实的渲染$\mathcal{I}^{sim}$。然后在这样的表示下，收集专家的演示 $ε$​ 来用于训练基于RGB的策略。</p>
+<h3 id="B-坐标系定义和变换"><a href="#B-坐标系定义和变换" class="headerlink" title="B. 坐标系定义和变换"></a>B. 坐标系定义和变换</h3><p>$\mathcal{F}_{real}$：真实世界坐标系 - 主要参考系。</p>
+<p>$\mathcal{F}_{robot}$：真实世界机器人坐标系。</p>
+<p>$\mathcal{F}_{sim}$：模拟器坐标系。</p>
+<p>$\mathcal{F}<em>{robot}$和$\mathcal{F}</em>{sim}$都会与$\mathcal{F}_{real}$进行对其，以确保模拟器中机器人底座和现实世界共享相同的坐标系。</p>
+<h3 id="C-机器人-Splat-模型"><a href="#C-机器人-Splat-模型" class="headerlink" title="C. 机器人 Splat 模型"></a>C. 机器人 Splat 模型</h3><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/1c7c7e02cbb7f0779e69c9b28f154dd4.png"
+                      alt="coords" style="zoom:50%;" 
+                >
+
+<p>首先创建场景的高斯分布（其中机器人位于其原始位置），在静态场景中对机器人进行可视化。使用 ICP 算法手动分割机器人的点云并与标准机器人框架对齐。然后对每个机器人关节进行分段，并应用正向运动学变换，从而能够以任意关节配置渲染机器人。</p>
+<h3 id="D-Object-Splat模型"><a href="#D-Object-Splat模型" class="headerlink" title="D. Object Splat模型"></a>D. Object Splat模型</h3><p>与机器人渲染类似，使用 ICP 来对齐每个对象的 3D 高斯 $\mathcal{S}^{k}_{obj}$​ 到其模拟的真实点云。</p>
+<h3 id="F"><a href="#F" class="headerlink" title="F."></a>F.</h3>]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>3DGS</tag>
+        <tag>Sim2Real</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/mujoco_notes/</url>
+    <content><![CDATA[<h2 id="Collision"><a href="#Collision" class="headerlink" title="Collision"></a>Collision</h2><p><a class="link"   href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation - MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms. All primitive types are convex. Height fields are not convex but internally they are treated as unions of triangular prisms (using custom collision pruning beyond the filters described above). Meshes specified by the user can be non-convex, and are rendered as such. For collision purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the user must decompose it into a union of convex geoms (which can be primitive shapes or meshes) and attach them to the same body. Open tools like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> can be used outside MuJoCo to automate this process. Finally, all built-in collision functions can be replaced with custom callbacks. This can be used to incorporate a general-purpose “triangle soup” collision detector for example. However we do not recommend such an approach. Pre-processing the geometry and representing it as a union of convex geoms takes some work, but it pays off at runtime and yields both faster and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD 库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>collision</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 高场hfield相关</title>
+    <url>/2024/09/26/hfield/</url>
+    <content><![CDATA[<blockquote>
+<p>The <strong>hfield</strong> type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orientation of the height field. The size of the geom is ignored, and the size parameters of the height field asset are used instead. See the description of the <a class="link"   href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> element. Similar to planes, height field geoms can only be attached to the world body or to static children of the world.</p>
+</blockquote>
+<ol>
+<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p>
+</li>
+<li><p>可从bin文件读入，格式如下：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>高度数据可以在编译时保持未定义。</p>
+</li>
+</ol>
+<ul>
+<li>编译器会自动把高度数据归一化到[0,1]</li>
+<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
+<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
+</ul>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ul>
+<li><strong>name</strong>: 名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
+<li><strong>content_type</strong>: 目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
+<li><strong>file</strong>: 文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
+<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0 表示将从文件加载数据。</li>
+<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
+<li><strong>size</strong>: (radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
+</ul>
+<h2 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h2><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>hfield</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NeRF和3DGS对比</title>
     <url>/2024/10/30/NERFvs3DGS/</url>
     <content><![CDATA[<h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>NeRF（Neural Radiance Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF 的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
@@ -461,72 +559,6 @@
       <tags>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/mujoco_notes/</url>
-    <content><![CDATA[<h2 id="Collision"><a href="#Collision" class="headerlink" title="Collision"></a>Collision</h2><p><a class="link"   href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation - MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms. All primitive types are convex. Height fields are not convex but internally they are treated as unions of triangular prisms (using custom collision pruning beyond the filters described above). Meshes specified by the user can be non-convex, and are rendered as such. For collision purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the user must decompose it into a union of convex geoms (which can be primitive shapes or meshes) and attach them to the same body. Open tools like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> can be used outside MuJoCo to automate this process. Finally, all built-in collision functions can be replaced with custom callbacks. This can be used to incorporate a general-purpose “triangle soup” collision detector for example. However we do not recommend such an approach. Pre-processing the geometry and representing it as a union of convex geoms takes some work, but it pays off at runtime and yields both faster and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD 库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>convex</tag>
-        <tag>collision</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 高场hfield相关</title>
-    <url>/2024/09/26/hfield/</url>
-    <content><![CDATA[<blockquote>
-<p>The <strong>hfield</strong> type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orientation of the height field. The size of the geom is ignored, and the size parameters of the height field asset are used instead. See the description of the <a class="link"   href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> element. Similar to planes, height field geoms can only be attached to the world body or to static children of the world.</p>
-</blockquote>
-<ol>
-<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p>
-</li>
-<li><p>可从bin文件读入，格式如下：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p>高度数据可以在编译时保持未定义。</p>
-</li>
-</ol>
-<ul>
-<li>编译器会自动把高度数据归一化到[0,1]</li>
-<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
-<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
-</ul>
-<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ul>
-<li><strong>name</strong>: 名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
-<li><strong>content_type</strong>: 目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
-<li><strong>file</strong>: 文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
-<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0 表示将从文件加载数据。</li>
-<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
-<li><strong>size</strong>: (radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
-</ul>
-<h2 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h2><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>hfield</tag>
       </tags>
   </entry>
 </search>
