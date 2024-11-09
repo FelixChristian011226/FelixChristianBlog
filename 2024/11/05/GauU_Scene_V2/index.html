@@ -51,8 +51,8 @@
 <meta property="article:published_time" content="2024-11-05T11:36:00.000Z">
 <meta property="article:modified_time" content="2024-11-05T12:00:14.330Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="3DGS">
 <meta property="article:tag" content="NeRF">
+<meta property="article:tag" content="3DGS">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png">
     
@@ -660,11 +660,11 @@
             <ul>
                 
                     <li>
-                        <a href="/tags/3DGS/">3DGS</a>&nbsp;
+                        <a href="/tags/NeRF/">NeRF</a>&nbsp;
                     </li>
                 
                     <li>
-                        | <a href="/tags/NeRF/">NeRF</a>&nbsp;
+                        | <a href="/tags/3DGS/">3DGS</a>&nbsp;
                     </li>
                 
             </ul>
@@ -708,6 +708,7 @@
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png"
                       alt="dataset"
                 ></p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -716,7 +717,8 @@
 <th>缺点</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>bungeenerf</td>
 <td>卫星捕获图像</td>
 <td>时间差异、无地面实况</td>
@@ -741,7 +743,9 @@
 <td>无人机配合激光雷达</td>
 <td>坐标差异，雷达点云和图像关系不明确</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p><strong>优势：</strong></p>
 <ul>
 <li>利用Zenmuse L1来获取地面真实几何，而大多数数据集（ blocknerf ）（ megaNeRF ）（ UrbanBIS ）依赖单目或多视图相机进行数据采集，这更适合新视图合成而不是场景重建。</li>
@@ -782,6 +786,7 @@
                 ></p>
 <p>结构比较是通过使用一个合并公式来完成。</p>
 <p>三个对比函数分别如下：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -789,7 +794,8 @@
 <th>公式</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>亮度</strong></td>
 <td><img  
                      lazyload
@@ -821,7 +827,9 @@
                       alt="协方差"
                 ></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>结合即得到SSIM函数：</p>
 <p><img  
                      lazyload
@@ -836,10 +844,10 @@
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg"
                       alt="LPIPS"
                 ></p>
-<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2&#x2F;PSNR, SSIM, FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
+<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2/PSNR, SSIM, FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
 <h3 id="倒角距离"><a href="#倒角距离" class="headerlink" title="倒角距离"></a>倒角距离</h3><p>出自：</p>
 <blockquote>
-<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D object reconstruction from a single image,” <a class="link"   target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=CVPR&spm=1001.2101.3001.7020" >CVPR <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>, 2017.</p>
+<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D object reconstruction from a single image,” <a class="link"   target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>, 2017.</p>
 </blockquote>
 <p><img  
                      lazyload
@@ -945,11 +953,11 @@
             <ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
+                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
                     </li>
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
+                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
                     </li>
                 
             </ul>

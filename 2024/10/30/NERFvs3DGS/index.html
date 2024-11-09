@@ -41,8 +41,8 @@
 <meta property="article:published_time" content="2024-10-30T11:07:05.000Z">
 <meta property="article:modified_time" content="2024-11-05T15:23:47.491Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="3DGS">
 <meta property="article:tag" content="NeRF">
+<meta property="article:tag" content="3DGS">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png">
     
@@ -650,11 +650,11 @@
             <ul>
                 
                     <li>
-                        <a href="/tags/3DGS/">3DGS</a>&nbsp;
+                        <a href="/tags/NeRF/">NeRF</a>&nbsp;
                     </li>
                 
                     <li>
-                        | <a href="/tags/NeRF/">NeRF</a>&nbsp;
+                        | <a href="/tags/3DGS/">3DGS</a>&nbsp;
                     </li>
                 
             </ul>
@@ -725,15 +725,15 @@
 <li>NeRF 使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
 <li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向 (θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
 </ul>
-<h4 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h4><p>​	从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​	获得像素颜色的公式：</p>
-<p>​	<img  
+<h4 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h4><p>​    从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​    获得像素颜色的公式：</p>
+<p>​    <img  
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
                       alt="color"
                 ></p>
-<p>​	这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<p>​    这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
 <h3 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h3><h4 id="NeRF2Mesh"><a href="#NeRF2Mesh" class="headerlink" title="NeRF2Mesh"></a>NeRF2Mesh</h4><p><img  
                      lazyload
                      src="/images/loading.svg"
@@ -742,8 +742,8 @@
                 ></p>
 <p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。<br>Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
 <ul>
-<li>**密度分支 (Density field)**：首先利用NeRF生成的密度场划分出体素，再用Marching Cubes生成三角网格，再进行优化。</li>
-<li>**外观分支 (Appearance Field)**：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
+<li><strong>密度分支 (Density field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching Cubes生成三角网格，再进行优化。</li>
+<li><strong>外观分支 (Appearance Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
 </ul>
 <h2 id="3D-Gaussian-Splatting"><a href="#3D-Gaussian-Splatting" class="headerlink" title="3D Gaussian Splatting"></a>3D Gaussian Splatting</h2><h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D 空间中的点云，将场景中的点用 3D 高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
 <p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
@@ -754,7 +754,7 @@
                       alt="3DGS"
                 ></p>
 <ol>
-<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用 <a class="link"   href="https://link.zhihu.com/?target=https://colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> 库操作</li>
+<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用 <a class="link"   href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> 库操作</li>
 <li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
 <li><strong>投影变换</strong>：通过投影操作将 3D 高斯分布映射到相机视角下的 2D 图像平面。</li>
 <li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
@@ -790,6 +790,7 @@
 <li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
 </ul>
 <p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -798,7 +799,8 @@
 <th>NeRF (Neural Radiance Fields)</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>基本原理</strong></td>
 <td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
 <td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
@@ -840,7 +842,7 @@
 </tr>
 <tr>
 <td><strong>应用场景</strong></td>
-<td>自动驾驶、机器人导航、工业检测、3D建模、AR&#x2F;VR、精密测量。</td>
+<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
 <td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
 </tr>
 <tr>
@@ -873,7 +875,9 @@
 <td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
 <td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>（表源：<a class="link"   target="_blank" rel="noopener" href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
 
         </div>
@@ -915,11 +919,11 @@
             <ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
+                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
                     </li>
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
+                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
                     </li>
                 
             </ul>
