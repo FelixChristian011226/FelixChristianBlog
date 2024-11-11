@@ -24,12 +24,12 @@
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="The hfield type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orie">
+        <meta name="description" content="The hfield type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mujoco - 高场hfield相关">
 <meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/09/26/hfield/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="The hfield type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orie">
+<meta property="og:description" content="The hfield type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-09-26T11:07:05.000Z">
 <meta property="article:modified_time" content="2024-11-05T11:37:27.257Z">
@@ -677,32 +677,43 @@
 
         <div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
             <blockquote>
-<p>The <strong>hfield</strong> type defines a height field geom. The geom must reference the desired height field asset with the hfield attribute below. The position and orientation of the geom set the position and orientation of the height field. The size of the geom is ignored, and the size parameters of the height field asset are used instead. See the description of the <a class="link"   target="_blank" rel="noopener" href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> element. Similar to planes, height field geoms can only be attached to the world body or to static children of the world.</p>
+<p>The <strong>hfield</strong> type defines a height field geom. The
+geom must reference the desired height field asset with the hfield
+attribute below. The position and orientation of the geom set the
+position and orientation of the height field. The size of the geom is
+ignored, and the size parameters of the height field asset are used
+instead. See the description of the <a class="link" 
+ target="_blank" rel="noopener" href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+element. Similar to planes, height field geoms can only be attached to
+the world body or to static children of the world.</p>
 </blockquote>
-<ol>
-<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p>
-</li>
+<ol type="1">
+<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p></li>
 <li><p>可从bin文件读入，格式如下：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div>
-</li>
-<li><p>高度数据可以在编译时保持未定义。</p>
-</li>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div></li>
+<li><p>高度数据可以在编译时保持未定义。</p></li>
 </ol>
 <ul>
 <li>编译器会自动把高度数据归一化到[0,1]</li>
 <li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
 <li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
 </ul>
-<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ul>
-<li><strong>name</strong>: 名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
-<li><strong>content_type</strong>: 目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
-<li><strong>file</strong>: 文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
-<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0 表示将从文件加载数据。</li>
+<h2 id="参数">参数</h2>
+<ul>
+<li><strong>name</strong>:
+名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
+<li><strong>content_type</strong>:
+目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
+<li><strong>file</strong>:
+文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
+<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0
+表示将从文件加载数据。</li>
 <li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
-<li><strong>size</strong>: (radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
+<li><strong>size</strong>:
+(radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
 </ul>
-<h2 id="使用样例"><a href="#使用样例" class="headerlink" title="使用样例"></a>使用样例</h2><div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-
+<h2 id="使用样例">使用样例</h2>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
 
         </div>
 

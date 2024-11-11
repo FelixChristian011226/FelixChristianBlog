@@ -41,8 +41,8 @@
 <meta property="article:published_time" content="2024-10-30T11:07:05.000Z">
 <meta property="article:modified_time" content="2024-11-05T15:23:47.491Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="3DGS">
 <meta property="article:tag" content="NeRF">
+<meta property="article:tag" content="3DGS">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png">
     
@@ -650,11 +650,11 @@
             <ul>
                 
                     <li>
-                        <a href="/tags/3DGS/">3DGS</a>&nbsp;
+                        <a href="/tags/NeRF/">NeRF</a>&nbsp;
                     </li>
                 
                     <li>
-                        | <a href="/tags/NeRF/">NeRF</a>&nbsp;
+                        | <a href="/tags/3DGS/">3DGS</a>&nbsp;
                     </li>
                 
             </ul>
@@ -688,109 +688,198 @@
 
 
         <div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
-            <h2 id="NeRF"><a href="#NeRF" class="headerlink" title="NeRF"></a>NeRF</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>NeRF（Neural Radiance Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF 的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
+            <h2 id="nerf">NeRF</h2>
+<h3 id="原理">原理</h3>
+<p>NeRF（Neural Radiance
+Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
+的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
 <p>特点：</p>
 <ul>
 <li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
 <li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
 </ul>
-<h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img  
+<h3 id="流程">流程</h3>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
-                      alt="Refer"
-                ></p>
-<ol>
-<li><strong>输入信息</strong>：NeRF 将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
+                     
+alt="Refer" 
+                >
+<figcaption aria-hidden="true">Refer</figcaption>
+</figure>
+<ol type="1">
+<li><strong>输入信息</strong>：NeRF
+将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
 <li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
-<li><strong>体渲染技术</strong>：NeRF 使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
+<li><strong>体渲染技术</strong>：NeRF
+使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
 <li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
-<li><strong>生成新视角</strong>：训练完成后，NeRF 能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
+<li><strong>生成新视角</strong>：训练完成后，NeRF
+能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
 </ol>
-<h3 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h3><p><img  
+<h3 id="网络结构">网络结构</h3>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
-                      alt="network"
-                ></p>
+                     
+alt="network" 
+                >
+<figcaption aria-hidden="true">network</figcaption>
+</figure>
 <ul>
 <li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
 </ul>
-<h3 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h3><h4 id="MLP网络"><a href="#MLP网络" class="headerlink" title="MLP网络"></a>MLP网络</h4><ul>
+<h3 id="实现细节">实现细节</h3>
+<h4 id="mlp网络">MLP网络</h4>
+<ul>
 <li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
-<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
-<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip connection），帮助网络在深层结构中保持空间信息的细节。</li>
+<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
+features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
+<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
+connection），帮助网络在深层结构中保持空间信息的细节。</li>
 </ul>
-<h4 id="位置编码"><a href="#位置编码" class="headerlink" title="位置编码"></a>位置编码</h4><ul>
-<li>NeRF 使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
-<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向 (θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
+<h4 id="位置编码">位置编码</h4>
+<ul>
+<li>NeRF
+使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
+Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
+<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
+(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
 </ul>
-<h4 id="体渲染"><a href="#体渲染" class="headerlink" title="体渲染"></a>体渲染</h4><p>​	从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​	获得像素颜色的公式：</p>
-<p>​	<img  
+<h4 id="体渲染">体渲染</h4>
+<p>​
+从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
+bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​ 获得像素颜色的公式：</p>
+<p>​ <img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
-                      alt="color"
+                     
+alt="color" 
                 ></p>
-<p>​	这个式子积分里面是<code>T(t)</code> 、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
-<h3 id="相关工作"><a href="#相关工作" class="headerlink" title="相关工作"></a>相关工作</h3><h4 id="NeRF2Mesh"><a href="#NeRF2Mesh" class="headerlink" title="NeRF2Mesh"></a>NeRF2Mesh</h4><p><img  
+<p>​ 这个式子积分里面是<code>T(t)</code>
+、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<h3 id="相关工作">相关工作</h3>
+<h4 id="nerf2mesh">NeRF2Mesh</h4>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
-                      alt="NeRF2Mesh"
-                ></p>
-<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。<br>Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
+                     
+alt="NeRF2Mesh" 
+                >
+<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
+</figure>
+<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
+Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
 <ul>
-<li>**密度分支 (Density field)**：首先利用NeRF生成的密度场划分出体素，再用Marching Cubes生成三角网格，再进行优化。</li>
-<li>**外观分支 (Appearance Field)**：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
+<li><strong>密度分支 (Density
+field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
+Cubes生成三角网格，再进行优化。</li>
+<li><strong>外观分支 (Appearance
+Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
 </ul>
-<h2 id="3D-Gaussian-Splatting"><a href="#3D-Gaussian-Splatting" class="headerlink" title="3D Gaussian Splatting"></a>3D Gaussian Splatting</h2><h3 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h3><p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D 空间中的点云，将场景中的点用 3D 高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
+<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
+<h3 id="原理-1">原理</h3>
+<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
+空间中的点云，将场景中的点用 3D
+高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
 <p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
-<h3 id="流程-1"><a href="#流程-1" class="headerlink" title="流程"></a>流程</h3><p><img  
+<h3 id="流程-1">流程</h3>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
-                      alt="3DGS"
-                ></p>
-<ol>
-<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用 <a class="link"   href="https://link.zhihu.com/?target=https://colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> 库操作</li>
+                     
+alt="3DGS" 
+                >
+<figcaption aria-hidden="true">3DGS</figcaption>
+</figure>
+<ol type="1">
+<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
+<a class="link" 
+ href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+库操作</li>
 <li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
-<li><strong>投影变换</strong>：通过投影操作将 3D 高斯分布映射到相机视角下的 2D 图像平面。</li>
+<li><strong>投影变换</strong>：通过投影操作将 3D
+高斯分布映射到相机视角下的 2D 图像平面。</li>
 <li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
-<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
+<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
+Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
 </ol>
-<h3 id="实现细节-1"><a href="#实现细节-1" class="headerlink" title="实现细节"></a>实现细节</h3><h4 id="三维高斯属性"><a href="#三维高斯属性" class="headerlink" title="三维高斯属性"></a>三维高斯属性</h4><p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
+<h3 id="实现细节-1">实现细节</h3>
+<h4 id="三维高斯属性">三维高斯属性</h4>
+<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
 <p>球谐函数的示例：</p>
-<p><img  
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
-                      alt="球谐函数"
-                ></p>
-<p>（图源：<a class="link"   target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A Survey on 3D Gaussian Splatting - 知乎 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
-<h4 id="自适应密度控制"><a href="#自适应密度控制" class="headerlink" title="自适应密度控制"></a>自适应密度控制</h4><p><img  
+                     
+alt="球谐函数" 
+                >
+<figcaption aria-hidden="true">球谐函数</figcaption>
+</figure>
+<p>（图源：<a class="link" 
+ target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
+Survey on 3D Gaussian Splatting - 知乎 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+<h4 id="自适应密度控制">自适应密度控制</h4>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
-                      alt="自适应密度控制"
-                ></p>
+                     
+alt="自适应密度控制" 
+                >
+<figcaption aria-hidden="true">自适应密度控制</figcaption>
+</figure>
 <ul>
-<li><strong>Under-Reconstruction</strong>: 复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
-<li><strong>Over-Reconstruction</strong>: 将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
+<li><strong>Under-Reconstruction</strong>:
+复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
+<li><strong>Over-Reconstruction</strong>:
+将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
 </ul>
-<h4 id="点的剪枝"><a href="#点的剪枝" class="headerlink" title="点的剪枝"></a>点的剪枝</h4><p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
-<h4 id="Tile"><a href="#Tile" class="headerlink" title="Tile"></a>Tile</h4><p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或 GPU 核心上同时计算，避免了对同一像素的竞争。</p>
-<h2 id="对比"><a href="#对比" class="headerlink" title="对比"></a>对比</h2><h3 id="场景绘制"><a href="#场景绘制" class="headerlink" title="场景绘制"></a>场景绘制</h3><ul>
+<h4 id="点的剪枝">点的剪枝</h4>
+<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
+<h4 id="tile">Tile</h4>
+<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
+GPU 核心上同时计算，避免了对同一像素的竞争。</p>
+<h2 id="对比">对比</h2>
+<h3 id="场景绘制">场景绘制</h3>
+<ul>
 <li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
-<li>3DGS 使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
+<li>3DGS
+使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
 </ul>
-<h3 id="3D重建"><a href="#3D重建" class="headerlink" title="3D重建"></a>3D重建</h3><ul>
+<h3 id="d重建">3D重建</h3>
+<ul>
 <li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
 <li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
 </ul>
-<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
+<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
+Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
 <table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 44%" />
+<col style="width: 44%" />
+</colgroup>
 <thead>
 <tr>
 <th><strong>对比维度</strong></th>
@@ -798,7 +887,8 @@
 <th>NeRF (Neural Radiance Fields)</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><strong>基本原理</strong></td>
 <td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
 <td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
@@ -840,7 +930,7 @@
 </tr>
 <tr>
 <td><strong>应用场景</strong></td>
-<td>自动驾驶、机器人导航、工业检测、3D建模、AR&#x2F;VR、精密测量。</td>
+<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
 <td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
 </tr>
 <tr>
@@ -873,8 +963,10 @@
 <td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
 <td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
 </tr>
-</tbody></table>
-<p>（表源：<a class="link"   target="_blank" rel="noopener" href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+</tbody>
+</table>
+<p>（表源：<a class="link" 
+ target="_blank" rel="noopener" href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
 
         </div>
 
@@ -915,11 +1007,11 @@
             <ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
+                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
                     </li>
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
+                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
                     </li>
                 
             </ul>
@@ -1028,7 +1120,7 @@
     <div class="post-toc">
         <div class="toc-title">On this page</div>
         <div class="page-title">NeRF和3DGS对比</div>
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#NeRF"><span class="nav-text">NeRF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84"><span class="nav-text">网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-text">相关工作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3D-Gaussian-Splatting"><span class="nav-text">3D Gaussian Splatting</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B-1"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82-1"><span class="nav-text">实现细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-text">对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E7%BB%98%E5%88%B6"><span class="nav-text">场景绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3D%E9%87%8D%E5%BB%BA"><span class="nav-text">3D重建</span></a></li></ol></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#nerf"><span class="nav-text">NeRF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84"><span class="nav-text">网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-text">相关工作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#d-gaussian-splatting"><span class="nav-text">3D Gaussian Splatting</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B-1"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82-1"><span class="nav-text">实现细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-text">对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E7%BB%98%E5%88%B6"><span class="nav-text">场景绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d%E9%87%8D%E5%BB%BA"><span class="nav-text">3D重建</span></a></li></ol></li></ol>
 
     </div>
 </div>
