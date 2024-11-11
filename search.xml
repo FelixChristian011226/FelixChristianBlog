@@ -837,8 +837,7 @@ the world body or to static children of the world.</p>
   <entry>
     <title>Mathjax与渲染引擎marked冲突解决方案</title>
     <url>/2024/11/11/build_blog/</url>
-    <content><![CDATA[<h2 id="mathjax与渲染引擎marked冲突">Mathjax与渲染引擎marked冲突</h2>
-<h3 id="问题说明">问题说明</h3>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
 <p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
 <h3 id="踩坑过程">踩坑过程</h3>
 <h4 id="修改源码失败">1.修改源码（失败）</h4>

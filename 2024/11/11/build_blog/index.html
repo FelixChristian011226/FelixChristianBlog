@@ -24,15 +24,15 @@
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="Mathjax与渲染引擎marked冲突 问题说明 hexo在解析markdown的时候，会对一些符号如_进行转义，将其转为&lt;em&gt;标签。而在公式块中，_是作为渲染下标所用的符号。但是hexo的优先级比mathjax更高，且不会判断_是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的_被当成斜体渲染，导致两个公式都没正常渲染出来。">
+        <meta name="description" content="问题说明 hexo在解析markdown的时候，会对一些符号如_进行转义，将其转为&lt;em&gt;标签。而在公式块中，_是作为渲染下标所用的符号。但是hexo的优先级比mathjax更高，且不会判断_是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的_被当成斜体渲染，导致两个公式都没正常渲染出来。 踩坑过程 1.修改源码（失败） 太长了，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mathjax与渲染引擎marked冲突解决方案">
 <meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/11/11/build_blog/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Mathjax与渲染引擎marked冲突 问题说明 hexo在解析markdown的时候，会对一些符号如_进行转义，将其转为&lt;em&gt;标签。而在公式块中，_是作为渲染下标所用的符号。但是hexo的优先级比mathjax更高，且不会判断_是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的_被当成斜体渲染，导致两个公式都没正常渲染出来。">
+<meta property="og:description" content="问题说明 hexo在解析markdown的时候，会对一些符号如_进行转义，将其转为&lt;em&gt;标签。而在公式块中，_是作为渲染下标所用的符号。但是hexo的优先级比mathjax更高，且不会判断_是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的_被当成斜体渲染，导致两个公式都没正常渲染出来。 踩坑过程 1.修改源码（失败） 太长了，">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-11T06:02:00.000Z">
-<meta property="article:modified_time" content="2024-11-11T06:40:51.664Z">
+<meta property="article:modified_time" content="2024-11-11T06:52:06.377Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="blog">
 <meta property="article:tag" content="mathjax">
@@ -80,7 +80,7 @@
 
     <script id="hexo-configurations">
     window.config = {"hostname":"felixchristian.fra1.zeabur.app","root":"/","language":"en","path":"search.xml"};
-    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":"#FFA500","default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":true,"custom_message":null},"open_graph":true,"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/backgroud_light.jpg","dark":"/images/backgroud_dark.jpg"},"title":"Felix Christian's Blog","subtitle":{"text":["Felix Christian的个人博客"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"center","links":{"github":"https://github.com/FelixChristian011226","instagram":null,"zhihu":null,"twitter":null,"email":"3200105627@zju.edu.cn","facebook":"https://www.facebook.com/profile.php?id=100021040783510&mibextid=ZbWKwL","youtube":"https://www.youtube.com/@felix-christian","discord":"https://discordapp.com/users/1166802766669287434"},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.7.3","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"icon":"fa-solid fa-tags","path":"/tags/"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/FelixChristian011226","Blog":"https://felixchristian.fra1.zeabur.app/"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":5}},"footerStart":"2024/11/5 16:26:14"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":true,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":"#FFA500","default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":true,"custom_message":null},"open_graph":true,"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/backgroud_light.jpg","dark":"/images/backgroud_dark.jpg"},"title":"Felix Christian's Blog","subtitle":{"text":["Felix Christian的个人博客"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"center","links":{"github":"https://github.com/FelixChristian011226","instagram":null,"zhihu":null,"twitter":null,"email":"3200105627@zju.edu.cn","facebook":"https://www.facebook.com/profile.php?id=100021040783510&mibextid=ZbWKwL","youtube":"https://www.youtube.com/@felix-christian","discord":"https://discordapp.com/users/1166802766669287434"},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.7.3","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"icon":"fa-solid fa-tags","path":"/tags/"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/FelixChristian011226","Blog":"https://felixchristian.fra1.zeabur.app/"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":5}},"footerStart":"2024/11/5 16:26:14"};
     window.lang_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
     window.data = {"masonry":false};
   </script>
@@ -722,8 +722,8 @@ mjx-container[display="true"] + br {
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2024-11-11 14:40:51</span>
-            <span class="mobile">2024-11-11 14:40:51</span>
+            <span class="desktop">2024-11-11 14:52:06</span>
+            <span class="mobile">2024-11-11 14:52:06</span>
             <span class="hover-info">Updated</span>
         </span>
     
@@ -769,7 +769,7 @@ mjx-container[display="true"] + br {
     
     
         <span class="article-wordcount article-meta-item">
-            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>1k Words</span>
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>993 Words</span>
         </span>
     
     
@@ -793,8 +793,7 @@ mjx-container[display="true"] + br {
 
 
         <div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
-            <h2 id="mathjax与渲染引擎marked冲突">Mathjax与渲染引擎marked冲突</h2>
-<h3 id="问题说明">问题说明</h3>
+            <h3 id="问题说明">问题说明</h3>
 <p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
 <h3 id="踩坑过程">踩坑过程</h3>
 <h4 id="修改源码失败">1.修改源码（失败）</h4>
@@ -849,7 +848,7 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
         
             <li>
                 <strong>Updated at
-                    :</strong> 2024-11-11 14:40:51
+                    :</strong> 2024-11-11 14:52:06
             </li>
         
         <li>
@@ -977,7 +976,7 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
     <div class="post-toc">
         <div class="toc-title">On this page</div>
         <div class="page-title">Mathjax与渲染引擎marked冲突解决方案</div>
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#mathjax%E4%B8%8E%E6%B8%B2%E6%9F%93%E5%BC%95%E6%93%8Emarked%E5%86%B2%E7%AA%81"><span class="nav-text">Mathjax与渲染引擎marked冲突</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%AF%B4%E6%98%8E"><span class="nav-text">问题说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B8%A9%E5%9D%91%E8%BF%87%E7%A8%8B"><span class="nav-text">踩坑过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">解决方案</span></a></li></ol></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%AF%B4%E6%98%8E"><span class="nav-text">问题说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B8%A9%E5%9D%91%E8%BF%87%E7%A8%8B"><span class="nav-text">踩坑过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">解决方案</span></a></li></ol>
 
     </div>
 </div>
