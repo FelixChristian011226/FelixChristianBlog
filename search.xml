@@ -967,7 +967,7 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
   </entry>
   <entry>
     <title>NeRF Studio踩坑过程</title>
-    <url>/2024/10/30/NeRF_Studio/</url>
+    <url>/2024/11/12/NeRF_Studio/</url>
     <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
 <p><a class="link" 
  href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>写的教程已经很详尽了。</p>
