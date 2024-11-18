@@ -1015,7 +1015,7 @@ nerfstudio-project/gsplat <i class="fa-regular fa-arrow-up-right-from-square fa-
                      data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
                       alt="error4" style="zoom:80%;" 
                 ></p>
-<p>这下解决不了了，感觉是内存不够了。租了个服务器跑发现就不会出现这个报错。</p>
+<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
 ]]></content>
       <categories>
         <category>三维重建</category>
