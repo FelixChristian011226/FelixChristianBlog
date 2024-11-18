@@ -897,11 +897,9 @@ mjx-container[display="true"] + br {
 
                     <div class="home-article-content markdown-body">
                         
-                            
-                            安装NeRF Studio
-官方仓库 写的教程已经很详尽了。
-1234git clone https://github.com/nerfstudio-project/nerfstudio.gitcd nerfstudiopip install --upgrade pip setuptoolspip install -e .
-值得注意的是，open3d库只支持python 3.8-3.1...
+                            <p>本文分享了在安装和使用NeRF
+Studio过程中遇到的一些常见问题和解决方法，包括Python版本兼容性、加速库安装以及配置环境变量等方面的经验教训。</p>
+
                         
                     </div>
 
@@ -1051,12 +1049,8 @@ mjx-container[display="true"] + br {
 
                     <div class="home-article-content markdown-body">
                         
-                            
-                            背景
-Sim2Real是机器人技术中的一个核心问题，涉及将模拟环境中学到的控制策略转移到现实世界环境中。目前的方法基本都依赖于深度、触觉传感或点云输入等感知方式。相比之下，RGB
-图像很少用作机器人学习应用中的主要传感方式。优于 Sim2Real
-传输中的其他常用方式。它们捕捉关键的视觉细节，例如颜色、纹理、照明和表面反射率等，这对于理解复杂的环境至关重要。此外，RGB
-图像很容易在...
+                            <p>为了在Sim2Real任务中有效地应对模拟与现实世界之间的差距，论文提出了一种新的方法，结合了高斯分布渲染和模拟器数据生成，显著提高了策略的鲁棒性，并取得了很好的零样本部署效果。通过扩展模拟器演示，结合数据增强技术，策略在现实世界的多个任务中实现了较高的成功率，证明了其有效性与高效性。此外，实验还展示了渲染图像在不同机器人关节配置下与真实世界图像的接近度，进一步验证了该方法在处理复杂动态环境时的潜力。</p>
+
                         
                     </div>
 
@@ -1218,7 +1212,8 @@ V2》论文，介绍了3DGS与NeRF结合的新方法用于评估图像质量与�
 
                     <div class="home-article-content markdown-body">
                         
-                            <p>简要介绍NeRF和3DGS的原理和流程，并比较它们在场景绘制、3D重建等方面的优缺点</p>
+                            <p>本文简要地介绍了NeRF（Neural Radiance Fields）和3DGS（3D Gaussian
+Splatting）的原理与流程，并对它们在场景绘制和3D重建等方面进行了对比。NeRF采用神经网络进行3D场景表示，通过体积渲染实现高质量的图像生成，但渲染速度较慢，需要通过其他方法将其转换为显式输出（如NeRF2Mesh）。相比之下，3DGS使用高斯分布表示3D场景，通过光栅化渲染生成图像，速度较快，但内存占用较高，并且直接输出显式的3D数据结构。</p>
 
                         
                     </div>
@@ -1369,14 +1364,8 @@ V2》论文，介绍了3DGS与NeRF结合的新方法用于评估图像质量与�
 
                     <div class="home-article-content markdown-body">
                         
-                            
-                            Collision
-Computation
-- MuJoCo Documentation 
+                            <p>在MuJoCo中，碰撞检测仅限于凸几何体，所有原始几何体类型都是凸的。对于用户定义的网格，虽然可以是非凸的，但为了碰撞检测，它们会被替换为凸包。为了模拟非凸对象，用户需要将其分解为凸几何体的并集，使用工具如CoACD库可以简化这一过程，从而保证更快且稳定的仿真。</p>
 
-We have chosen to limit collision detection to convex geoms.
-All primitive types are convex. Height fields are not convex but
-internally they ar...
                         
                     </div>
 
