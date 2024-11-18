@@ -973,12 +973,8 @@ mjx-container[display="true"] + br {
 
                     <div class="home-article-content markdown-body">
                         
-                            
-                            问题说明
-hexo在解析markdown的时候，会对一些符号如_进行转义，将其转为&lt;em&gt;标签。而在公式块中，_是作为渲染下标所用的符号。但是hexo的优先级比mathjax更高，且不会判断_是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的_被当成斜体渲染，导致两个公式都没正常渲染出来。
-踩坑过程
-1.修改源码（失败）
-太...
+                            <p>Hexo在使用MathJax渲染公式时，与默认Markdown解析引擎marked存在冲突，导致公式中的下划线无法正确显示。本文记录了解决方案，包括修改marked源码、更换引擎及安装Pandoc，最终成功实现公式的正确渲染，并提供详细操作步骤和经验分享。</p>
+
                         
                     </div>
 
@@ -1140,7 +1136,8 @@ Sim2Real是机器人技术中的一个核心问题，涉及将模拟环境中学
 
                     <div class="home-article-content markdown-body">
                         
-                            <p>论文提出新数据集的优越性，并对基于NeRF和基于3DGS方法的图像渲染和三维重建的效果比较，指出其优劣之处。</p>
+                            <p>本文解读了《GauU-Scene
+V2》论文，介绍了3DGS与NeRF结合的新方法用于评估图像质量与几何可靠性。文章详细探讨了数据集、评估指标（如PSNR、SSIM、LPIPS、倒角距离）、实验结果，并分析了不同方法在图像渲染和几何重建上的优缺点。</p>
 
                         
                     </div>
@@ -1294,15 +1291,8 @@ Sim2Real是机器人技术中的一个核心问题，涉及将模拟环境中学
 
                     <div class="home-article-content markdown-body">
                         
-                            
-                            CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。
-安装教程
-(1) 克隆代码：
-1git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git
-(2) 安装依赖：
-12cmake &gt;= 3.24g++ &gt;= 9, &lt; 12
+                            <p>本文介绍了CoACD工具的安装与使用，CoACD可用于将凹形模型分解为凸几何体的并集。文章详细讲解了克隆代码、安装依赖、编译过程及基本使用方法，并提供了常用参数的说明，帮助用户优化分解效果与运行效率。</p>
 
-在我的Ubuntu22.04中，ap...
                         
                     </div>
 
@@ -1463,12 +1453,8 @@ internally they ar...
 
                     <div class="home-article-content markdown-body">
                         
-                            
-                            
-The hfield type defines a height field geom. The
-geom must reference the desired height field asset with the hfield
-attribute below. The position and orientation of the geom set the
-position a...
+                            <p>在MuJoCo中，高场（hfield）是一种特殊的几何体类型，用于表示基于高度图的地形。它可以通过PNG图像或二进制文件加载高度数据，生成一个三维的地形表面。本文将详细介绍如何使用MuJoCo的hfield元素加载和设置高场数据。</p>
+
                         
                     </div>
 

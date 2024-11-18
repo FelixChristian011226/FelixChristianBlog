@@ -2,6 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/09/26/hfield/</loc>
+    
+    <lastmod>2024-11-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/11/05/GauU_Scene_V2/</loc>
+    
+    <lastmod>2024-11-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/09/29/CoACD_notes/</loc>
+    
+    <lastmod>2024-11-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/11/11/build_blog/</loc>
+    
+    <lastmod>2024-11-18</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.fra1.zeabur.app/2024/11/12/NeRF_Studio/</loc>
     
     <lastmod>2024-11-18</lastmod>
@@ -14,15 +50,6 @@
     <loc>https://felixchristian.fra1.zeabur.app/2024/11/06/SplatSim/</loc>
     
     <lastmod>2024-11-12</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/11/11/build_blog/</loc>
-    
-    <lastmod>2024-11-11</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -56,24 +83,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/11/05/GauU_Scene_V2/</loc>
-    
-    <lastmod>2024-11-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/09/26/hfield/</loc>
-    
-    <lastmod>2024-11-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.fra1.zeabur.app/about/index.html</loc>
     
     <lastmod>2024-11-05</lastmod>
@@ -84,15 +93,6 @@
   
   <url>
     <loc>https://felixchristian.fra1.zeabur.app/categories/index.html</loc>
-    
-    <lastmod>2024-11-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/09/29/CoACD_notes/</loc>
     
     <lastmod>2024-11-05</lastmod>
     
