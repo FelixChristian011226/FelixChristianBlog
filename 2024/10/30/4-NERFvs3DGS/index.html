@@ -19,25 +19,32 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="https://felixchristian.fra1.zeabur.app/2024/11/11/build_blog/"/>
+    <link rel="canonical" href="https://felixchristian.fra1.zeabur.app/2024/10/30/4-nerfvs3dgs/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="Hexo在使用MathJax渲染公式时，与默认Markdown解析引擎marked存在冲突，导致公式中的下划线无法正确显示。本文记录了解决方案，包括修改marked源码、更换引擎及安装Pandoc，最终成功实现公式的正确渲染，并提供详细操作步骤和经验分享。">
+        <meta name="description" content="本文简要地介绍了NeRF（Neural Radiance Fields）和3DGS（3D Gaussian Splatting）的原理与流程，并对它们在场景绘制和3D重建等方面进行了对比。NeRF采用神经网络进行3D场景表示，通过体积渲染实现高质量的图像生成，但渲染速度较慢，需要通过其他方法将其转换为显式输出（如NeRF2Mesh）。相比之下，3DGS使用高斯分布表示3D场景，通过光栅化渲染生成图">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Mathjax与渲染引擎marked冲突解决方案">
-<meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/11/11/build_blog/index.html">
+<meta property="og:title" content="NeRF和3DGS对比">
+<meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/10/30/4-NERFvs3DGS/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="Hexo在使用MathJax渲染公式时，与默认Markdown解析引擎marked存在冲突，导致公式中的下划线无法正确显示。本文记录了解决方案，包括修改marked源码、更换引擎及安装Pandoc，最终成功实现公式的正确渲染，并提供详细操作步骤和经验分享。">
+<meta property="og:description" content="本文简要地介绍了NeRF（Neural Radiance Fields）和3DGS（3D Gaussian Splatting）的原理与流程，并对它们在场景绘制和3D重建等方面进行了对比。NeRF采用神经网络进行3D场景表示，通过体积渲染实现高质量的图像生成，但渲染速度较慢，需要通过其他方法将其转换为显式输出（如NeRF2Mesh）。相比之下，3DGS使用高斯分布表示3D场景，通过光栅化渲染生成图">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-11-11T06:02:00.000Z">
-<meta property="article:modified_time" content="2024-11-18T10:17:53.555Z">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png">
+<meta property="article:published_time" content="2024-10-30T11:07:05.000Z">
+<meta property="article:modified_time" content="2024-11-18T10:25:03.789Z">
 <meta property="article:author" content="John Doe">
-<meta property="article:tag" content="blog">
-<meta property="article:tag" content="mathjax">
-<meta property="article:tag" content="marked">
+<meta property="article:tag" content="NeRF">
+<meta property="article:tag" content="3DGS">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png">
     
     
     <!--- Icon Part-->
@@ -49,7 +56,7 @@
     
     <title>
         
-            Mathjax与渲染引擎marked冲突解决方案 | FelixChristian&#39;s Blog
+            NeRF和3DGS对比 | FelixChristian&#39;s Blog
         
     </title>
 
@@ -94,119 +101,7 @@
     
     
     
-<meta name="generator" content="Hexo 7.3.0"><style>mjx-container[jax="SVG"] {
-  direction: ltr;
-}
-
-mjx-container[jax="SVG"] > svg {
-  overflow: visible;
-}
-
-mjx-container[jax="SVG"][display="true"] {
-  display: block;
-  text-align: center;
-  margin: 1em 0;
-}
-
-mjx-container[jax="SVG"][justify="left"] {
-  text-align: left;
-}
-
-mjx-container[jax="SVG"][justify="right"] {
-  text-align: right;
-}
-
-g[data-mml-node="merror"] > g {
-  fill: red;
-  stroke: red;
-}
-
-g[data-mml-node="merror"] > rect[data-background] {
-  fill: yellow;
-  stroke: none;
-}
-
-g[data-mml-node="mtable"] > line[data-line] {
-  stroke-width: 70px;
-  fill: none;
-}
-
-g[data-mml-node="mtable"] > rect[data-frame] {
-  stroke-width: 70px;
-  fill: none;
-}
-
-g[data-mml-node="mtable"] > .mjx-dashed {
-  stroke-dasharray: 140;
-}
-
-g[data-mml-node="mtable"] > .mjx-dotted {
-  stroke-linecap: round;
-  stroke-dasharray: 0,140;
-}
-
-g[data-mml-node="mtable"] > svg {
-  overflow: visible;
-}
-
-[jax="SVG"] mjx-tool {
-  display: inline-block;
-  position: relative;
-  width: 0;
-  height: 0;
-}
-
-[jax="SVG"] mjx-tool > mjx-tip {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-mjx-tool > mjx-tip {
-  display: inline-block;
-  padding: .2em;
-  border: 1px solid #888;
-  font-size: 70%;
-  background-color: #F8F8F8;
-  color: black;
-  box-shadow: 2px 2px 5px #AAAAAA;
-}
-
-g[data-mml-node="maction"][data-toggle] {
-  cursor: pointer;
-}
-
-mjx-status {
-  display: block;
-  position: fixed;
-  left: 1em;
-  bottom: 1em;
-  min-width: 25%;
-  padding: .2em .4em;
-  border: 1px solid #888;
-  font-size: 90%;
-  background-color: #F8F8F8;
-  color: black;
-}
-
-foreignObject[data-mjx-xml] {
-  font-family: initial;
-  line-height: normal;
-  overflow: visible;
-}
-
-.MathJax path {
-  stroke-width: 3;
-}
-
-mjx-container[display="true"] {
-  overflow: auto hidden;
-}
-
-mjx-container[display="true"] + br {
-  display: none;
-}
-</style></head>
+<meta name="generator" content="Hexo 7.3.0"></head>
 
 
 <body>
@@ -693,8 +588,12 @@ mjx-container[display="true"] + br {
 
         <div class="article-title relative w-full">
             
-                <div class="w-full flex items-center pt-6 justify-start">
-                    <h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">Mathjax与渲染引擎marked冲突解决方案</h1>
+                
+                
+                <img src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png" alt="NeRF和3DGS对比" class="w-full h-60 sm:h-72 md:h-80 object-cover sm:rounded-t-large dark:brightness-75"/>
+                
+                <div class="w-full flex items-center absolute bottom-0 justify-start">
+                    <h1 class="article-title-cover text-center mx-6 my-6 text-second-text-color bg-background-color-transparent px-4 py-3 text-3xl sm:text-4xl md:text-5xl font-semibold backdrop-blur-lg rounded-xl border border-border-color ">NeRF和3DGS对比</h1>
                 </div>
             
             </div>
@@ -715,15 +614,15 @@ mjx-container[display="true"] + br {
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-pen-fancy"></i>&nbsp;
-        <span class="desktop">2024-11-11 14:02</span>
-        <span class="mobile">2024-11-11 14:02</span>
+        <span class="desktop">2024-10-30 19:07:05</span>
+        <span class="mobile">2024-10-30 19:07:05</span>
         <span class="hover-info">Created</span>
     </span>
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2024-11-18 18:17:53</span>
-            <span class="mobile">2024-11-18 18:17:53</span>
+            <span class="desktop">2024-11-18 18:25:03</span>
+            <span class="mobile">2024-11-18 18:25:03</span>
             <span class="hover-info">Updated</span>
         </span>
     
@@ -737,7 +636,7 @@ mjx-container[display="true"] + br {
                     
                         
                         <li>
-                            <a href="/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/">博客搭建</a>&nbsp;
+                            <a href="/categories/%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/">三维重建</a>&nbsp;
                         </li>
                     
                     
@@ -751,15 +650,11 @@ mjx-container[display="true"] + br {
             <ul>
                 
                     <li>
-                        <a href="/tags/blog/">blog</a>&nbsp;
+                        <a href="/tags/NeRF/">NeRF</a>&nbsp;
                     </li>
                 
                     <li>
-                        | <a href="/tags/mathjax/">mathjax</a>&nbsp;
-                    </li>
-                
-                    <li>
-                        | <a href="/tags/marked/">marked</a>&nbsp;
+                        | <a href="/tags/3DGS/">3DGS</a>&nbsp;
                     </li>
                 
             </ul>
@@ -769,12 +664,12 @@ mjx-container[display="true"] + br {
     
     
         <span class="article-wordcount article-meta-item">
-            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>993 Words</span>
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>2.9k Words</span>
         </span>
     
     
         <span class="article-min2read article-meta-item">
-            <i class="fa-regular fa-clock"></i>&nbsp;<span>4 Mins</span>
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>10 Mins</span>
         </span>
     
     
@@ -793,47 +688,285 @@ mjx-container[display="true"] + br {
 
 
         <div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
-            <h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class="content">
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
+            <h2 id="nerf">NeRF</h2>
+<h3 id="原理">原理</h3>
+<p>NeRF（Neural Radiance
+Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
+的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
+<p>特点：</p>
+<ul>
+<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
+<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
+</ul>
+<h3 id="流程">流程</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
+                     
+alt="Refer" 
+                >
+<figcaption aria-hidden="true">Refer</figcaption>
+</figure>
 <ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link" target="_blank" rel="noopener" href="https://pandoc.org/installing.html">Pandoc -
-Installing
-pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
+<li><strong>输入信息</strong>：NeRF
+将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
+<li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
+<li><strong>体渲染技术</strong>：NeRF
+使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
+<li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
+<li><strong>生成新视角</strong>：训练完成后，NeRF
+能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
 </ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
+<h3 id="网络结构">网络结构</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
+                     
+alt="network" 
+                >
+<figcaption aria-hidden="true">network</figcaption>
+</figure>
+<ul>
+<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
+</ul>
+<h3 id="实现细节">实现细节</h3>
+<h4 id="mlp网络">MLP网络</h4>
+<ul>
+<li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
+<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
+features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
+<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
+connection），帮助网络在深层结构中保持空间信息的细节。</li>
+</ul>
+<h4 id="位置编码">位置编码</h4>
+<ul>
+<li>NeRF
+使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
+Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
+<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
+(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
+</ul>
+<h4 id="体渲染">体渲染</h4>
+<p>​
+从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
+bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​ 获得像素颜色的公式：</p>
+<p>​ <img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
+                     
+alt="color" 
+                ></p>
+<p>​ 这个式子积分里面是<code>T(t)</code>
+、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<h3 id="相关工作">相关工作</h3>
+<h4 id="nerf2mesh">NeRF2Mesh</h4>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
+                     
+alt="NeRF2Mesh" 
+                >
+<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
+</figure>
+<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
+Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
+<ul>
+<li><strong>密度分支 (Density
+field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
+Cubes生成三角网格，再进行优化。</li>
+<li><strong>外观分支 (Appearance
+Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
+</ul>
+<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
+<h3 id="原理-1">原理</h3>
+<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
+空间中的点云，将场景中的点用 3D
+高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
+<p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
+<h3 id="流程-1">流程</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
+                     
+alt="3DGS" 
+                >
+<figcaption aria-hidden="true">3DGS</figcaption>
+</figure>
+<ol type="1">
+<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
+<a class="link" 
+ href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+库操作</li>
+<li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
+<li><strong>投影变换</strong>：通过投影操作将 3D
+高斯分布映射到相机视角下的 2D 图像平面。</li>
+<li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
+<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
+Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
+</ol>
+<h3 id="实现细节-1">实现细节</h3>
+<h4 id="三维高斯属性">三维高斯属性</h4>
+<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
+<p>球谐函数的示例：</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
+                     
+alt="球谐函数" 
+                >
+<figcaption aria-hidden="true">球谐函数</figcaption>
+</figure>
+<p>（图源：<a class="link" 
+ target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
+Survey on 3D Gaussian Splatting - 知乎 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+<h4 id="自适应密度控制">自适应密度控制</h4>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
+                     
+alt="自适应密度控制" 
+                >
+<figcaption aria-hidden="true">自适应密度控制</figcaption>
+</figure>
+<ul>
+<li><strong>Under-Reconstruction</strong>:
+复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
+<li><strong>Over-Reconstruction</strong>:
+将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
+</ul>
+<h4 id="点的剪枝">点的剪枝</h4>
+<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
+<h4 id="tile">Tile</h4>
+<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
+GPU 核心上同时计算，避免了对同一像素的竞争。</p>
+<h2 id="对比">对比</h2>
+<h3 id="场景绘制">场景绘制</h3>
+<ul>
+<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
+<li>3DGS
+使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
+</ul>
+<h3 id="d重建">3D重建</h3>
+<ul>
+<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
+<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
+</ul>
+<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
+Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 44%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th><strong>对比维度</strong></th>
+<th>3DGS (3D Geometry Sensing)</th>
+<th>NeRF (Neural Radiance Fields)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>基本原理</strong></td>
+<td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
+<td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
+</tr>
+<tr>
+<td><strong>输入数据</strong></td>
+<td>多视角图像、深度信息（LiDAR、ToF相机）、位姿数据、点云。</td>
+<td>多视角图像（通常包括相机位姿），不需要显式的几何信息。</td>
+</tr>
+<tr>
+<td><strong>输出结果</strong></td>
+<td>点云、网格、三角形模型、深度图、纹理映射等显式几何结构。</td>
+<td>通过体积渲染生成逼真图像（视角相关），不直接输出几何模型。</td>
+</tr>
+<tr>
+<td><strong>数据处理方式</strong></td>
+<td>使用几何关系（如三角测量、立体视觉等）来显式重建场景结构。</td>
+<td>使用神经网络隐式建模颜色和密度，通过体积渲染生成图像。</td>
+</tr>
+<tr>
+<td><strong>几何信息</strong></td>
+<td>显式获取3D几何信息，可以精确测量物体的距离和形状。</td>
+<td>隐式推断几何信息，主要用于图像渲染，几何结构不直接输出。</td>
+</tr>
+<tr>
+<td><strong>渲染效果</strong></td>
+<td>依赖于重建的几何结构，渲染效果有限，尤其在复杂光线场景下效果一般。</td>
+<td>渲染效果非常逼真，尤其在反射、遮挡、折射等复杂光照场景表现优异。</td>
+</tr>
+<tr>
+<td><strong>计算资源需求</strong></td>
+<td>需要较强的几何计算能力，数据获取通常依赖于多传感器系统（LiDAR等）。</td>
+<td>需要高计算资源，特别是训练神经网络的过程计算量大，通常依赖于GPU。</td>
+</tr>
+<tr>
+<td><strong>渲染速度</strong></td>
+<td>实时性较好，特别是有深度传感器时可实现快速重建。</td>
+<td>渲染速度较慢，尤其在训练阶段耗时长，但有即时渲染版本。</td>
+</tr>
+<tr>
+<td><strong>应用场景</strong></td>
+<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
+<td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
+</tr>
+<tr>
+<td><strong>优点</strong></td>
+<td>可以显式建模、精确几何测量、适用于实时应用；深度传感器辅助时重建精度高。</td>
+<td>渲染质量极高，能处理复杂的光照、遮挡问题；不需要昂贵的深度传感器。</td>
+</tr>
+<tr>
+<td><strong>缺点</strong></td>
+<td>在处理复杂光照（如透明物体、反射面）时效果不佳，依赖昂贵的传感器数据。</td>
+<td>渲染速度慢，训练时间长，初始设计不擅长生成明确的几何信息。</td>
+</tr>
+<tr>
+<td><strong>几何建模精度</strong></td>
+<td>高，适合用于需要精确几何信息的场景（如测量、导航、物理模拟等）。</td>
+<td>几何建模是隐式的，主要依赖于神经网络推断，不适合用于测量等任务。</td>
+</tr>
+<tr>
+<td><strong>光照处理</strong></td>
+<td>处理复杂光线条件较困难，通常需要额外的算法来应对光线反射和折射。</td>
+<td>对复杂光照场景处理效果出色，能够处理反射、折射、遮挡等问题。</td>
+</tr>
+<tr>
+<td><strong>实时性</strong></td>
+<td>实时性较强，特别是在配合LiDAR等传感器时。</td>
+<td>需要较长的时间进行训练和渲染，不适合实时应用（加速版本除外）。</td>
+</tr>
+<tr>
+<td><strong>数据获取成本</strong></td>
+<td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
+<td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
+</tr>
+</tbody>
+</table>
+<p>（表源：<a class="link" 
+ target="_blank" rel="noopener" href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
 
         </div>
 
@@ -841,18 +974,18 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
             <div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
                 <div class="article-copyright-info-container">
     <ul>
-        <li><strong>Title:</strong> Mathjax与渲染引擎marked冲突解决方案</li>
+        <li><strong>Title:</strong> NeRF和3DGS对比</li>
         <li><strong>Author:</strong> Felix Christian</li>
         <li><strong>Created at
-                :</strong> 2024-11-11 14:02:00</li>
+                :</strong> 2024-10-30 19:07:05</li>
         
             <li>
                 <strong>Updated at
-                    :</strong> 2024-11-18 18:17:53
+                    :</strong> 2024-11-18 18:25:03
             </li>
         
         <li>
-            <strong>Link:</strong> https://felixchristian.fra1.zeabur.app/2024/11/11/build_blog/
+            <strong>Link:</strong> https://felixchristian.fra1.zeabur.app/2024/10/30/4-NERFvs3DGS/
         </li>
         <li>
             <strong>
@@ -874,15 +1007,11 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
             <ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/blog/">#blog</a>&nbsp;
+                        <a href="/tags/NeRF/">#NeRF</a>&nbsp;
                     </li>
                 
                     <li class="tag-item mx-0.5">
-                        <a href="/tags/mathjax/">#mathjax</a>&nbsp;
-                    </li>
-                
-                    <li class="tag-item mx-0.5">
-                        <a href="/tags/marked/">#marked</a>&nbsp;
+                        <a href="/tags/3DGS/">#3DGS</a>&nbsp;
                     </li>
                 
             </ul>
@@ -896,13 +1025,13 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
                     <div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
                         <a class="prev"
                         rel="prev"
-                        href="/2024/11/12/NeRF_Studio/"
+                        href="/2024/11/05/5-GauU_Scene_V2/"
                         >
                             <span class="left arrow-icon flex justify-center items-center">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </span>
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">NeRF Studio踩坑过程</span>
+                                <span class="post-nav-title-item">GauU-Scene V2 论文解读</span>
                                 <span class="post-nav-item">Prev posts</span>
                             </span>
                         </a>
@@ -912,10 +1041,10 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
                     <div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
                         <a class="next"
                         rel="next"
-                        href="/2024/11/06/SplatSim/"
+                        href="/2024/09/29/3-CoACD_notes/"
                         >
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">SplatSim 论文解读</span>
+                                <span class="post-nav-title-item">Mujoco - CoACD简略教程</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex justify-center items-center">
@@ -990,8 +1119,8 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
             <div class="post-toc-wrap">
     <div class="post-toc">
         <div class="toc-title">On this page</div>
-        <div class="page-title">Mathjax与渲染引擎marked冲突解决方案</div>
-        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%AF%B4%E6%98%8E"><span class="nav-text">问题说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B8%A9%E5%9D%91%E8%BF%87%E7%A8%8B"><span class="nav-text">踩坑过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">解决方案</span></a></li></ol>
+        <div class="page-title">NeRF和3DGS对比</div>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#nerf"><span class="nav-text">NeRF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84"><span class="nav-text">网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-text">相关工作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#d-gaussian-splatting"><span class="nav-text">3D Gaussian Splatting</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B-1"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82-1"><span class="nav-text">实现细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-text">对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E7%BB%98%E5%88%B6"><span class="nav-text">场景绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d%E9%87%8D%E5%BB%BA"><span class="nav-text">3D重建</span></a></li></ol></li></ol>
 
     </div>
 </div>

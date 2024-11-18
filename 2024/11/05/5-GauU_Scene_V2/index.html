@@ -19,32 +19,42 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="https://felixchristian.fra1.zeabur.app/2024/10/30/nerfvs3dgs/"/>
+    <link rel="canonical" href="https://felixchristian.fra1.zeabur.app/2024/11/05/5-gauu_scene_v2/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="本文简要地介绍了NeRF（Neural Radiance Fields）和3DGS（3D Gaussian Splatting）的原理与流程，并对它们在场景绘制和3D重建等方面进行了对比。NeRF采用神经网络进行3D场景表示，通过体积渲染实现高质量的图像生成，但渲染速度较慢，需要通过其他方法将其转换为显式输出（如NeRF2Mesh）。相比之下，3DGS使用高斯分布表示3D场景，通过光栅化渲染生成图">
+        <meta name="description" content="本文解读了《GauU-Scene V2》论文，介绍了3DGS与NeRF结合的新方法用于评估图像质量与几何可靠性。文章详细探讨了数据集、评估指标（如PSNR、SSIM、LPIPS、倒角距离）、实验结果，并分析了不同方法在图像渲染和几何重建上的优缺点。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="NeRF和3DGS对比">
-<meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/10/30/NERFvs3DGS/index.html">
+<meta property="og:title" content="GauU-Scene V2 论文解读">
+<meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/11/05/5-GauU_Scene_V2/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="本文简要地介绍了NeRF（Neural Radiance Fields）和3DGS（3D Gaussian Splatting）的原理与流程，并对它们在场景绘制和3D重建等方面进行了对比。NeRF采用神经网络进行3D场景表示，通过体积渲染实现高质量的图像生成，但渲染速度较慢，需要通过其他方法将其转换为显式输出（如NeRF2Mesh）。相比之下，3DGS使用高斯分布表示3D场景，通过光栅化渲染生成图">
+<meta property="og:description" content="本文解读了《GauU-Scene V2》论文，介绍了3DGS与NeRF结合的新方法用于评估图像质量与几何可靠性。文章详细探讨了数据集、评估指标（如PSNR、SSIM、LPIPS、倒角距离）、实验结果，并分析了不同方法在图像渲染和几何重建上的优缺点。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg">
-<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png">
-<meta property="article:published_time" content="2024-10-30T11:07:05.000Z">
-<meta property="article:modified_time" content="2024-11-18T10:25:03.789Z">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d6245af1d4a65be444fc779e62074667.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d0eb05ab65303b4ae37eabbfc43212b7.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/cfd417d0ced2bd8f64a88b7fa799f8c5.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/ff69fd63d0e036d0866f420595dc2668.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9615320354732921de0c9a7268823ca3.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f82417d40a829e317089fc1240823192.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3765b0064f96885e010bb8eb3725455a.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/6ba650fa5b1715045873b1422610d366.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fdd23e8d54ad6380ebc851cd06a0a12d.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2c25811a255e9fb0702799148f56c8ed.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f83245b067971c4b84de5cd9895d823.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b6069787b5c845e9080f4ef1d4751090.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3472d29a30085a95fb9679362e2c9f49.png">
+<meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png">
+<meta property="article:published_time" content="2024-11-05T11:36:00.000Z">
+<meta property="article:modified_time" content="2024-11-18T10:19:31.998Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="NeRF">
 <meta property="article:tag" content="3DGS">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png">
+<meta name="twitter:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png">
     
     
     <!--- Icon Part-->
@@ -56,7 +66,7 @@
     
     <title>
         
-            NeRF和3DGS对比 | FelixChristian&#39;s Blog
+            GauU-Scene V2 论文解读 | FelixChristian&#39;s Blog
         
     </title>
 
@@ -590,10 +600,10 @@
             
                 
                 
-                <img src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png" alt="NeRF和3DGS对比" class="w-full h-60 sm:h-72 md:h-80 object-cover sm:rounded-t-large dark:brightness-75"/>
+                <img src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png" alt="GauU-Scene V2 论文解读" class="w-full h-60 sm:h-72 md:h-80 object-cover sm:rounded-t-large dark:brightness-75"/>
                 
                 <div class="w-full flex items-center absolute bottom-0 justify-start">
-                    <h1 class="article-title-cover text-center mx-6 my-6 text-second-text-color bg-background-color-transparent px-4 py-3 text-3xl sm:text-4xl md:text-5xl font-semibold backdrop-blur-lg rounded-xl border border-border-color ">NeRF和3DGS对比</h1>
+                    <h1 class="article-title-cover text-center mx-6 my-6 text-second-text-color bg-background-color-transparent px-4 py-3 text-3xl sm:text-4xl md:text-5xl font-semibold backdrop-blur-lg rounded-xl border border-border-color ">GauU-Scene V2 论文解读</h1>
                 </div>
             
             </div>
@@ -614,15 +624,15 @@
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
         <i class="fa-regular fa-pen-fancy"></i>&nbsp;
-        <span class="desktop">2024-10-30 19:07:05</span>
-        <span class="mobile">2024-10-30 19:07:05</span>
+        <span class="desktop">2024-11-05 19:36</span>
+        <span class="mobile">2024-11-05 19:36</span>
         <span class="hover-info">Created</span>
     </span>
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2024-11-18 18:25:03</span>
-            <span class="mobile">2024-11-18 18:25:03</span>
+            <span class="desktop">2024-11-18 18:19:31</span>
+            <span class="mobile">2024-11-18 18:19:31</span>
             <span class="hover-info">Updated</span>
         </span>
     
@@ -664,12 +674,12 @@
     
     
         <span class="article-wordcount article-meta-item">
-            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>2.9k Words</span>
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>1.2k Words</span>
         </span>
     
     
         <span class="article-min2read article-meta-item">
-            <i class="fa-regular fa-clock"></i>&nbsp;<span>10 Mins</span>
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>4 Mins</span>
         </span>
     
     
@@ -688,285 +698,318 @@
 
 
         <div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
-            <h2 id="nerf">NeRF</h2>
-<h3 id="原理">原理</h3>
-<p>NeRF（Neural Radiance
-Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
-的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
-<p>特点：</p>
-<ul>
-<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
-<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
-</ul>
-<h3 id="流程">流程</h3>
+            <p>论文：</p>
+<blockquote>
+<p>GauU-Scene V2: Assessing the Reliability of Image-Based Metrics with
+Expansive Lidar Image Dataset Using 3DGS and NeRF</p>
+</blockquote>
+<h2 id="数据集">数据集</h2>
 <figure>
 <img 
 
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png"
                      
-alt="Refer" 
+alt="dataset" 
                 >
-<figcaption aria-hidden="true">Refer</figcaption>
+<figcaption aria-hidden="true">dataset</figcaption>
 </figure>
-<ol type="1">
-<li><strong>输入信息</strong>：NeRF
-将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
-<li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
-<li><strong>体渲染技术</strong>：NeRF
-使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
-<li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
-<li><strong>生成新视角</strong>：训练完成后，NeRF
-能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
-</ol>
-<h3 id="网络结构">网络结构</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
-                     
-alt="network" 
-                >
-<figcaption aria-hidden="true">network</figcaption>
-</figure>
-<ul>
-<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
-</ul>
-<h3 id="实现细节">实现细节</h3>
-<h4 id="mlp网络">MLP网络</h4>
-<ul>
-<li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
-<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
-features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
-<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
-connection），帮助网络在深层结构中保持空间信息的细节。</li>
-</ul>
-<h4 id="位置编码">位置编码</h4>
-<ul>
-<li>NeRF
-使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
-Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
-<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
-(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
-</ul>
-<h4 id="体渲染">体渲染</h4>
-<p>​
-从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
-bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​ 获得像素颜色的公式：</p>
-<p>​ <img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
-                     
-alt="color" 
-                ></p>
-<p>​ 这个式子积分里面是<code>T(t)</code>
-、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
-<h3 id="相关工作">相关工作</h3>
-<h4 id="nerf2mesh">NeRF2Mesh</h4>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
-                     
-alt="NeRF2Mesh" 
-                >
-<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
-</figure>
-<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
-Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
-<ul>
-<li><strong>密度分支 (Density
-field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
-Cubes生成三角网格，再进行优化。</li>
-<li><strong>外观分支 (Appearance
-Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
-</ul>
-<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
-<h3 id="原理-1">原理</h3>
-<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
-空间中的点云，将场景中的点用 3D
-高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
-<p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
-<h3 id="流程-1">流程</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
-                     
-alt="3DGS" 
-                >
-<figcaption aria-hidden="true">3DGS</figcaption>
-</figure>
-<ol type="1">
-<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
-<a class="link" 
- href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
-库操作</li>
-<li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
-<li><strong>投影变换</strong>：通过投影操作将 3D
-高斯分布映射到相机视角下的 2D 图像平面。</li>
-<li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
-<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
-Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
-</ol>
-<h3 id="实现细节-1">实现细节</h3>
-<h4 id="三维高斯属性">三维高斯属性</h4>
-<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
-<p>球谐函数的示例：</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
-                     
-alt="球谐函数" 
-                >
-<figcaption aria-hidden="true">球谐函数</figcaption>
-</figure>
-<p>（图源：<a class="link" 
- target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
-Survey on 3D Gaussian Splatting - 知乎 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
-<h4 id="自适应密度控制">自适应密度控制</h4>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
-                     
-alt="自适应密度控制" 
-                >
-<figcaption aria-hidden="true">自适应密度控制</figcaption>
-</figure>
-<ul>
-<li><strong>Under-Reconstruction</strong>:
-复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
-<li><strong>Over-Reconstruction</strong>:
-将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
-</ul>
-<h4 id="点的剪枝">点的剪枝</h4>
-<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
-<h4 id="tile">Tile</h4>
-<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
-GPU 核心上同时计算，避免了对同一像素的竞争。</p>
-<h2 id="对比">对比</h2>
-<h3 id="场景绘制">场景绘制</h3>
-<ul>
-<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
-<li>3DGS
-使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
-</ul>
-<h3 id="d重建">3D重建</h3>
-<ul>
-<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
-<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
-</ul>
-<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
-Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
 <table>
 <colgroup>
-<col style="width: 11%" />
-<col style="width: 44%" />
-<col style="width: 44%" />
+<col style="width: 15%" />
+<col style="width: 41%" />
+<col style="width: 43%" />
 </colgroup>
 <thead>
 <tr>
-<th><strong>对比维度</strong></th>
-<th>3DGS (3D Geometry Sensing)</th>
-<th>NeRF (Neural Radiance Fields)</th>
+<th>方法</th>
+<th>做法</th>
+<th>缺点</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>基本原理</strong></td>
-<td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
-<td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
+<td>bungeenerf</td>
+<td>卫星捕获图像</td>
+<td>时间差异、无地面实况</td>
 </tr>
 <tr>
-<td><strong>输入数据</strong></td>
-<td>多视角图像、深度信息（LiDAR、ToF相机）、位姿数据、点云。</td>
-<td>多视角图像（通常包括相机位姿），不需要显式的几何信息。</td>
+<td>KITTI</td>
+<td>汽车雷达捕获点云数据</td>
+<td>屋顶、高层建筑捕获存在不足</td>
 </tr>
 <tr>
-<td><strong>输出结果</strong></td>
-<td>点云、网格、三角形模型、深度图、纹理映射等显式几何结构。</td>
-<td>通过体积渲染生成逼真图像（视角相关），不直接输出几何模型。</td>
+<td>blockNeRF</td>
+<td>Style Transformation解决时间差异</td>
+<td>不提供公开可用的点云数据集</td>
 </tr>
 <tr>
-<td><strong>数据处理方式</strong></td>
-<td>使用几何关系（如三角测量、立体视觉等）来显式重建场景结构。</td>
-<td>使用神经网络隐式建模颜色和密度，通过体积渲染生成图像。</td>
+<td>UrbanBIS</td>
+<td>多视图相机捕获点云</td>
+<td>未用高精度激光雷达</td>
 </tr>
 <tr>
-<td><strong>几何信息</strong></td>
-<td>显式获取3D几何信息，可以精确测量物体的距离和形状。</td>
-<td>隐式推断几何信息，主要用于图像渲染，几何结构不直接输出。</td>
-</tr>
-<tr>
-<td><strong>渲染效果</strong></td>
-<td>依赖于重建的几何结构，渲染效果有限，尤其在复杂光线场景下效果一般。</td>
-<td>渲染效果非常逼真，尤其在反射、遮挡、折射等复杂光照场景表现优异。</td>
-</tr>
-<tr>
-<td><strong>计算资源需求</strong></td>
-<td>需要较强的几何计算能力，数据获取通常依赖于多传感器系统（LiDAR等）。</td>
-<td>需要高计算资源，特别是训练神经网络的过程计算量大，通常依赖于GPU。</td>
-</tr>
-<tr>
-<td><strong>渲染速度</strong></td>
-<td>实时性较好，特别是有深度传感器时可实现快速重建。</td>
-<td>渲染速度较慢，尤其在训练阶段耗时长，但有即时渲染版本。</td>
-</tr>
-<tr>
-<td><strong>应用场景</strong></td>
-<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
-<td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
-</tr>
-<tr>
-<td><strong>优点</strong></td>
-<td>可以显式建模、精确几何测量、适用于实时应用；深度传感器辅助时重建精度高。</td>
-<td>渲染质量极高，能处理复杂的光照、遮挡问题；不需要昂贵的深度传感器。</td>
-</tr>
-<tr>
-<td><strong>缺点</strong></td>
-<td>在处理复杂光照（如透明物体、反射面）时效果不佳，依赖昂贵的传感器数据。</td>
-<td>渲染速度慢，训练时间长，初始设计不擅长生成明确的几何信息。</td>
-</tr>
-<tr>
-<td><strong>几何建模精度</strong></td>
-<td>高，适合用于需要精确几何信息的场景（如测量、导航、物理模拟等）。</td>
-<td>几何建模是隐式的，主要依赖于神经网络推断，不适合用于测量等任务。</td>
-</tr>
-<tr>
-<td><strong>光照处理</strong></td>
-<td>处理复杂光线条件较困难，通常需要额外的算法来应对光线反射和折射。</td>
-<td>对复杂光照场景处理效果出色，能够处理反射、折射、遮挡等问题。</td>
-</tr>
-<tr>
-<td><strong>实时性</strong></td>
-<td>实时性较强，特别是在配合LiDAR等传感器时。</td>
-<td>需要较长的时间进行训练和渲染，不适合实时应用（加速版本除外）。</td>
-</tr>
-<tr>
-<td><strong>数据获取成本</strong></td>
-<td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
-<td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
+<td>Urbanscene3D</td>
+<td>无人机配合激光雷达</td>
+<td>坐标差异，雷达点云和图像关系不明确</td>
 </tr>
 </tbody>
 </table>
-<p>（表源：<a class="link" 
- target="_blank" rel="noopener" href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+<p><strong>优势：</strong></p>
+<ul>
+<li>利用Zenmuse L1来获取地面真实几何，而大多数数据集（ blocknerf ）（
+megaNeRF ）（ UrbanBIS
+）依赖单目或多视图相机进行数据采集，这更适合新视图合成而不是场景重建。</li>
+<li>提供了城市规模的信息，包括高层建筑、湖泊、山脉和屋顶，而其他数据集很少提供。</li>
+<li>double-return技术，去除移动物体，确保更稳定的光照效果。</li>
+<li>去除飞行路线中连续图像之间的冗余信息，图像更少，但信息量仍然具有可比性。</li>
+</ul>
+<h2 id="评估指标">评估指标</h2>
+<h3 id="psnr">PSNR</h3>
+<p>PSNR(Peak signal-to-noise ratio 峰值信噪比)
+用于表示信号的最大可能功率与影响其表示的保真度的破坏噪声的功率之间的比率，通常使用分贝标度表示为对数量。</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d6245af1d4a65be444fc779e62074667.png"
+                     
+alt="MSE" 
+                >
+<figcaption aria-hidden="true">MSE</figcaption>
+</figure>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d0eb05ab65303b4ae37eabbfc43212b7.png"
+                     
+alt="PSNR" 
+                >
+<figcaption aria-hidden="true">PSNR</figcaption>
+</figure>
+<h3 id="ssim">SSIM</h3>
+<p>SSIM全称为Structural
+Similarity，即结构相似性。算法会提取以下三个特征。</p>
+<ul>
+<li><strong>亮度</strong></li>
+<li><strong>对比度</strong></li>
+<li><strong>结构</strong></li>
+</ul>
+<p>亮度的估计与平均灰度有关：<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/cfd417d0ced2bd8f64a88b7fa799f8c5.png"
+                     
+alt="均值" 
+                ></p>
+<p>对比度的估计则用标准差衡量：<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/ff69fd63d0e036d0866f420595dc2668.png"
+                     
+alt="标准差" 
+                ></p>
+<p>结构比较是通过使用一个合并公式来完成。</p>
+<p>三个对比函数分别如下：</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>公式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>亮度</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9615320354732921de0c9a7268823ca3.png"
+                     
+alt="亮度" 
+                ></td>
+</tr>
+<tr>
+<td><strong>对比度</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f82417d40a829e317089fc1240823192.png"
+                     
+alt="对比度" 
+                ></td>
+</tr>
+<tr>
+<td><strong>结构</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3765b0064f96885e010bb8eb3725455a.png"
+                     
+alt="结构" 
+                >其中<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/6ba650fa5b1715045873b1422610d366.png"
+                     
+alt="协方差" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>结合即得到SSIM函数：</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fdd23e8d54ad6380ebc851cd06a0a12d.png"
+                     
+alt="SSIM" 
+                >
+<figcaption aria-hidden="true">SSIM</figcaption>
+</figure>
+<h3 id="lpips">LPIPS</h3>
+<p>学习感知图像块相似度(Learned Perceptual Image Patch Similarity,
+LPIPS)，通过深度学习模型来评估两个图像之间的感知差异。使用预训练的深度网络（如
+VGG、AlexNet）来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度。</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg"
+                     
+alt="LPIPS" 
+                >
+<figcaption aria-hidden="true">LPIPS</figcaption>
+</figure>
+<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2/PSNR,
+SSIM,
+FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
+<h3 id="倒角距离">倒角距离</h3>
+<p>出自：</p>
+<blockquote>
+<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
+object reconstruction from a single image,” <a class="link" 
+ target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>,
+2017.</p>
+</blockquote>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2c25811a255e9fb0702799148f56c8ed.png"
+                     
+alt="Chamfer distance" 
+                >
+<figcaption aria-hidden="true">Chamfer distance</figcaption>
+</figure>
+<p>算法：</p>
+<ol type="1">
+<li>对S1中任意一点x，计算它与S2中所有点的距离，取最小距离的平方。</li>
+<li>遍历S1中的点，重复1中过程，求和所有距离平方。</li>
+<li>同样的步骤，对S2中所有点遍历，重复1、2过程。</li>
+<li>将两个求和结果相加，作为倒角距离。</li>
+</ol>
+<p>倒角距离用于衡量两个点云之间的相似度。如果该距离较大，则说明两组点云区别较大；如果距离较小，则说明重建效果较好。</p>
+<h2 id="实验">实验</h2>
+<h3 id="实验环境">实验环境</h3>
+<ul>
+<li><strong>Vanilla Gaussian Splatting</strong>: RTX 3090 * 1</li>
+<li><strong>NeRF-based models</strong>: RTX 3090 * 4</li>
+</ul>
+<h3 id="实验结果">实验结果</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f83245b067971c4b84de5cd9895d823.png"
+                     
+alt="Table3" 
+                >
+<figcaption aria-hidden="true">Table3</figcaption>
+</figure>
+<ul>
+<li>3DGS和SuGaR在图像的渲染中，有更优的效果（三个参数都更优），且训练时间更短。</li>
+</ul>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b6069787b5c845e9080f4ef1d4751090.png"
+                     
+alt="Table4" 
+                >
+<figcaption aria-hidden="true">Table4</figcaption>
+</figure>
+<ul>
+<li>NeRF: 使用ns-export生成3D点云。</li>
+<li>3DGS: 每个Gaussian Splatting的均值作为一个点，输出点云。</li>
+<li>神经辐射场生成的点云，通常包含很多与场景无关的异常值。</li>
+<li>3DGS也存在边缘效应，边缘会模糊。</li>
+</ul>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png"
+                     
+alt="CD" 
+                >
+<figcaption aria-hidden="true">CD</figcaption>
+</figure>
+<p>（图源项目网址：<a class="link" 
+ target="_blank" rel="noopener" href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+<ul>
+<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
+<li>SuGaR
+是一种专为几何对齐设计的方法，排名却倒数。再对SuGaR进行定量分析，发现SuGaR在几何重建方面确实有更好的表现。</li>
+</ul>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3472d29a30085a95fb9679362e2c9f49.png"
+                     
+alt="SuGaR" 
+                >
+<figcaption aria-hidden="true">SuGaR</figcaption>
+</figure>
+<p>图中的蓝点在其他方法中很常见，而绿色甚至略带红色的点在其他方法中却很少见。更何况SuGaR中绿色点如此之多。
+从定量的角度来看，如果我们忽略这里显示的异常值，SuGaR
+的确是最好的方法。</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png"
+                     
+alt="Figure6" 
+                >
+<figcaption aria-hidden="true">Figure6</figcaption>
+</figure>
+<p>对高斯泼溅的alpha值进行了简单分析，其中几乎三分之二的alpha值几乎是透明的。通过删除这些值，渲染的图像变得更加清晰，几乎没有信息丢失。这些近乎透明的高斯飞溅实例漂浮在3D空间中。尽管它们在渲染图像中看不到，但它们会导致几何测量指标的退化。</p>
 
         </div>
 
@@ -974,18 +1017,18 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
             <div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
                 <div class="article-copyright-info-container">
     <ul>
-        <li><strong>Title:</strong> NeRF和3DGS对比</li>
+        <li><strong>Title:</strong> GauU-Scene V2 论文解读</li>
         <li><strong>Author:</strong> Felix Christian</li>
         <li><strong>Created at
-                :</strong> 2024-10-30 19:07:05</li>
+                :</strong> 2024-11-05 19:36:00</li>
         
             <li>
                 <strong>Updated at
-                    :</strong> 2024-11-18 18:25:03
+                    :</strong> 2024-11-18 18:19:31
             </li>
         
         <li>
-            <strong>Link:</strong> https://felixchristian.fra1.zeabur.app/2024/10/30/NERFvs3DGS/
+            <strong>Link:</strong> https://felixchristian.fra1.zeabur.app/2024/11/05/5-GauU_Scene_V2/
         </li>
         <li>
             <strong>
@@ -1025,13 +1068,13 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
                     <div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
                         <a class="prev"
                         rel="prev"
-                        href="/2024/11/05/GauU_Scene_V2/"
+                        href="/2024/11/06/6-SplatSim/"
                         >
                             <span class="left arrow-icon flex justify-center items-center">
                                 <i class="fa-solid fa-chevron-left"></i>
                             </span>
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">GauU-Scene V2 论文解读</span>
+                                <span class="post-nav-title-item">SplatSim 论文解读</span>
                                 <span class="post-nav-item">Prev posts</span>
                             </span>
                         </a>
@@ -1041,10 +1084,10 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
                     <div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
                         <a class="next"
                         rel="next"
-                        href="/2024/09/29/CoACD_notes/"
+                        href="/2024/10/30/4-NERFvs3DGS/"
                         >
                             <span class="title flex justify-center items-center">
-                                <span class="post-nav-title-item">Mujoco - CoACD简略教程</span>
+                                <span class="post-nav-title-item">NeRF和3DGS对比</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex justify-center items-center">
@@ -1119,8 +1162,8 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
             <div class="post-toc-wrap">
     <div class="post-toc">
         <div class="toc-title">On this page</div>
-        <div class="page-title">NeRF和3DGS对比</div>
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#nerf"><span class="nav-text">NeRF</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84"><span class="nav-text">网络结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-text">实现细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E5%B7%A5%E4%BD%9C"><span class="nav-text">相关工作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#d-gaussian-splatting"><span class="nav-text">3D Gaussian Splatting</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86-1"><span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B-1"><span class="nav-text">流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82-1"><span class="nav-text">实现细节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E6%AF%94"><span class="nav-text">对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%E7%BB%98%E5%88%B6"><span class="nav-text">场景绘制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d%E9%87%8D%E5%BB%BA"><span class="nav-text">3D重建</span></a></li></ol></li></ol>
+        <div class="page-title">GauU-Scene V2 论文解读</div>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="nav-text">数据集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%84%E4%BC%B0%E6%8C%87%E6%A0%87"><span class="nav-text">评估指标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#psnr"><span class="nav-text">PSNR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ssim"><span class="nav-text">SSIM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lpips"><span class="nav-text">LPIPS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%80%92%E8%A7%92%E8%B7%9D%E7%A6%BB"><span class="nav-text">倒角距离</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C"><span class="nav-text">实验</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%8E%AF%E5%A2%83"><span class="nav-text">实验环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-text">实验结果</span></a></li></ol></li></ol>
 
     </div>
 </div>
