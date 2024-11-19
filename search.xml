@@ -1136,7 +1136,8 @@ unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没
     <url>/2024/11/12/8-NeRF_Studio/</url>
     <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
 <p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>写的教程已经很详尽了。</p>
+ href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
+写的教程已经很详尽了。</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
 <p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
 <h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
