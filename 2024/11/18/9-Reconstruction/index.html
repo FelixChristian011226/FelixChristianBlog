@@ -691,7 +691,7 @@
 <p>当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM,
 Artist-Created
 Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了
-<a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything" >MeshAnything</a>
+<a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything" >MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
 ，该模型将网格提取视为生成问题，生成与指定形状对齐的 AM。</p>
 <p><img  
                      lazyload
@@ -744,7 +744,7 @@ Cubes生成粗网格）来缩小训练与推理的域差距。</li>
 <ol type="1">
 <li><p>关于3D Gaussian转为mesh：</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/29" >About 3D
-Gaussians · Issue #29 · buaacyw/MeshAnything</a></p>
+Gaussians · Issue #29 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <blockquote>
 <p>We suggest converting the 3D Gaussians into a mesh before inputting
 them into our method.</p>
@@ -752,23 +752,23 @@ them into our method.</p>
 <p>作者直接建议将3D Gaussian转为mesh再作为该方法的输入。（迷惑）</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/6" >How to
 convert 3D gaussian splatting to mesh? · Issue #6 ·
-buaacyw/MeshAnything</a></p>
+buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <blockquote>
-<p>Hi, I use <a class="link"   target="_blank" rel="noopener" href="https://github.com/Anttwo/SuGaR" >SUGAR</a> to get
+<p>Hi, I use <a class="link"   target="_blank" rel="noopener" href="https://github.com/Anttwo/SuGaR" >SUGAR<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i> to get
 high quality mesh from GS and then sample point cloud on the 3D GS.
 Other methods like <a class="link" 
- target="_blank" rel="noopener" href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS</a> should
+ target="_blank" rel="noopener" href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i> should
 also work well. I suggest you run these methods directly in their repos
 and use the results as inputs for our method.</p>
 </blockquote>
 <p>另一个<code>issue</code>里，作者提到了两个方法来进行这种转化：SuGaR和2DGS。</p></li>
 <li><p>关于大规模点云转mesh：</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/9" >large
-scale pointCloud · Issue #9 · buaacyw/MeshAnything</a></p>
+scale pointCloud · Issue #9 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <p>MeshAnything目前限制在800个face，对复杂mesh或大规模点云可能无法比较好地转化。</p></li>
 <li><p>关于image和text转mesh：</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/4" >How to do
-text and images? · Issue #4 · buaacyw/MeshAnything</a></p>
+text and images? · Issue #4 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <blockquote>
 <p>The image/text to mesh is achieved by combining with 3D generation
 methods. We first obtain dense meshes from 3D generation methods and use
@@ -832,7 +832,7 @@ fail</strong>：创建空环境一步一步安装依赖。</p></li>
 <li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
- target="_blank" rel="noopener" href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网</a>找到对应版本的安装包复制链接再install：</p>
+ target="_blank" rel="noopener" href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>找到对应版本的安装包复制链接再install：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>其他 conda 包找不到</strong>：直接pip
 insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
