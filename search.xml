@@ -962,6 +962,36 @@ nerfstudio-project/gsplat <i class="fa-regular fa-arrow-up-right-from-square fa-
                       alt="error4" style="zoom:80%;" 
                 ></p>
 <p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
+<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
+<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
+<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
+                      alt="nerfacto" style="zoom: 67%;" 
+                ></p>
+<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
+<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
+splat。为了对其进行可视化，选择使用了 <a class="link" 
+ href="https://github.com/playcanvas/supersplat" >supersplat <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+这个工具：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
+                      alt="1" style="zoom:67%;" 
+                ></p>
+<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
+splat。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
+                      alt="image-20241119133706308" style="zoom:67%;" 
+                ></p>
+<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
+splat转化为网格形式，这是后续工作的重点。</p>
 ]]></content>
       <categories>
         <category>三维重建</category>
