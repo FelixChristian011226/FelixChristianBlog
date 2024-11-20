@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/11/11/7-build_blog/</loc>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/11/11/7-Build_blog/</loc>
     
     <lastmod>2024-11-20</lastmod>
     
@@ -11,7 +11,16 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/09/26/1-hfield/</loc>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/09/29/2-Mujoco_notes/</loc>
+    
+    <lastmod>2024-11-20</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/2024/09/26/1-Hfield/</loc>
     
     <lastmod>2024-11-20</lastmod>
     
@@ -57,15 +66,6 @@
   
   <url>
     <loc>https://felixchristian.fra1.zeabur.app/2024/10/30/4-NeRFvs3DGS/</loc>
-    
-    <lastmod>2024-11-18</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/2024/09/29/2-mujoco_notes/</loc>
     
     <lastmod>2024-11-18</lastmod>
     
