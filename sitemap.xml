@@ -158,6 +158,13 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.fra1.zeabur.app/tags/CoACD/</loc>
+    <lastmod>2024-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.fra1.zeabur.app/tags/hfield/</loc>
     <lastmod>2024-11-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -179,27 +186,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/tags/CoACD/</loc>
-    <lastmod>2024-11-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/tags/Sim2Real/</loc>
-    <lastmod>2024-11-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/tags/2DGS/</loc>
-    <lastmod>2024-11-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.fra1.zeabur.app/tags/blog/</loc>
     <lastmod>2024-11-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -215,6 +201,20 @@
   
   <url>
     <loc>https://felixchristian.fra1.zeabur.app/tags/marked/</loc>
+    <lastmod>2024-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/tags/2DGS/</loc>
+    <lastmod>2024-11-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/tags/Sim2Real/</loc>
     <lastmod>2024-11-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
