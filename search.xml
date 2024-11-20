@@ -957,106 +957,6 @@ RGB 的操作策略的模拟与真实之间的差距。
       </tags>
   </entry>
   <entry>
-    <title>NeRF Studio踩坑过程</title>
-    <url>/2024/11/12/8-NeRF_Studio/</url>
-    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库</a>
-写的教程已经很详尽了。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
-<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
-<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
-<p>在训练过程中，终端出现了如下的warning：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>不出意外的话就要出意外了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
-                      alt="error" style="zoom: 80%;" 
-                ></p>
-<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
-<p>然后切换版本：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
-<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
-<p>发现还是不行，看报错里有这样一句：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
-                      alt="error2" style="zoom:80%;" 
-                ></p>
-<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
-<p>然后再次执行安装就成功了。</p>
-<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
-<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
-<p>在使用splatfacto进行训练时报错：
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
-                      alt="error3" style="zoom:80%;" 
-                ></p>
-<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
-<p>在github的issue里找到了解决方案：<a class="link" 
- href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
-toolkit found. gsplat will be disabled. · Issue #249 ·
-nerfstudio-project/gsplat</a></p>
-<p>即，将path添加进去：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
-<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
-<p>结果还是报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
-                      alt="error4" style="zoom:80%;" 
-                ></p>
-<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
-<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
-<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
-<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
-                      alt="nerfacto" style="zoom: 67%;" 
-                ></p>
-<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
-<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
-splat。为了对其进行可视化，选择使用了 <a class="link" 
- href="https://github.com/playcanvas/supersplat" >supersplat</a>
-这个工具：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
-                      alt="1" style="zoom:67%;" 
-                ></p>
-<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
-splat。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
-                      alt="image-20241119133706308" style="zoom:67%;" 
-                ></p>
-<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
-splat转化为网格形式，这是后续工作的重点。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>主流三维重建方法对比</title>
     <url>/2024/11/18/9-Reconstruction/</url>
     <content><![CDATA[<h2 id="meshanything">MeshAnything</h2>
@@ -1229,6 +1129,106 @@ unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没
         <tag>NeRF</tag>
         <tag>3DGS</tag>
         <tag>2DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeRF Studio踩坑过程</title>
+    <url>/2024/11/12/8-NeRF_Studio/</url>
+    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库</a>
+写的教程已经很详尽了。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
+<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
+<p>在训练过程中，终端出现了如下的warning：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>不出意外的话就要出意外了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
+                      alt="error" style="zoom: 80%;" 
+                ></p>
+<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
+<p>然后切换版本：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
+<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
+<p>发现还是不行，看报错里有这样一句：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
+                      alt="error2" style="zoom:80%;" 
+                ></p>
+<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
+<p>然后再次执行安装就成功了。</p>
+<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
+<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
+<p>在使用splatfacto进行训练时报错：
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
+                      alt="error3" style="zoom:80%;" 
+                ></p>
+<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
+<p>在github的issue里找到了解决方案：<a class="link" 
+ href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
+toolkit found. gsplat will be disabled. · Issue #249 ·
+nerfstudio-project/gsplat</a></p>
+<p>即，将path添加进去：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
+<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
+<p>结果还是报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
+                      alt="error4" style="zoom:80%;" 
+                ></p>
+<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
+<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
+<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
+<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
+                      alt="nerfacto" style="zoom: 67%;" 
+                ></p>
+<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
+<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
+splat。为了对其进行可视化，选择使用了 <a class="link" 
+ href="https://github.com/playcanvas/supersplat" >supersplat</a>
+这个工具：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
+                      alt="1" style="zoom:67%;" 
+                ></p>
+<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
+splat。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
+                      alt="image-20241119133706308" style="zoom:67%;" 
+                ></p>
+<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
+splat转化为网格形式，这是后续工作的重点。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
       </tags>
   </entry>
 </search>
