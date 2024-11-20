@@ -1,12 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Mujoco - 高场hfield相关</title>
+    <url>/2024/09/26/1-Hfield/</url>
+    <content><![CDATA[<blockquote>
+<p>The <strong>hfield</strong> type defines a height field geom. The
+geom must reference the desired height field asset with the hfield
+attribute below. The position and orientation of the geom set the
+position and orientation of the height field. The size of the geom is
+ignored, and the size parameters of the height field asset are used
+instead. See the description of the <a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield</a>
+element. Similar to planes, height field geoms can only be attached to
+the world body or to static children of the world.</p>
+</blockquote>
+<ol type="1">
+<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p></li>
+<li><p>可从bin文件读入，格式如下：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div></li>
+<li><p>高度数据可以在编译时保持未定义。</p></li>
+</ol>
+<ul>
+<li>编译器会自动把高度数据归一化到[0,1]</li>
+<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
+<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
+</ul>
+<h2 id="参数">参数</h2>
+<ul>
+<li><strong>name</strong>:
+名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
+<li><strong>content_type</strong>:
+目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
+<li><strong>file</strong>:
+文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
+<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0
+表示将从文件加载数据。</li>
+<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
+<li><strong>size</strong>:
+(radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
+</ul>
+<h2 id="使用样例">使用样例</h2>
+<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>hfield</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mujoco - 碰撞凸几何体要求</title>
     <url>/2024/09/29/2-Mujoco_notes/</url>
     <content><![CDATA[<h2 id="collision">Collision</h2>
 <p><a class="link" 
  href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
-- MuJoCo Documentation<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
+- MuJoCo Documentation</a></p>
 <blockquote>
 <p>We have chosen to limit collision detection to <em>convex</em> geoms.
 All primitive types are convex. Height fields are not convex but
@@ -25,7 +75,7 @@ purposes however they are replaced with their convex hulls.</p>
 <p>In order to model a non-convex object other than a height field, the
 user must decompose it into a union of convex geoms (which can be
 primitive shapes or meshes) and attach them to the same body. Open tools
-like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
+like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library</a>
 can be used outside MuJoCo to automate this process. Finally, all
 built-in collision functions can be replaced with custom callbacks. This
 can be used to incorporate a general-purpose “triangle soup” collision
@@ -35,7 +85,7 @@ geoms takes some work, but it pays off at runtime and yields both faster
 and more stable simulation.</p>
 <p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
 MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
-库<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+库</a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
 </blockquote>
 ]]></content>
       <categories>
@@ -94,347 +144,6 @@ MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" 
         <tag>mujoco</tag>
         <tag>convex</tag>
         <tag>CoACD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 高场hfield相关</title>
-    <url>/2024/09/26/1-Hfield/</url>
-    <content><![CDATA[<blockquote>
-<p>The <strong>hfield</strong> type defines a height field geom. The
-geom must reference the desired height field asset with the hfield
-attribute below. The position and orientation of the geom set the
-position and orientation of the height field. The size of the geom is
-ignored, and the size parameters of the height field asset are used
-instead. See the description of the <a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
-element. Similar to planes, height field geoms can only be attached to
-the world body or to static children of the world.</p>
-</blockquote>
-<ol type="1">
-<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p></li>
-<li><p>可从bin文件读入，格式如下：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div></li>
-<li><p>高度数据可以在编译时保持未定义。</p></li>
-</ol>
-<ul>
-<li>编译器会自动把高度数据归一化到[0,1]</li>
-<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
-<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
-</ul>
-<h2 id="参数">参数</h2>
-<ul>
-<li><strong>name</strong>:
-名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
-<li><strong>content_type</strong>:
-目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
-<li><strong>file</strong>:
-文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
-<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0
-表示将从文件加载数据。</li>
-<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
-<li><strong>size</strong>:
-(radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
-</ul>
-<h2 id="使用样例">使用样例</h2>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>hfield</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeRF和3DGS对比</title>
-    <url>/2024/10/30/4-NeRFvs3DGS/</url>
-    <content><![CDATA[<h2 id="nerf">NeRF</h2>
-<h3 id="原理">原理</h3>
-<p>NeRF（Neural Radiance
-Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
-的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
-<p>特点：</p>
-<ul>
-<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
-<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
-</ul>
-<h3 id="流程">流程</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
-                     
-alt="Refer" 
-                >
-<figcaption aria-hidden="true">Refer</figcaption>
-</figure>
-<ol type="1">
-<li><strong>输入信息</strong>：NeRF
-将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
-<li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
-<li><strong>体渲染技术</strong>：NeRF
-使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
-<li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
-<li><strong>生成新视角</strong>：训练完成后，NeRF
-能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
-</ol>
-<h3 id="网络结构">网络结构</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
-                     
-alt="network" 
-                >
-<figcaption aria-hidden="true">network</figcaption>
-</figure>
-<ul>
-<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
-</ul>
-<h3 id="实现细节">实现细节</h3>
-<h4 id="mlp网络">MLP网络</h4>
-<ul>
-<li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
-<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
-features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
-<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
-connection），帮助网络在深层结构中保持空间信息的细节。</li>
-</ul>
-<h4 id="位置编码">位置编码</h4>
-<ul>
-<li>NeRF
-使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
-Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
-<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
-(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
-</ul>
-<h4 id="体渲染">体渲染</h4>
-<p>​
-从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
-bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​ 获得像素颜色的公式：</p>
-<p>​ <img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
-                     
-alt="color" 
-                ></p>
-<p>​ 这个式子积分里面是<code>T(t)</code>
-、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
-<h3 id="相关工作">相关工作</h3>
-<h4 id="nerf2mesh">NeRF2Mesh</h4>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
-                     
-alt="NeRF2Mesh" 
-                >
-<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
-</figure>
-<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
-Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
-<ul>
-<li><strong>密度分支 (Density
-field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
-Cubes生成三角网格，再进行优化。</li>
-<li><strong>外观分支 (Appearance
-Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
-</ul>
-<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
-<h3 id="原理-1">原理</h3>
-<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
-空间中的点云，将场景中的点用 3D
-高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
-<p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
-<h3 id="流程-1">流程</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
-                     
-alt="3DGS" 
-                >
-<figcaption aria-hidden="true">3DGS</figcaption>
-</figure>
-<ol type="1">
-<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
-<a class="link" 
- href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
-库操作</li>
-<li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
-<li><strong>投影变换</strong>：通过投影操作将 3D
-高斯分布映射到相机视角下的 2D 图像平面。</li>
-<li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
-<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
-Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
-</ol>
-<h3 id="实现细节-1">实现细节</h3>
-<h4 id="三维高斯属性">三维高斯属性</h4>
-<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
-<p>球谐函数的示例：</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
-                     
-alt="球谐函数" 
-                >
-<figcaption aria-hidden="true">球谐函数</figcaption>
-</figure>
-<p>（图源：<a class="link" 
- href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
-Survey on 3D Gaussian Splatting - 知乎<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>）</p>
-<h4 id="自适应密度控制">自适应密度控制</h4>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
-                     
-alt="自适应密度控制" 
-                >
-<figcaption aria-hidden="true">自适应密度控制</figcaption>
-</figure>
-<ul>
-<li><strong>Under-Reconstruction</strong>:
-复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
-<li><strong>Over-Reconstruction</strong>:
-将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
-</ul>
-<h4 id="点的剪枝">点的剪枝</h4>
-<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
-<h4 id="tile">Tile</h4>
-<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
-GPU 核心上同时计算，避免了对同一像素的竞争。</p>
-<h2 id="对比">对比</h2>
-<h3 id="场景绘制">场景绘制</h3>
-<ul>
-<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
-<li>3DGS
-使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
-</ul>
-<h3 id="d重建">3D重建</h3>
-<ul>
-<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
-<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
-</ul>
-<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
-Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
-<table>
-<colgroup>
-<col style="width: 11%" />
-<col style="width: 44%" />
-<col style="width: 44%" />
-</colgroup>
-<thead>
-<tr>
-<th><strong>对比维度</strong></th>
-<th>3DGS (3D Geometry Sensing)</th>
-<th>NeRF (Neural Radiance Fields)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>基本原理</strong></td>
-<td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
-<td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
-</tr>
-<tr>
-<td><strong>输入数据</strong></td>
-<td>多视角图像、深度信息（LiDAR、ToF相机）、位姿数据、点云。</td>
-<td>多视角图像（通常包括相机位姿），不需要显式的几何信息。</td>
-</tr>
-<tr>
-<td><strong>输出结果</strong></td>
-<td>点云、网格、三角形模型、深度图、纹理映射等显式几何结构。</td>
-<td>通过体积渲染生成逼真图像（视角相关），不直接输出几何模型。</td>
-</tr>
-<tr>
-<td><strong>数据处理方式</strong></td>
-<td>使用几何关系（如三角测量、立体视觉等）来显式重建场景结构。</td>
-<td>使用神经网络隐式建模颜色和密度，通过体积渲染生成图像。</td>
-</tr>
-<tr>
-<td><strong>几何信息</strong></td>
-<td>显式获取3D几何信息，可以精确测量物体的距离和形状。</td>
-<td>隐式推断几何信息，主要用于图像渲染，几何结构不直接输出。</td>
-</tr>
-<tr>
-<td><strong>渲染效果</strong></td>
-<td>依赖于重建的几何结构，渲染效果有限，尤其在复杂光线场景下效果一般。</td>
-<td>渲染效果非常逼真，尤其在反射、遮挡、折射等复杂光照场景表现优异。</td>
-</tr>
-<tr>
-<td><strong>计算资源需求</strong></td>
-<td>需要较强的几何计算能力，数据获取通常依赖于多传感器系统（LiDAR等）。</td>
-<td>需要高计算资源，特别是训练神经网络的过程计算量大，通常依赖于GPU。</td>
-</tr>
-<tr>
-<td><strong>渲染速度</strong></td>
-<td>实时性较好，特别是有深度传感器时可实现快速重建。</td>
-<td>渲染速度较慢，尤其在训练阶段耗时长，但有即时渲染版本。</td>
-</tr>
-<tr>
-<td><strong>应用场景</strong></td>
-<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
-<td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
-</tr>
-<tr>
-<td><strong>优点</strong></td>
-<td>可以显式建模、精确几何测量、适用于实时应用；深度传感器辅助时重建精度高。</td>
-<td>渲染质量极高，能处理复杂的光照、遮挡问题；不需要昂贵的深度传感器。</td>
-</tr>
-<tr>
-<td><strong>缺点</strong></td>
-<td>在处理复杂光照（如透明物体、反射面）时效果不佳，依赖昂贵的传感器数据。</td>
-<td>渲染速度慢，训练时间长，初始设计不擅长生成明确的几何信息。</td>
-</tr>
-<tr>
-<td><strong>几何建模精度</strong></td>
-<td>高，适合用于需要精确几何信息的场景（如测量、导航、物理模拟等）。</td>
-<td>几何建模是隐式的，主要依赖于神经网络推断，不适合用于测量等任务。</td>
-</tr>
-<tr>
-<td><strong>光照处理</strong></td>
-<td>处理复杂光线条件较困难，通常需要额外的算法来应对光线反射和折射。</td>
-<td>对复杂光照场景处理效果出色，能够处理反射、折射、遮挡等问题。</td>
-</tr>
-<tr>
-<td><strong>实时性</strong></td>
-<td>实时性较强，特别是在配合LiDAR等传感器时。</td>
-<td>需要较长的时间进行训练和渲染，不适合实时应用（加速版本除外）。</td>
-</tr>
-<tr>
-<td><strong>数据获取成本</strong></td>
-<td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
-<td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
-</tr>
-</tbody>
-</table>
-<p>（表源：<a class="link" 
- href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>）</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
       </tags>
   </entry>
   <entry>
@@ -648,7 +357,7 @@ FSIM）的结果与人的感知相反。而后三行通过神经网络提取特�
 <blockquote>
 <p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
 object reconstruction from a single image,” <a class="link" 
- href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>,
+ href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR</a>,
 2017.</p>
 </blockquote>
 <figure>
@@ -720,7 +429,7 @@ alt="CD"
 <figcaption aria-hidden="true">CD</figcaption>
 </figure>
 <p>（图源项目网址：<a class="link" 
- href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>）</p>
+ href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene</a>）</p>
 <ul>
 <li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
 <li>SuGaR
@@ -752,6 +461,297 @@ alt="Figure6"
 <figcaption aria-hidden="true">Figure6</figcaption>
 </figure>
 <p>对高斯泼溅的alpha值进行了简单分析，其中几乎三分之二的alpha值几乎是透明的。通过删除这些值，渲染的图像变得更加清晰，几乎没有信息丢失。这些近乎透明的高斯飞溅实例漂浮在3D空间中。尽管它们在渲染图像中看不到，但它们会导致几何测量指标的退化。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeRF和3DGS对比</title>
+    <url>/2024/10/30/4-NeRFvs3DGS/</url>
+    <content><![CDATA[<h2 id="nerf">NeRF</h2>
+<h3 id="原理">原理</h3>
+<p>NeRF（Neural Radiance
+Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
+的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
+<p>特点：</p>
+<ul>
+<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
+<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
+</ul>
+<h3 id="流程">流程</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
+                     
+alt="Refer" 
+                >
+<figcaption aria-hidden="true">Refer</figcaption>
+</figure>
+<ol type="1">
+<li><strong>输入信息</strong>：NeRF
+将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
+<li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
+<li><strong>体渲染技术</strong>：NeRF
+使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
+<li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
+<li><strong>生成新视角</strong>：训练完成后，NeRF
+能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
+</ol>
+<h3 id="网络结构">网络结构</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
+                     
+alt="network" 
+                >
+<figcaption aria-hidden="true">network</figcaption>
+</figure>
+<ul>
+<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
+</ul>
+<h3 id="实现细节">实现细节</h3>
+<h4 id="mlp网络">MLP网络</h4>
+<ul>
+<li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
+<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
+features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
+<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
+connection），帮助网络在深层结构中保持空间信息的细节。</li>
+</ul>
+<h4 id="位置编码">位置编码</h4>
+<ul>
+<li>NeRF
+使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
+Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
+<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
+(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
+</ul>
+<h4 id="体渲染">体渲染</h4>
+<p>​
+从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
+bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​ 获得像素颜色的公式：</p>
+<p>​ <img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
+                     
+alt="color" 
+                ></p>
+<p>​ 这个式子积分里面是<code>T(t)</code>
+、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<h3 id="相关工作">相关工作</h3>
+<h4 id="nerf2mesh">NeRF2Mesh</h4>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
+                     
+alt="NeRF2Mesh" 
+                >
+<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
+</figure>
+<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
+Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
+<ul>
+<li><strong>密度分支 (Density
+field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
+Cubes生成三角网格，再进行优化。</li>
+<li><strong>外观分支 (Appearance
+Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
+</ul>
+<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
+<h3 id="原理-1">原理</h3>
+<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
+空间中的点云，将场景中的点用 3D
+高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
+<p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
+<h3 id="流程-1">流程</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
+                     
+alt="3DGS" 
+                >
+<figcaption aria-hidden="true">3DGS</figcaption>
+</figure>
+<ol type="1">
+<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
+<a class="link" 
+ href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP</a>
+库操作</li>
+<li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
+<li><strong>投影变换</strong>：通过投影操作将 3D
+高斯分布映射到相机视角下的 2D 图像平面。</li>
+<li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
+<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
+Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
+</ol>
+<h3 id="实现细节-1">实现细节</h3>
+<h4 id="三维高斯属性">三维高斯属性</h4>
+<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
+<p>球谐函数的示例：</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
+                     
+alt="球谐函数" 
+                >
+<figcaption aria-hidden="true">球谐函数</figcaption>
+</figure>
+<p>（图源：<a class="link" 
+ href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
+Survey on 3D Gaussian Splatting - 知乎</a>）</p>
+<h4 id="自适应密度控制">自适应密度控制</h4>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
+                     
+alt="自适应密度控制" 
+                >
+<figcaption aria-hidden="true">自适应密度控制</figcaption>
+</figure>
+<ul>
+<li><strong>Under-Reconstruction</strong>:
+复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
+<li><strong>Over-Reconstruction</strong>:
+将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
+</ul>
+<h4 id="点的剪枝">点的剪枝</h4>
+<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
+<h4 id="tile">Tile</h4>
+<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
+GPU 核心上同时计算，避免了对同一像素的竞争。</p>
+<h2 id="对比">对比</h2>
+<h3 id="场景绘制">场景绘制</h3>
+<ul>
+<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
+<li>3DGS
+使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
+</ul>
+<h3 id="d重建">3D重建</h3>
+<ul>
+<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
+<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
+</ul>
+<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
+Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 44%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th><strong>对比维度</strong></th>
+<th>3DGS (3D Geometry Sensing)</th>
+<th>NeRF (Neural Radiance Fields)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>基本原理</strong></td>
+<td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
+<td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
+</tr>
+<tr>
+<td><strong>输入数据</strong></td>
+<td>多视角图像、深度信息（LiDAR、ToF相机）、位姿数据、点云。</td>
+<td>多视角图像（通常包括相机位姿），不需要显式的几何信息。</td>
+</tr>
+<tr>
+<td><strong>输出结果</strong></td>
+<td>点云、网格、三角形模型、深度图、纹理映射等显式几何结构。</td>
+<td>通过体积渲染生成逼真图像（视角相关），不直接输出几何模型。</td>
+</tr>
+<tr>
+<td><strong>数据处理方式</strong></td>
+<td>使用几何关系（如三角测量、立体视觉等）来显式重建场景结构。</td>
+<td>使用神经网络隐式建模颜色和密度，通过体积渲染生成图像。</td>
+</tr>
+<tr>
+<td><strong>几何信息</strong></td>
+<td>显式获取3D几何信息，可以精确测量物体的距离和形状。</td>
+<td>隐式推断几何信息，主要用于图像渲染，几何结构不直接输出。</td>
+</tr>
+<tr>
+<td><strong>渲染效果</strong></td>
+<td>依赖于重建的几何结构，渲染效果有限，尤其在复杂光线场景下效果一般。</td>
+<td>渲染效果非常逼真，尤其在反射、遮挡、折射等复杂光照场景表现优异。</td>
+</tr>
+<tr>
+<td><strong>计算资源需求</strong></td>
+<td>需要较强的几何计算能力，数据获取通常依赖于多传感器系统（LiDAR等）。</td>
+<td>需要高计算资源，特别是训练神经网络的过程计算量大，通常依赖于GPU。</td>
+</tr>
+<tr>
+<td><strong>渲染速度</strong></td>
+<td>实时性较好，特别是有深度传感器时可实现快速重建。</td>
+<td>渲染速度较慢，尤其在训练阶段耗时长，但有即时渲染版本。</td>
+</tr>
+<tr>
+<td><strong>应用场景</strong></td>
+<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
+<td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
+</tr>
+<tr>
+<td><strong>优点</strong></td>
+<td>可以显式建模、精确几何测量、适用于实时应用；深度传感器辅助时重建精度高。</td>
+<td>渲染质量极高，能处理复杂的光照、遮挡问题；不需要昂贵的深度传感器。</td>
+</tr>
+<tr>
+<td><strong>缺点</strong></td>
+<td>在处理复杂光照（如透明物体、反射面）时效果不佳，依赖昂贵的传感器数据。</td>
+<td>渲染速度慢，训练时间长，初始设计不擅长生成明确的几何信息。</td>
+</tr>
+<tr>
+<td><strong>几何建模精度</strong></td>
+<td>高，适合用于需要精确几何信息的场景（如测量、导航、物理模拟等）。</td>
+<td>几何建模是隐式的，主要依赖于神经网络推断，不适合用于测量等任务。</td>
+</tr>
+<tr>
+<td><strong>光照处理</strong></td>
+<td>处理复杂光线条件较困难，通常需要额外的算法来应对光线反射和折射。</td>
+<td>对复杂光照场景处理效果出色，能够处理反射、折射、遮挡等问题。</td>
+</tr>
+<tr>
+<td><strong>实时性</strong></td>
+<td>实时性较强，特别是在配合LiDAR等传感器时。</td>
+<td>需要较长的时间进行训练和渲染，不适合实时应用（加速版本除外）。</td>
+</tr>
+<tr>
+<td><strong>数据获取成本</strong></td>
+<td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
+<td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
+</tr>
+</tbody>
+</table>
+<p>（表源：<a class="link" 
+ href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客</a>）</p>
 ]]></content>
       <categories>
         <category>三维重建</category>
@@ -797,7 +797,7 @@ alt="Figure6"
 <li><p>安装Pandoc。</p>
 <p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
 Installing
-pandoc<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</a></p></li>
+pandoc</a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
 <li><p>更换引擎。</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
 <p>mathjax的安装和配置可参考网上的教程。</p></li>
@@ -957,6 +957,106 @@ RGB 的操作策略的模拟与真实之间的差距。
       </tags>
   </entry>
   <entry>
+    <title>NeRF Studio踩坑过程</title>
+    <url>/2024/11/12/8-NeRF_Studio/</url>
+    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库</a>
+写的教程已经很详尽了。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
+<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
+<p>在训练过程中，终端出现了如下的warning：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>不出意外的话就要出意外了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
+                      alt="error" style="zoom: 80%;" 
+                ></p>
+<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
+<p>然后切换版本：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
+<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
+<p>发现还是不行，看报错里有这样一句：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
+                      alt="error2" style="zoom:80%;" 
+                ></p>
+<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
+<p>然后再次执行安装就成功了。</p>
+<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
+<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
+<p>在使用splatfacto进行训练时报错：
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
+                      alt="error3" style="zoom:80%;" 
+                ></p>
+<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
+<p>在github的issue里找到了解决方案：<a class="link" 
+ href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
+toolkit found. gsplat will be disabled. · Issue #249 ·
+nerfstudio-project/gsplat</a></p>
+<p>即，将path添加进去：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
+<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
+<p>结果还是报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
+                      alt="error4" style="zoom:80%;" 
+                ></p>
+<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
+<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
+<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
+<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
+                      alt="nerfacto" style="zoom: 67%;" 
+                ></p>
+<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
+<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
+splat。为了对其进行可视化，选择使用了 <a class="link" 
+ href="https://github.com/playcanvas/supersplat" >supersplat</a>
+这个工具：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
+                      alt="1" style="zoom:67%;" 
+                ></p>
+<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
+splat。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
+                      alt="image-20241119133706308" style="zoom:67%;" 
+                ></p>
+<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
+splat转化为网格形式，这是后续工作的重点。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>主流三维重建方法对比</title>
     <url>/2024/11/18/9-Reconstruction/</url>
     <content><![CDATA[<h2 id="meshanything">MeshAnything</h2>
@@ -970,7 +1070,7 @@ RGB 的操作策略的模拟与真实之间的差距。
 <p>当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM,
 Artist-Created
 Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了
-<a class="link"   href="https://github.com/buaacyw/MeshAnything" >MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
+<a class="link"   href="https://github.com/buaacyw/MeshAnything" >MeshAnything</a>
 ，该模型将网格提取视为生成问题，生成与指定形状对齐的 AM。</p>
 <p><img  
                      lazyload
@@ -1023,7 +1123,7 @@ Cubes生成粗网格）来缩小训练与推理的域差距。</li>
 <ol type="1">
 <li><p>关于3D Gaussian转为mesh：</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/29" >About 3D
-Gaussians · Issue #29 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
+Gaussians · Issue #29 · buaacyw/MeshAnything</a></p>
 <blockquote>
 <p>We suggest converting the 3D Gaussians into a mesh before inputting
 them into our method.</p>
@@ -1031,23 +1131,23 @@ them into our method.</p>
 <p>作者直接建议将3D Gaussian转为mesh再作为该方法的输入。（迷惑）</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/6" >How to
 convert 3D gaussian splatting to mesh? · Issue #6 ·
-buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
+buaacyw/MeshAnything</a></p>
 <blockquote>
-<p>Hi, I use <a class="link"   href="https://github.com/Anttwo/SuGaR" >SUGAR<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i> to get
+<p>Hi, I use <a class="link"   href="https://github.com/Anttwo/SuGaR" >SUGAR</a> to get
 high quality mesh from GS and then sample point cloud on the 3D GS.
 Other methods like <a class="link" 
- href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i> should
+ href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS</a> should
 also work well. I suggest you run these methods directly in their repos
 and use the results as inputs for our method.</p>
 </blockquote>
 <p>另一个<code>issue</code>里，作者提到了两个方法来进行这种转化：SuGaR和2DGS。</p></li>
 <li><p>关于大规模点云转mesh：</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/9" >large
-scale pointCloud · Issue #9 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
+scale pointCloud · Issue #9 · buaacyw/MeshAnything</a></p>
 <p>MeshAnything目前限制在800个face，对复杂mesh或大规模点云可能无法比较好地转化。</p></li>
 <li><p>关于image和text转mesh：</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/4" >How to do
-text and images? · Issue #4 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
+text and images? · Issue #4 · buaacyw/MeshAnything</a></p>
 <blockquote>
 <p>The image/text to mesh is achieved by combining with 3D generation
 methods. We first obtain dense meshes from 3D generation methods and use
@@ -1111,14 +1211,14 @@ fail</strong>：创建空环境一步一步安装依赖。</p></li>
 <li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
- href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>找到对应版本的安装包复制链接再install：</p>
+ href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网</a>找到对应版本的安装包复制链接再install：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>其他 conda 包找不到</strong>：直接pip
 insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
 <li><p><strong>CUDA-capable device(s) is/are busy or
 unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没遇到这么多问题。</p></li>
 <li><p><strong>卡在 'computing mesh...' </strong>: 在 <a class="link" 
- href="https://github.com/Anttwo/SuGaR/issues/219" >issue<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
+ href="https://github.com/Anttwo/SuGaR/issues/219" >issue</a>
 看到了一模一样的情况，目前还没解决这个问题。</p></li>
 </ol>
 <h2 id="dgs">2DGS</h2>
@@ -1131,106 +1231,6 @@ unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没
         <tag>NeRF</tag>
         <tag>3DGS</tag>
         <tag>2DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeRF Studio踩坑过程</title>
-    <url>/2024/11/12/8-NeRF_Studio/</url>
-    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
-写的教程已经很详尽了。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
-<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
-<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
-<p>在训练过程中，终端出现了如下的warning：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>不出意外的话就要出意外了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
-                      alt="error" style="zoom: 80%;" 
-                ></p>
-<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
-<p>然后切换版本：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
-<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
-<p>发现还是不行，看报错里有这样一句：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
-                      alt="error2" style="zoom:80%;" 
-                ></p>
-<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
-<p>然后再次执行安装就成功了。</p>
-<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
-<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
-<p>在使用splatfacto进行训练时报错：
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
-                      alt="error3" style="zoom:80%;" 
-                ></p>
-<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
-<p>在github的issue里找到了解决方案：<a class="link" 
- href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
-toolkit found. gsplat will be disabled. · Issue #249 ·
-nerfstudio-project/gsplat<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
-<p>即，将path添加进去：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
-<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
-<p>结果还是报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
-                      alt="error4" style="zoom:80%;" 
-                ></p>
-<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
-<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
-<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
-<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
-                      alt="nerfacto" style="zoom: 67%;" 
-                ></p>
-<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
-<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
-splat。为了对其进行可视化，选择使用了 <a class="link" 
- href="https://github.com/playcanvas/supersplat" >supersplat<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
-这个工具：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
-                      alt="1" style="zoom:67%;" 
-                ></p>
-<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
-splat。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
-                      alt="image-20241119133706308" style="zoom:67%;" 
-                ></p>
-<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
-splat转化为网格形式，这是后续工作的重点。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
       </tags>
   </entry>
 </search>
