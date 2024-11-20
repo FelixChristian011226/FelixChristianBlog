@@ -24,19 +24,19 @@
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
     
-        <meta name="description" content="MeshAnything  问题背景 当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM, Artist-Created Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了 MeshAnything ，该模型将网格提取视为生成问题，生成与指定形状对齐的">
+        <meta name="description" content="本文对比了 MeshAnything 和 SuGaR 两种主流三维重建方法的特点及应用。MeshAnything 通过生成艺术家风格的高效拓扑网格，提升网格质量但需依赖高质量输入；SuGaR 则通过表面对齐正则化和高效网格提取，将 3D Gaussian 转化为可编辑网格，实现高效渲染和编辑。此外，文章还记录了 SuGaR 部署过程中的一些坑点和解决方案。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="主流三维重建方法对比">
 <meta property="og:url" content="https://felixchristian.fra1.zeabur.app/2024/11/18/9-Reconstruction/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="MeshAnything  问题背景 当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM, Artist-Created Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了 MeshAnything ，该模型将网格提取视为生成问题，生成与指定形状对齐的">
+<meta property="og:description" content="本文对比了 MeshAnything 和 SuGaR 两种主流三维重建方法的特点及应用。MeshAnything 通过生成艺术家风格的高效拓扑网格，提升网格质量但需依赖高质量输入；SuGaR 则通过表面对齐正则化和高效网格提取，将 3D Gaussian 转化为可编辑网格，实现高效渲染和编辑。此外，文章还记录了 SuGaR 部署过程中的一些坑点和解决方案。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/1630f28c1eaf60eb65bdd5e72f47430d.gif">
 <meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/5febb2fa38db1681a29897d2bf6f4f5e.png">
 <meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2ccc528c2caa28dece7df53cd9041b5e.png">
 <meta property="og:image" content="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f5a25af6a79c1435d4eac688c356059b.gif">
 <meta property="article:published_time" content="2024-11-18T05:27:05.000Z">
-<meta property="article:modified_time" content="2024-11-19T13:31:52.759Z">
+<meta property="article:modified_time" content="2024-11-20T12:53:30.407Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="NeRF">
 <meta property="article:tag" content="3DGS">
@@ -85,7 +85,7 @@
 
     <script id="hexo-configurations">
     window.config = {"hostname":"felixchristian.fra1.zeabur.app","root":"/","language":"en","path":"search.xml"};
-    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":true,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":"#FFA500","default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":true,"custom_message":null},"open_graph":true,"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/backgroud_light.jpg","dark":"/images/backgroud_dark.jpg"},"title":"Felix Christian's Blog","subtitle":{"text":["Felix Christian的个人博客"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"center","links":{"github":"https://github.com/FelixChristian011226","instagram":null,"zhihu":null,"twitter":null,"email":"3200105627@zju.edu.cn","facebook":"https://www.facebook.com/profile.php?id=100021040783510&mibextid=ZbWKwL","youtube":"https://www.youtube.com/@felix-christian","discord":"https://discordapp.com/users/1166802766669287434"},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.8.0","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"icon":"fa-solid fa-tags","path":"/tags/"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/FelixChristian011226","Blog":"https://felixchristian.fra1.zeabur.app/"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":5}},"footerStart":"2024/11/5 16:26:14"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":true,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":"#FFA500","default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":true,"custom_message":null},"open_graph":true,"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/backgroud_light.jpg","dark":"/images/backgroud_dark.jpg"},"title":"Felix Christian's Blog","subtitle":{"text":["Felix Christian的个人博客"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"center","links":{"github":"https://github.com/FelixChristian011226","instagram":null,"zhihu":null,"twitter":null,"email":"3200105627@zju.edu.cn","facebook":"https://www.facebook.com/profile.php?id=100021040783510&mibextid=ZbWKwL","youtube":"https://www.youtube.com/@felix-christian","discord":"https://discordapp.com/users/1166802766669287434"},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":false,"version":"9.3.0"}},"version":"2.8.0","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"icon":"fa-solid fa-tags","path":"/tags/"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/FelixChristian011226","Blog":"https://felixchristian.fra1.zeabur.app/"}}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":5}},"footerStart":"2024/11/5 16:26:14"};
     window.lang_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
     window.data = {"masonry":false};
   </script>
@@ -609,8 +609,8 @@
     
         <span class="article-date article-meta-item">
             <i class="fa-regular fa-wrench"></i>&nbsp;
-            <span class="desktop">2024-11-19 21:31:52</span>
-            <span class="mobile">2024-11-19 21:31:52</span>
+            <span class="desktop">2024-11-20 20:53:30</span>
+            <span class="mobile">2024-11-20 20:53:30</span>
             <span class="hover-info">Updated</span>
         </span>
     
@@ -691,7 +691,7 @@
 <p>当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM,
 Artist-Created
 Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了
-<a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything" >MeshAnything</a>
+<a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything" >MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
 ，该模型将网格提取视为生成问题，生成与指定形状对齐的 AM。</p>
 <p><img  
                      lazyload
@@ -744,7 +744,7 @@ Cubes生成粗网格）来缩小训练与推理的域差距。</li>
 <ol type="1">
 <li><p>关于3D Gaussian转为mesh：</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/29" >About 3D
-Gaussians · Issue #29 · buaacyw/MeshAnything</a></p>
+Gaussians · Issue #29 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <blockquote>
 <p>We suggest converting the 3D Gaussians into a mesh before inputting
 them into our method.</p>
@@ -752,23 +752,23 @@ them into our method.</p>
 <p>作者直接建议将3D Gaussian转为mesh再作为该方法的输入。（迷惑）</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/6" >How to
 convert 3D gaussian splatting to mesh? · Issue #6 ·
-buaacyw/MeshAnything</a></p>
+buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <blockquote>
-<p>Hi, I use <a class="link"   target="_blank" rel="noopener" href="https://github.com/Anttwo/SuGaR" >SUGAR</a> to get
+<p>Hi, I use <a class="link"   target="_blank" rel="noopener" href="https://github.com/Anttwo/SuGaR" >SUGAR<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i> to get
 high quality mesh from GS and then sample point cloud on the 3D GS.
 Other methods like <a class="link" 
- target="_blank" rel="noopener" href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS</a> should
+ target="_blank" rel="noopener" href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i> should
 also work well. I suggest you run these methods directly in their repos
 and use the results as inputs for our method.</p>
 </blockquote>
 <p>另一个<code>issue</code>里，作者提到了两个方法来进行这种转化：SuGaR和2DGS。</p></li>
 <li><p>关于大规模点云转mesh：</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/9" >large
-scale pointCloud · Issue #9 · buaacyw/MeshAnything</a></p>
+scale pointCloud · Issue #9 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <p>MeshAnything目前限制在800个face，对复杂mesh或大规模点云可能无法比较好地转化。</p></li>
 <li><p>关于image和text转mesh：</p>
 <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/buaacyw/MeshAnything/issues/4" >How to do
-text and images? · Issue #4 · buaacyw/MeshAnything</a></p>
+text and images? · Issue #4 · buaacyw/MeshAnything<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i></p>
 <blockquote>
 <p>The image/text to mesh is achieved by combining with 3D generation
 methods. We first obtain dense meshes from 3D generation methods and use
@@ -832,13 +832,15 @@ fail</strong>：创建空环境一步一步安装依赖。</p></li>
 <li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
- target="_blank" rel="noopener" href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网</a>找到对应版本的安装包复制链接再install：</p>
+ target="_blank" rel="noopener" href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>找到对应版本的安装包复制链接再install：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>其他 conda 包找不到</strong>：直接pip
 insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
 <li><p><strong>CUDA-capable device(s) is/are busy or
 unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没遇到这么多问题。</p></li>
-<li></li>
+<li><p><strong>卡在 'computing mesh...' </strong>: 在 <a class="link" 
+ target="_blank" rel="noopener" href="https://github.com/Anttwo/SuGaR/issues/219" >issue<i class="fa-sharp fa-regular fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em]"></i>
+看到了一模一样的情况，目前还没解决这个问题。</p></li>
 </ol>
 <h2 id="dgs">2DGS</h2>
 <h2 id="gof">GOF</h2>
@@ -856,7 +858,7 @@ unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没
         
             <li>
                 <strong>Updated at
-                    :</strong> 2024-11-19 21:31:52
+                    :</strong> 2024-11-20 20:53:30
             </li>
         
         <li>
