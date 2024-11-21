@@ -10,7 +10,7 @@ attribute below. The position and orientation of the geom set the
 position and orientation of the height field. The size of the geom is
 ignored, and the size parameters of the height field asset are used
 instead. See the description of the <a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+ href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
 element. Similar to planes, height field geoms can only be attached to
 the world body or to static children of the world.</p>
 </blockquote>
@@ -48,53 +48,6 @@ the world body or to static children of the world.</p>
       <tags>
         <tag>mujoco</tag>
         <tag>hfield</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/2-Mujoco_notes/</url>
-    <content><![CDATA[<h2 id="collision">Collision</h2>
-<p><a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
-- MuJoCo Documentation <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms.
-All primitive types are convex. Height fields are not convex but
-internally they are treated as unions of triangular prisms (using custom
-collision pruning beyond the filters described above). Meshes specified
-by the user can be non-convex, and are rendered as such. For collision
-purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the
-user must decompose it into a union of convex geoms (which can be
-primitive shapes or meshes) and attach them to the same body. Open tools
-like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
-can be used outside MuJoCo to automate this process. Finally, all
-built-in collision functions can be replaced with custom callbacks. This
-can be used to incorporate a general-purpose “triangle soup” collision
-detector for example. However we do not recommend such an approach.
-Pre-processing the geometry and representing it as a union of convex
-geoms takes some work, but it pays off at runtime and yields both faster
-and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
-MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
-库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>collision</tag>
-        <tag>convex</tag>
       </tags>
   </entry>
   <entry>
@@ -142,8 +95,55 @@ MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" 
       </categories>
       <tags>
         <tag>mujoco</tag>
-        <tag>convex</tag>
         <tag>CoACD</tag>
+        <tag>convex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/2-Mujoco_notes/</url>
+    <content><![CDATA[<h2 id="collision">Collision</h2>
+<p><a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
+- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms.
+All primitive types are convex. Height fields are not convex but
+internally they are treated as unions of triangular prisms (using custom
+collision pruning beyond the filters described above). Meshes specified
+by the user can be non-convex, and are rendered as such. For collision
+purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the
+user must decompose it into a union of convex geoms (which can be
+primitive shapes or meshes) and attach them to the same body. Open tools
+like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+can be used outside MuJoCo to automate this process. Finally, all
+built-in collision functions can be replaced with custom callbacks. This
+can be used to incorporate a general-purpose “triangle soup” collision
+detector for example. However we do not recommend such an approach.
+Pre-processing the geometry and representing it as a union of convex
+geoms takes some work, but it pays off at runtime and yields both faster
+and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
+MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
+库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>collision</tag>
       </tags>
   </entry>
   <entry>
@@ -271,7 +271,7 @@ alt="3DGS"
 <ol type="1">
 <li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
 <a class="link" 
- href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+ href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
 库操作</li>
 <li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
 <li><strong>投影变换</strong>：通过投影操作将 3D
@@ -297,7 +297,7 @@ alt="球谐函数"
 </figure>
 <p>（图源：<a class="link" 
  href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
-Survey on 3D Gaussian Splatting - 知乎 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+Survey on 3D Gaussian Splatting - 知乎<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
 <h4 id="自适应密度控制">自适应密度控制</h4>
 <figure>
 <img 
@@ -427,7 +427,7 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
 </tbody>
 </table>
 <p>（表源：<a class="link" 
- href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+ href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
 ]]></content>
       <categories>
         <category>三维重建</category>
@@ -648,7 +648,7 @@ FSIM）的结果与人的感知相反。而后三行通过神经网络提取特�
 <blockquote>
 <p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
 object reconstruction from a single image,” <a class="link" 
- href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>,
+ href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>,
 2017.</p>
 </blockquote>
 <figure>
@@ -720,7 +720,7 @@ alt="CD"
 <figcaption aria-hidden="true">CD</figcaption>
 </figure>
 <p>（图源项目网址：<a class="link" 
- href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>）</p>
+ href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
 <ul>
 <li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
 <li>SuGaR
@@ -903,160 +903,6 @@ RGB 的操作策略的模拟与真实之间的差距。
       </tags>
   </entry>
   <entry>
-    <title>NeRF Studio踩坑过程</title>
-    <url>/2024/11/12/8-NeRF_Studio/</url>
-    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
-写的教程已经很详尽了。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
-<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
-<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
-<p>在训练过程中，终端出现了如下的warning：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>不出意外的话就要出意外了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
-                      alt="error" style="zoom: 80%;" 
-                ></p>
-<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
-<p>然后切换版本：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
-<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
-<p>发现还是不行，看报错里有这样一句：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
-                      alt="error2" style="zoom:80%;" 
-                ></p>
-<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
-<p>然后再次执行安装就成功了。</p>
-<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
-<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
-<p>在使用splatfacto进行训练时报错：
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
-                      alt="error3" style="zoom:80%;" 
-                ></p>
-<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
-<p>在github的issue里找到了解决方案：<a class="link" 
- href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
-toolkit found. gsplat will be disabled. · Issue #249 ·
-nerfstudio-project/gsplat <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
-<p>即，将path添加进去：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
-<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
-<p>结果还是报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
-                      alt="error4" style="zoom:80%;" 
-                ></p>
-<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
-<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
-<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
-<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
-                      alt="nerfacto" style="zoom: 67%;" 
-                ></p>
-<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
-<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
-splat。为了对其进行可视化，选择使用了 <a class="link" 
- href="https://github.com/playcanvas/supersplat" >supersplat <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
-这个工具：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
-                      alt="1" style="zoom:67%;" 
-                ></p>
-<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
-splat。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
-                      alt="image-20241119133706308" style="zoom:67%;" 
-                ></p>
-<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
-splat转化为网格形式，这是后续工作的重点。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mathjax与渲染引擎marked冲突解决方案</title>
-    <url>/2024/11/11/7-Build_blog/</url>
-    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class="content">
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
-<ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
-Installing
-pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
-]]></content>
-      <categories>
-        <category>博客搭建</category>
-      </categories>
-      <tags>
-        <tag>blog</tag>
-        <tag>mathjax</tag>
-        <tag>marked</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>主流三维重建方法对比</title>
     <url>/2024/11/18/9-Reconstruction/</url>
     <content><![CDATA[<h2 id="meshanything">MeshAnything</h2>
@@ -1070,7 +916,7 @@ pandoc <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>下载�
 <p>当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM,
 Artist-Created
 Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了
-<a class="link"   href="https://github.com/buaacyw/MeshAnything" >MeshAnything <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+<a class="link"   href="https://github.com/buaacyw/MeshAnything" >MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
 ，该模型将网格提取视为生成问题，生成与指定形状对齐的 AM。</p>
 <p><img  
                      lazyload
@@ -1123,7 +969,7 @@ Cubes生成粗网格）来缩小训练与推理的域差距。</li>
 <ol type="1">
 <li><p>关于3D Gaussian转为mesh：</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/29" >About 3D
-Gaussians · Issue #29 · buaacyw/MeshAnything <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+Gaussians · Issue #29 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 <blockquote>
 <p>We suggest converting the 3D Gaussians into a mesh before inputting
 them into our method.</p>
@@ -1131,23 +977,23 @@ them into our method.</p>
 <p>作者直接建议将3D Gaussian转为mesh再作为该方法的输入。（迷惑）</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/6" >How to
 convert 3D gaussian splatting to mesh? · Issue #6 ·
-buaacyw/MeshAnything <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 <blockquote>
-<p>Hi, I use <a class="link"   href="https://github.com/Anttwo/SuGaR" >SUGAR <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> to get
+<p>Hi, I use <a class="link"   href="https://github.com/Anttwo/SuGaR" >SUGAR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> to get
 high quality mesh from GS and then sample point cloud on the 3D GS.
 Other methods like <a class="link" 
- href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a> should
+ href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> should
 also work well. I suggest you run these methods directly in their repos
 and use the results as inputs for our method.</p>
 </blockquote>
 <p>另一个<code>issue</code>里，作者提到了两个方法来进行这种转化：SuGaR和2DGS。</p></li>
 <li><p>关于大规模点云转mesh：</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/9" >large
-scale pointCloud · Issue #9 · buaacyw/MeshAnything <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+scale pointCloud · Issue #9 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 <p>MeshAnything目前限制在800个face，对复杂mesh或大规模点云可能无法比较好地转化。</p></li>
 <li><p>关于image和text转mesh：</p>
 <p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/4" >How to do
-text and images? · Issue #4 · buaacyw/MeshAnything <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a></p>
+text and images? · Issue #4 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 <blockquote>
 <p>The image/text to mesh is achieved by combining with 3D generation
 methods. We first obtain dense meshes from 3D generation methods and use
@@ -1211,14 +1057,14 @@ fail</strong>：创建空环境一步一步安装依赖。</p></li>
 <li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
- href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网 <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>找到对应版本的安装包复制链接再install：</p>
+ href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>找到对应版本的安装包复制链接再install：</p>
 <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>其他 conda 包找不到</strong>：直接pip
 insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
 <li><p><strong>CUDA-capable device(s) is/are busy or
 unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没遇到这么多问题。</p></li>
 <li><p><strong>卡在 'computing mesh...' </strong>: 在 <a class="link" 
- href="https://github.com/Anttwo/SuGaR/issues/219" >issue <i class="fa-regular fa-arrow-up-right-from-square fa-sm"></i></a>
+ href="https://github.com/Anttwo/SuGaR/issues/219" >issue<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
 看到了一模一样的情况，目前还没解决这个问题。</p></li>
 </ol>
 <h2 id="dgs">2DGS</h2>
@@ -1231,6 +1077,160 @@ unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没
         <tag>NeRF</tag>
         <tag>3DGS</tag>
         <tag>2DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mathjax与渲染引擎marked冲突解决方案</title>
+    <url>/2024/11/11/7-Build_blog/</url>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
+<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
+<h3 id="踩坑过程">踩坑过程</h3>
+<h4 id="修改源码失败">1.修改源码（失败）</h4>
+<p>太长了，折叠一下，想看就展开吧👇。</p>
+<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class="content">
+              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
+              </div>
+            </details>
+<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
+<p>最简单的方法，博主最初的妥协。</p>
+<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
+<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
+<p>直接卸载源引擎，更换kramed：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
+<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
+<p>将</p>
+<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>将</p>
+<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
+<ol type="1">
+<li><p>安装Pandoc。</p>
+<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
+Installing
+pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
+<li><p>更换引擎。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>mathjax的安装和配置可参考网上的教程。</p></li>
+<li><p>重新构建。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
+]]></content>
+      <categories>
+        <category>博客搭建</category>
+      </categories>
+      <tags>
+        <tag>blog</tag>
+        <tag>mathjax</tag>
+        <tag>marked</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeRF Studio踩坑过程</title>
+    <url>/2024/11/12/8-NeRF_Studio/</url>
+    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+写的教程已经很详尽了。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
+<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
+<p>在训练过程中，终端出现了如下的warning：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>不出意外的话就要出意外了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
+                      alt="error" style="zoom: 80%;" 
+                ></p>
+<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
+<p>然后切换版本：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
+<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
+<p>发现还是不行，看报错里有这样一句：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
+                      alt="error2" style="zoom:80%;" 
+                ></p>
+<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
+<p>然后再次执行安装就成功了。</p>
+<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
+<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
+<p>在使用splatfacto进行训练时报错：
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
+                      alt="error3" style="zoom:80%;" 
+                ></p>
+<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
+<p>在github的issue里找到了解决方案：<a class="link" 
+ href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
+toolkit found. gsplat will be disabled. · Issue #249 ·
+nerfstudio-project/gsplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p>即，将path添加进去：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
+<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
+<p>结果还是报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
+                      alt="error4" style="zoom:80%;" 
+                ></p>
+<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
+<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
+<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
+<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
+                      alt="nerfacto" style="zoom: 67%;" 
+                ></p>
+<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
+<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
+splat。为了对其进行可视化，选择使用了 <a class="link" 
+ href="https://github.com/playcanvas/supersplat" >supersplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+这个工具：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
+                      alt="1" style="zoom:67%;" 
+                ></p>
+<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
+splat。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
+                      alt="image-20241119133706308" style="zoom:67%;" 
+                ></p>
+<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
+splat转化为网格形式，这是后续工作的重点。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
       </tags>
   </entry>
 </search>
