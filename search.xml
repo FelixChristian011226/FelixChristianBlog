@@ -98,6 +98,55 @@ the world body or to static children of the world.</p>
       </tags>
   </entry>
   <entry>
+    <title>Mujoco - CoACD简略教程</title>
+    <url>/2024/09/29/3-CoACD_notes/</url>
+    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
+<h2 id="安装教程">安装教程</h2>
+<h3 id="克隆代码">(1) 克隆代码：</h3>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
+<h3 id="安装依赖">(2) 安装依赖：</h3>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
+</blockquote>
+<h3 id="编译">(3) 编译</h3>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
+<p>​ 然后编译：</p>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>这里出了很多warning，但是好像不影响使用。</p>
+</blockquote>
+<h3 id="使用">(4) 使用</h3>
+<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
+<h2 id="参数说明">参数说明</h2>
+<ul>
+<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
+<li><strong>-c/--max-convex-hull</strong> :
+凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
+<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
+<li><strong>-am/--approximate-mode</strong> :
+近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
+<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
+</ul>
+<p><strong>说明</strong>：</p>
+<ol type="1">
+<li>大多数情况下，只需调整<code>threshold</code>
+（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
+<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
+、
+<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>CoACD</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GauU-Scene V2 论文解读</title>
     <url>/2024/11/05/5-GauU_Scene_V2/</url>
     <content><![CDATA[<p>论文：</p>
@@ -617,6 +666,367 @@ pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top 
       </tags>
   </entry>
   <entry>
+    <title>NeRF Studio踩坑过程</title>
+    <url>/2024/11/12/8-NeRF_Studio/</url>
+    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+写的教程已经很详尽了。</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
+<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
+<p>在训练过程中，终端出现了如下的warning：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>不出意外的话就要出意外了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
+                      alt="error" style="zoom: 80%;" 
+                ></p>
+<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
+<p>然后切换版本：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
+<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
+<p>发现还是不行，看报错里有这样一句：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
+                      alt="error2" style="zoom:80%;" 
+                ></p>
+<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
+<p>然后再次执行安装就成功了。</p>
+<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
+<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
+<p>在使用splatfacto进行训练时报错：
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
+                      alt="error3" style="zoom:80%;" 
+                ></p>
+<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
+<p>在github的issue里找到了解决方案：<a class="link" 
+ href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
+toolkit found. gsplat will be disabled. · Issue #249 ·
+nerfstudio-project/gsplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p>即，将path添加进去：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
+<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
+<p>结果还是报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
+                      alt="error4" style="zoom:80%;" 
+                ></p>
+<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
+<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
+<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
+<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
+                      alt="nerfacto" style="zoom: 67%;" 
+                ></p>
+<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
+<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
+splat。为了对其进行可视化，选择使用了 <a class="link" 
+ href="https://github.com/playcanvas/supersplat" >supersplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+这个工具：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
+                      alt="1" style="zoom:67%;" 
+                ></p>
+<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
+splat。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
+                      alt="image-20241119133706308" style="zoom:67%;" 
+                ></p>
+<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
+splat转化为网格形式，这是后续工作的重点。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>主流三维重建方法对比</title>
+    <url>/2024/11/18/9-Reconstruction/</url>
+    <content><![CDATA[<h2 id="meshanything">MeshAnything</h2>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/1630f28c1eaf60eb65bdd5e72f47430d.gif"
+                      alt="demo_video" style="zoom: 67%;" 
+                ></p>
+<h3 id="问题背景">问题背景</h3>
+<p>当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM,
+Artist-Created
+Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了
+<a class="link"   href="https://github.com/buaacyw/MeshAnything" >MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+，该模型将网格提取视为生成问题，生成与指定形状对齐的 AM。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/5febb2fa38db1681a29897d2bf6f4f5e.png"
+                      alt="Refer to caption" style="zoom:50%;" 
+                ></p>
+<p>上图是对真实形状使用<code>Marching Cubes</code>和<code>MeshAnything</code>，然后对不同<code>voxel size</code>的<code>Marching Cubes</code>进行<code>remesh</code>的结果。现有方法以重构方式提取网格，忽略了对象的几何特征并产生拓扑较差的密集网格。这些方法从根本上无法捕捉锐利的边缘和平坦的表面，如放大图所示。</p>
+<h3 id="核心方法">核心方法</h3>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2ccc528c2caa28dece7df53cd9041b5e.png"
+                      alt="image-20241119142104541" style="zoom: 50%;" 
+                ></p>
+<p><strong>重新定义问题</strong>：</p>
+<ul>
+<li>将网格提取看作一个生成任务，而非重建任务。</li>
+<li>目标是生成与给定形状对齐的高效拓扑网格（AMs），使其更接近人工设计。</li>
+</ul>
+<p><strong>模型架构</strong>：</p>
+<ul>
+<li>使用 <strong>VQ-VAE</strong> 学习网格的“词汇”（网格编码）。</li>
+<li>基于“词汇”训练一个<strong>仅解码自回归Transformer</strong>，以形状条件为输入，生成网格。</li>
+<li>增强了
+<strong>VQ-VAE解码器</strong>，使其抗噪，能够处理低质量的令牌序列，并利用形状信息辅助解码。</li>
+</ul>
+<p><strong>形状条件的设计</strong>：</p>
+<ul>
+<li>选择点云作为输入形状条件，因其具有连续表示性且易于编码。</li>
+<li>在训练时通过对真实网格进行降质（如使用Marching
+Cubes生成粗网格）来缩小训练与推理的域差距。</li>
+</ul>
+<p><strong>优化训练</strong>：</p>
+<ul>
+<li>在VQ-VAE训练完成后，额外细调解码器，模拟推理中可能生成的低质量令牌序列，并提高对噪声的鲁棒性。</li>
+</ul>
+<h3 id="实验结果">实验结果</h3>
+<ul>
+<li><strong>生成效率</strong>： MeshAnything
+生成的网格面数比传统方法减少数百倍，同时保留较高的形状对齐质量。</li>
+<li><strong>拓扑质量</strong>：
+在用户研究中，MeshAnything的形状和拓扑质量显著优于现有方法，表明其生成的网格更接近艺术家手工制作的标准。</li>
+<li><strong>泛化能力</strong>：
+能处理来自各种3D表示（如点云、体素、NeRF等）的输入，支持广泛的3D资产生产管线。</li>
+</ul>
+<h3 id="存在问题">存在问题</h3>
+<p>第一眼见这个工作的时候，有被震撼到。以为这个工作将多种三维重建方式整合起来了。从它的演示中，看见它可以从三维高斯、图像、文本直接生成几何形状完整但面数较精简的网格。然而自己部署运行之后发现好像并不是这样。</p>
+<p>在查阅代码仓库的<code>readme</code>时，发现所给的示例代码全是从点云或者网格进行转化的代码。正疑惑如何将其他表达方式进行转化，于是看了下<code>issues</code>：</p>
+<ol type="1">
+<li><p>关于3D Gaussian转为mesh：</p>
+<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/29" >About 3D
+Gaussians · Issue #29 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>We suggest converting the 3D Gaussians into a mesh before inputting
+them into our method.</p>
+</blockquote>
+<p>作者直接建议将3D Gaussian转为mesh再作为该方法的输入。（迷惑）</p>
+<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/6" >How to
+convert 3D gaussian splatting to mesh? · Issue #6 ·
+buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>Hi, I use <a class="link"   href="https://github.com/Anttwo/SuGaR" >SUGAR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> to get
+high quality mesh from GS and then sample point cloud on the 3D GS.
+Other methods like <a class="link" 
+ href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> should
+also work well. I suggest you run these methods directly in their repos
+and use the results as inputs for our method.</p>
+</blockquote>
+<p>另一个<code>issue</code>里，作者提到了两个方法来进行这种转化：SuGaR和2DGS。</p></li>
+<li><p>关于大规模点云转mesh：</p>
+<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/9" >large
+scale pointCloud · Issue #9 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p>MeshAnything目前限制在800个face，对复杂mesh或大规模点云可能无法比较好地转化。</p></li>
+<li><p>关于image和text转mesh：</p>
+<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/4" >How to do
+text and images? · Issue #4 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>The image/text to mesh is achieved by combining with 3D generation
+methods. We first obtain dense meshes from 3D generation methods and use
+them as input to our methods. Note that the shape quality of dense
+meshes should be high enough. Thus, feed-forward 3D generation methods
+may often produce bad results due to insufficient shape quality. We
+suggest using results from SDS-based pipelines (like DreamCraft3D) as
+the input of MeshAnything as they produce better shape quality.</p>
+</blockquote>
+<p>意思就是，通过其他方法生成<code>dense mesh</code>，然后再作为该方法的输入呗？</p></li>
+</ol>
+<p>大概总结一下就是，这个方法只是将已有的<code>Mesh</code>转化为<code>Artist-Created Meshes</code>而已，包括之前提到的3DGS、image、text转mesh，根本就是通过别的方法实现的。它是将精度高的密mesh在保留大部分几何特征的情况下进行的“简化”和“优化”，让面片数更精简且拓扑结构更符合人类直觉。</p>
+<p>（吐槽一句，我感觉这个标题还有最开始的演示，有种标题党的意味。还以为真的是mesh
+anything）</p>
+<h2 id="sugar">SuGaR</h2>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f5a25af6a79c1435d4eac688c356059b.gif"
+                      alt="kitchen_hybrid.gif" style="zoom:67%;" 
+                ></p>
+<h3 id="问题背景-1">问题背景</h3>
+<p>3D Gaussian Splatting 是一种高效的 3D
+场景渲染方法，但其优化后生成的大量无结构的 3D Gaussians
+不便于生成可编辑的网格（Mesh）。</p>
+<p>当前使用 Neural SDF
+提取网格的方法计算量大，需多GPU训练，且耗时较长（通常需24小时以上）。</p>
+<h3 id="核心方法-1">核心方法</h3>
+<p><strong>表面对齐正则化</strong>：</p>
+<ul>
+<li>引入一个正则化项，强制优化后的 3D Gaussians
+分布于场景表面，从而更好地捕获场景几何信息。</li>
+<li>通过优化 Signed Distance Function (SDF)，使 Gaussians
+平坦化，并沿着表面分布。</li>
+</ul>
+<p><strong>高效网格提取</strong>：</p>
+<ul>
+<li>基于优化后的 Gaussians，采样水平集上的点，使用 Poisson
+重建算法生成三角形网格。相比于 Marching Cubes
+算法，该方法对稀疏数据更鲁棒，且计算更高效。</li>
+</ul>
+<p><strong>绑定 Gaussians 到网格</strong>：</p>
+<ul>
+<li>将优化后的 Gaussians 与生成的网格表面绑定，进一步优化 Gaussians
+和网格，通过 Gaussian Splatting 渲染，提升渲染质量。</li>
+<li>这种绑定使得可以通过编辑网格来实现对场景的修改。</li>
+</ul>
+<h3 id="实验结果-1">实验结果</h3>
+<ul>
+<li><strong>速度</strong>：SuGaR 方法在单 GPU
+上仅需几分钟即可提取出高质量网格，远快于基于 SDF 的方法。</li>
+<li><strong>质量</strong>：在多个数据集上的定量评估显示，SuGaR
+的渲染质量（PSNR、SSIM、LPIPS）优于其他基于网格的方法，并与仅关注渲染质量的顶尖方法接近。</li>
+<li><strong>可编辑性</strong>：生成的网格与绑定的 Gaussians
+可以直接用于动画、重光照、雕刻等操作，提供了更高的灵活性。</li>
+</ul>
+<h3 id="踩坑记录">踩坑记录</h3>
+<ol type="1">
+<li><p><strong>environment.yml 创建环境
+fail</strong>：创建空环境一步一步安装依赖。</p></li>
+<li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
+<li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
+ href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>找到对应版本的安装包复制链接再install：</p>
+<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
+<li><p><strong>其他 conda 包找不到</strong>：直接pip
+insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
+<li><p><strong>CUDA-capable device(s) is/are busy or
+unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没遇到这么多问题。</p></li>
+<li><p><strong>卡在 'computing mesh...' </strong>: 在 <a class="link" 
+ href="https://github.com/Anttwo/SuGaR/issues/219" >issue<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+看到了一模一样的情况，目前还没解决这个问题。</p></li>
+</ol>
+<h2 id="dgs">2DGS</h2>
+<h3 id="问题背景-2">问题背景</h3>
+<p>在计算机图形学和视觉领域，<strong>视角一致的几何重建</strong>与<strong>真实感的新视角合成（NVS）*<em>一直是重要的研究目标。近年来，基于*</em>3D
+Gaussian Splatting (3DGS)</strong>
+的显式方法因其实时渲染能力而受到关注。然而，3DGS
+在以下方面存在显著问题：</p>
+<ol type="1">
+<li><strong>表面几何不精确</strong>：3D高斯的体积表示与物体的薄表面特性冲突，导致表面重建质量较低。</li>
+<li><strong>多视角不一致性</strong>：3DGS
+在不同视角下计算交点时，由于投影平面变化，产生深度和法线的不一致性。</li>
+</ol>
+<p>为了解决这些问题，本文提出了一种新的显式建模方法——<strong>2D Gaussian
+Splatting
+(2DGS)</strong>，以提高几何重建的精度和视角一致性，同时保留快速渲染能力。</p>
+<h3 id="核心方法-2">核心方法</h3>
+<ol type="1">
+<li><strong>方法概述</strong></li>
+</ol>
+<ul>
+<li>通过二维高斯平面（即二维椭圆盘）来替代三维高斯球体，将场景建模为一组二维高斯分布的集合。</li>
+<li>这些二维高斯盘通过显式的光线与平面交点计算，实现几何表面和光照的高效表示。</li>
+<li>结合梯度优化，从稀疏点云和多视角图像中同时优化外观与几何。</li>
+</ul>
+<ol start="2" type="1">
+<li><strong>关键技术</strong></li>
+</ol>
+<ul>
+<li><p><strong>透视准确的二维高斯渲染</strong>：利用光线与二维高斯交点的显式计算，避免传统近似方法带来的透视误差。</p></li>
+<li><p>正则化损失</p>
+<p>：</p>
+<ul>
+<li><strong>深度失真损失</strong>：通过约束二维高斯沿光线分布的紧密性，确保几何表面稳定。</li>
+<li><strong>法线一致性损失</strong>：约束二维高斯表面的法线方向与深度图梯度对齐，保证表面平滑性。</li>
+</ul></li>
+<li><p><strong>高效实现</strong>：基于CUDA的自定义内核加速训练和实时渲染。</p></li>
+</ul>
+<ol start="3" type="1">
+<li><strong>优化流程</strong></li>
+</ol>
+<ul>
+<li>初始化稀疏点云并结合多视角RGB图像，优化二维高斯参数（位置、缩放、方向）。</li>
+<li>使用正则化损失减少噪声，增强几何表面和视角一致性。</li>
+</ul>
+<h3 id="实验结果-2">实验结果</h3>
+<ol type="1">
+<li><strong>实验设置</strong></li>
+</ol>
+<ul>
+<li><strong>数据集</strong>：DTU、Tanks and Temples 和
+Mip-NeRF360，涵盖不同场景和分辨率。</li>
+<li><strong>比较方法</strong>：隐式表征方法（如NeRF、NeuS）与显式方法（如3DGS、SuGaR）。</li>
+</ul>
+<ol start="2" type="1">
+<li><strong>主要实验结果</strong></li>
+</ol>
+<ul>
+<li>几何重建：
+<ul>
+<li>在DTU数据集上，Chamfer距离优于现有方法，特别是在细节捕捉和噪声消除方面。</li>
+<li>比隐式方法快100倍的训练速度，比其他显式方法（如SuGaR）快3倍以上。</li>
+</ul></li>
+<li>新视角合成：
+<ul>
+<li>在Mip-NeRF360数据集上，新视角渲染质量接近3DGS，且同时提供了更高的几何精度。</li>
+</ul></li>
+<li>消融实验：
+<ul>
+<li>验证了正则化项的有效性：缺失法线一致性会导致表面方向噪声，缺失深度失真损失会导致表面模糊。</li>
+</ul></li>
+</ul>
+<ol start="3" type="1">
+<li><strong>定量与定性表现</strong></li>
+</ol>
+<ul>
+<li><strong>定量结果</strong>：在DTU数据集上，2DGS的Chamfer距离和PSNR均达到当前最优，同时显著减少了训练时间和模型存储需求。</li>
+<li><strong>定性结果</strong>：相比3DGS和SuGaR，2DGS在复杂几何和细节捕捉上表现更优，能更好地重建噪声较少的表面。</li>
+</ul>
+<h3 id="重建效果">重建效果</h3>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/aed5c29dccb760e3d3e56912012efcf3.png"
+                      alt="image-20241125175349810" style="zoom:50%;" 
+                ></p>
+<p>上图是训练30000个iteration后生成的mesh。可以看出2DGS生成的mesh还是比较精确的。</p>
+<h2 id="gof">GOF</h2>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+        <tag>2DGS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NeRF和3DGS对比</title>
     <url>/2024/10/30/4-NeRFvs3DGS/</url>
     <content><![CDATA[<h2 id="nerf">NeRF</h2>
@@ -905,332 +1315,6 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
       <tags>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeRF Studio踩坑过程</title>
-    <url>/2024/11/12/8-NeRF_Studio/</url>
-    <content><![CDATA[<h2 id="安装nerf-studio">安装NeRF Studio</h2>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-写的教程已经很详尽了。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
-<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d</p>
-<h2 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h2>
-<p>在训练过程中，终端出现了如下的warning：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>不出意外的话就要出意外了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
-                      alt="error" style="zoom: 80%;" 
-                ></p>
-<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
-<p>然后切换版本：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
-<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
-<p>发现还是不行，看报错里有这样一句：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
-                      alt="error2" style="zoom:80%;" 
-                ></p>
-<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
-<p>然后再次执行安装就成功了。</p>
-<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
-<h2 id="使用splatfacto训练报错">使用splatfacto训练报错</h2>
-<p>在使用splatfacto进行训练时报错：
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
-                      alt="error3" style="zoom:80%;" 
-                ></p>
-<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
-<p>在github的issue里找到了解决方案：<a class="link" 
- href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
-toolkit found. gsplat will be disabled. · Issue #249 ·
-nerfstudio-project/gsplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<p>即，将path添加进去：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
-<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
-<p>结果还是报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
-                      alt="error4" style="zoom:80%;" 
-                ></p>
-<p>查阅发现是内存不够的原因。自己的WSL虚拟机内存太少了。租了个服务器就能完美运行。</p>
-<h2 id="nerfacto和splatfacto效果对比">nerfacto和splatfacto效果对比</h2>
-<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
-<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
-                      alt="nerfacto" style="zoom: 67%;" 
-                ></p>
-<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
-<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
-splat。为了对其进行可视化，选择使用了 <a class="link" 
- href="https://github.com/playcanvas/supersplat" >supersplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-这个工具：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
-                      alt="1" style="zoom:67%;" 
-                ></p>
-<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
-splat。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
-                      alt="image-20241119133706308" style="zoom:67%;" 
-                ></p>
-<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
-splat转化为网格形式，这是后续工作的重点。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - CoACD简略教程</title>
-    <url>/2024/09/29/3-CoACD_notes/</url>
-    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
-<h2 id="安装教程">安装教程</h2>
-<h3 id="克隆代码">(1) 克隆代码：</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
-<h3 id="安装依赖">(2) 安装依赖：</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
-</blockquote>
-<h3 id="编译">(3) 编译</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
-<p>​ 然后编译：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>这里出了很多warning，但是好像不影响使用。</p>
-</blockquote>
-<h3 id="使用">(4) 使用</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
-<h2 id="参数说明">参数说明</h2>
-<ul>
-<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
-<li><strong>-c/--max-convex-hull</strong> :
-凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
-<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
-<li><strong>-am/--approximate-mode</strong> :
-近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
-<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
-</ul>
-<p><strong>说明</strong>：</p>
-<ol type="1">
-<li>大多数情况下，只需调整<code>threshold</code>
-（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
-<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
-、
-<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>convex</tag>
-        <tag>CoACD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>主流三维重建方法对比</title>
-    <url>/2024/11/18/9-Reconstruction/</url>
-    <content><![CDATA[<h2 id="meshanything">MeshAnything</h2>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/1630f28c1eaf60eb65bdd5e72f47430d.gif"
-                      alt="demo_video" style="zoom: 67%;" 
-                ></p>
-<h3 id="问题背景">问题背景</h3>
-<p>当前网格提取方法生成的网格明显不如艺术家创建的网格 (AM,
-Artist-Created
-Meshes)，即由人类艺术家创建的网格。具体来说，当前的网格提取方法依赖于密集的面并忽略几何特征，导致效率低下、后处理复杂且表示质量较低等问题。为了解决这些问题，论文引入了
-<a class="link"   href="https://github.com/buaacyw/MeshAnything" >MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-，该模型将网格提取视为生成问题，生成与指定形状对齐的 AM。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/5febb2fa38db1681a29897d2bf6f4f5e.png"
-                      alt="Refer to caption" style="zoom:50%;" 
-                ></p>
-<p>上图是对真实形状使用<code>Marching Cubes</code>和<code>MeshAnything</code>，然后对不同<code>voxel size</code>的<code>Marching Cubes</code>进行<code>remesh</code>的结果。现有方法以重构方式提取网格，忽略了对象的几何特征并产生拓扑较差的密集网格。这些方法从根本上无法捕捉锐利的边缘和平坦的表面，如放大图所示。</p>
-<h3 id="核心方法">核心方法</h3>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2ccc528c2caa28dece7df53cd9041b5e.png"
-                      alt="image-20241119142104541" style="zoom: 50%;" 
-                ></p>
-<p><strong>重新定义问题</strong>：</p>
-<ul>
-<li>将网格提取看作一个生成任务，而非重建任务。</li>
-<li>目标是生成与给定形状对齐的高效拓扑网格（AMs），使其更接近人工设计。</li>
-</ul>
-<p><strong>模型架构</strong>：</p>
-<ul>
-<li>使用 <strong>VQ-VAE</strong> 学习网格的“词汇”（网格编码）。</li>
-<li>基于“词汇”训练一个<strong>仅解码自回归Transformer</strong>，以形状条件为输入，生成网格。</li>
-<li>增强了
-<strong>VQ-VAE解码器</strong>，使其抗噪，能够处理低质量的令牌序列，并利用形状信息辅助解码。</li>
-</ul>
-<p><strong>形状条件的设计</strong>：</p>
-<ul>
-<li>选择点云作为输入形状条件，因其具有连续表示性且易于编码。</li>
-<li>在训练时通过对真实网格进行降质（如使用Marching
-Cubes生成粗网格）来缩小训练与推理的域差距。</li>
-</ul>
-<p><strong>优化训练</strong>：</p>
-<ul>
-<li>在VQ-VAE训练完成后，额外细调解码器，模拟推理中可能生成的低质量令牌序列，并提高对噪声的鲁棒性。</li>
-</ul>
-<h3 id="实验结果">实验结果</h3>
-<ul>
-<li><strong>生成效率</strong>： MeshAnything
-生成的网格面数比传统方法减少数百倍，同时保留较高的形状对齐质量。</li>
-<li><strong>拓扑质量</strong>：
-在用户研究中，MeshAnything的形状和拓扑质量显著优于现有方法，表明其生成的网格更接近艺术家手工制作的标准。</li>
-<li><strong>泛化能力</strong>：
-能处理来自各种3D表示（如点云、体素、NeRF等）的输入，支持广泛的3D资产生产管线。</li>
-</ul>
-<h3 id="存在问题">存在问题</h3>
-<p>第一眼见这个工作的时候，有被震撼到。以为这个工作将多种三维重建方式整合起来了。从它的演示中，看见它可以从三维高斯、图像、文本直接生成几何形状完整但面数较精简的网格。然而自己部署运行之后发现好像并不是这样。</p>
-<p>在查阅代码仓库的<code>readme</code>时，发现所给的示例代码全是从点云或者网格进行转化的代码。正疑惑如何将其他表达方式进行转化，于是看了下<code>issues</code>：</p>
-<ol type="1">
-<li><p>关于3D Gaussian转为mesh：</p>
-<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/29" >About 3D
-Gaussians · Issue #29 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<blockquote>
-<p>We suggest converting the 3D Gaussians into a mesh before inputting
-them into our method.</p>
-</blockquote>
-<p>作者直接建议将3D Gaussian转为mesh再作为该方法的输入。（迷惑）</p>
-<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/6" >How to
-convert 3D gaussian splatting to mesh? · Issue #6 ·
-buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<blockquote>
-<p>Hi, I use <a class="link"   href="https://github.com/Anttwo/SuGaR" >SUGAR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> to get
-high quality mesh from GS and then sample point cloud on the 3D GS.
-Other methods like <a class="link" 
- href="https://github.com/hbb1/2d-gaussian-splatting" >2DGS<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> should
-also work well. I suggest you run these methods directly in their repos
-and use the results as inputs for our method.</p>
-</blockquote>
-<p>另一个<code>issue</code>里，作者提到了两个方法来进行这种转化：SuGaR和2DGS。</p></li>
-<li><p>关于大规模点云转mesh：</p>
-<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/9" >large
-scale pointCloud · Issue #9 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<p>MeshAnything目前限制在800个face，对复杂mesh或大规模点云可能无法比较好地转化。</p></li>
-<li><p>关于image和text转mesh：</p>
-<p><a class="link"   href="https://github.com/buaacyw/MeshAnything/issues/4" >How to do
-text and images? · Issue #4 · buaacyw/MeshAnything<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<blockquote>
-<p>The image/text to mesh is achieved by combining with 3D generation
-methods. We first obtain dense meshes from 3D generation methods and use
-them as input to our methods. Note that the shape quality of dense
-meshes should be high enough. Thus, feed-forward 3D generation methods
-may often produce bad results due to insufficient shape quality. We
-suggest using results from SDS-based pipelines (like DreamCraft3D) as
-the input of MeshAnything as they produce better shape quality.</p>
-</blockquote>
-<p>意思就是，通过其他方法生成<code>dense mesh</code>，然后再作为该方法的输入呗？</p></li>
-</ol>
-<p>大概总结一下就是，这个方法只是将已有的<code>Mesh</code>转化为<code>Artist-Created Meshes</code>而已，包括之前提到的3DGS、image、text转mesh，根本就是通过别的方法实现的。它是将精度高的密mesh在保留大部分几何特征的情况下进行的“简化”和“优化”，让面片数更精简且拓扑结构更符合人类直觉。</p>
-<p>（吐槽一句，我感觉这个标题还有最开始的演示，有种标题党的意味。还以为真的是mesh
-anything）</p>
-<h2 id="sugar">SuGaR</h2>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f5a25af6a79c1435d4eac688c356059b.gif"
-                      alt="kitchen_hybrid.gif" style="zoom:67%;" 
-                ></p>
-<h3 id="问题背景-1">问题背景</h3>
-<p>3D Gaussian Splatting 是一种高效的 3D
-场景渲染方法，但其优化后生成的大量无结构的 3D Gaussians
-不便于生成可编辑的网格（Mesh）。</p>
-<p>当前使用 Neural SDF
-提取网格的方法计算量大，需多GPU训练，且耗时较长（通常需24小时以上）。</p>
-<h3 id="核心方法-1">核心方法</h3>
-<p><strong>表面对齐正则化</strong>：</p>
-<ul>
-<li>引入一个正则化项，强制优化后的 3D Gaussians
-分布于场景表面，从而更好地捕获场景几何信息。</li>
-<li>通过优化 Signed Distance Function (SDF)，使 Gaussians
-平坦化，并沿着表面分布。</li>
-</ul>
-<p><strong>高效网格提取</strong>：</p>
-<ul>
-<li>基于优化后的 Gaussians，采样水平集上的点，使用 Poisson
-重建算法生成三角形网格。相比于 Marching Cubes
-算法，该方法对稀疏数据更鲁棒，且计算更高效。</li>
-</ul>
-<p><strong>绑定 Gaussians 到网格</strong>：</p>
-<ul>
-<li>将优化后的 Gaussians 与生成的网格表面绑定，进一步优化 Gaussians
-和网格，通过 Gaussian Splatting 渲染，提升渲染质量。</li>
-<li>这种绑定使得可以通过编辑网格来实现对场景的修改。</li>
-</ul>
-<h3 id="实验结果-1">实验结果</h3>
-<ul>
-<li><strong>速度</strong>：SuGaR 方法在单 GPU
-上仅需几分钟即可提取出高质量网格，远快于基于 SDF 的方法。</li>
-<li><strong>质量</strong>：在多个数据集上的定量评估显示，SuGaR
-的渲染质量（PSNR、SSIM、LPIPS）优于其他基于网格的方法，并与仅关注渲染质量的顶尖方法接近。</li>
-<li><strong>可编辑性</strong>：生成的网格与绑定的 Gaussians
-可以直接用于动画、重光照、雕刻等操作，提供了更高的灵活性。</li>
-</ul>
-<h3 id="踩坑记录">踩坑记录</h3>
-<ol type="1">
-<li><p><strong>environment.yml 创建环境
-fail</strong>：创建空环境一步一步安装依赖。</p></li>
-<li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
-<li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
- href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>找到对应版本的安装包复制链接再install：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
-<li><p><strong>其他 conda 包找不到</strong>：直接pip
-insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
-<li><p><strong>CUDA-capable device(s) is/are busy or
-unavailable</strong>：不会解决了，换回AutoDL了。在AutoDL配环境没遇到这么多问题。</p></li>
-<li><p><strong>卡在 'computing mesh...' </strong>: 在 <a class="link" 
- href="https://github.com/Anttwo/SuGaR/issues/219" >issue<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-看到了一模一样的情况，目前还没解决这个问题。</p></li>
-</ol>
-<h2 id="dgs">2DGS</h2>
-<h2 id="gof">GOF</h2>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-        <tag>2DGS</tag>
       </tags>
   </entry>
 </search>
