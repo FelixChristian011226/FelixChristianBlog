@@ -1,31 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>NeRF2mesh</title>
-    <url>/2024/11/26/10-NeRF2mesh/</url>
-    <content><![CDATA[<h2 id="实验环境">实验环境</h2>
-<h2 id="踩坑过程">踩坑过程</h2>
-<h3 id="pytorch3d-安装">1. pytorch3d 安装</h3>
-<p>直接安装找不到包，于是选择克隆下来手动安装：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/iopath</span><br><span class="line">pip install -e iopath</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/fvcore</span><br><span class="line">pip install -e fvcore</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/pytorch3d.git</span><br><span class="line"><span class="built_in">cd</span> pytorch3d/</span><br><span class="line">pip install -e .</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-<h3 id="runtimeerror-ninja-is-required-to-load-c-extensions">2.
-RuntimeError: Ninja is required to load C++ extensions</h3>
-<p>其实就是<code>Ninja</code>没安装的原因，直接安装一遍就好了：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install ninja</span><br></pre></td></tr></table></figure></div>
-<h3 id="package-not-found">3. package not found</h3>
-<p>可以根据<code>requirements.txt</code>自行安装，值得注意的是有些包名称不一样。</p>
-<p>比如<code>cv2</code>包名是<code>opencv-python</code>，<code>sklearn</code>是<code>scikit-learn</code>，<code>mcubes</code>是<code>PyMCubes</code>...</p>
-<h2 id="section"></h2>
-<p>用了<code>nerfstudio</code>的<code>poster</code>数据集</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mujoco - 碰撞凸几何体要求</title>
     <url>/2024/09/29/2-Mujoco_notes/</url>
     <content><![CDATA[<h2 id="collision">Collision</h2>
@@ -70,6 +45,130 @@ MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" 
         <tag>mujoco</tag>
         <tag>collision</tag>
         <tag>convex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 高场hfield相关</title>
+    <url>/2024/09/26/1-Hfield/</url>
+    <content><![CDATA[<blockquote>
+<p>The <strong>hfield</strong> type defines a height field geom. The
+geom must reference the desired height field asset with the hfield
+attribute below. The position and orientation of the geom set the
+position and orientation of the height field. The size of the geom is
+ignored, and the size parameters of the height field asset are used
+instead. See the description of the <a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+element. Similar to planes, height field geoms can only be attached to
+the world body or to static children of the world.</p>
+</blockquote>
+<ol type="1">
+<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p></li>
+<li><p>可从bin文件读入，格式如下：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div></li>
+<li><p>高度数据可以在编译时保持未定义。</p></li>
+</ol>
+<ul>
+<li>编译器会自动把高度数据归一化到[0,1]</li>
+<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
+<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
+</ul>
+<h2 id="参数">参数</h2>
+<ul>
+<li><strong>name</strong>:
+名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
+<li><strong>content_type</strong>:
+目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
+<li><strong>file</strong>:
+文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
+<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0
+表示将从文件加载数据。</li>
+<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
+<li><strong>size</strong>:
+(radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
+</ul>
+<h2 id="使用样例">使用样例</h2>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>hfield</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeRF2mesh</title>
+    <url>/2024/11/26/10-NeRF2mesh/</url>
+    <content><![CDATA[<h2 id="实验环境">实验环境</h2>
+<h2 id="踩坑过程">踩坑过程</h2>
+<h3 id="pytorch3d-安装">1. pytorch3d 安装</h3>
+<p>直接安装找不到包，于是选择克隆下来手动安装：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/iopath</span><br><span class="line">pip install -e iopath</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/fvcore</span><br><span class="line">pip install -e fvcore</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/pytorch3d.git</span><br><span class="line"><span class="built_in">cd</span> pytorch3d/</span><br><span class="line">pip install -e .</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+<h3 id="runtimeerror-ninja-is-required-to-load-c-extensions">2.
+RuntimeError: Ninja is required to load C++ extensions</h3>
+<p>其实就是<code>Ninja</code>没安装的原因，直接安装一遍就好了：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install ninja</span><br></pre></td></tr></table></figure></div>
+<h3 id="package-not-found">3. package not found</h3>
+<p>可以根据<code>requirements.txt</code>自行安装，值得注意的是有些包名称不一样。</p>
+<p>比如<code>cv2</code>包名是<code>opencv-python</code>，<code>sklearn</code>是<code>scikit-learn</code>，<code>mcubes</code>是<code>PyMCubes</code>...</p>
+<h2 id="section"></h2>
+<p>用了<code>nerfstudio</code>的<code>poster</code>数据集</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - CoACD简略教程</title>
+    <url>/2024/09/29/3-CoACD_notes/</url>
+    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
+<h2 id="安装教程">安装教程</h2>
+<h3 id="克隆代码">(1) 克隆代码：</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
+<h3 id="安装依赖">(2) 安装依赖：</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
+</blockquote>
+<h3 id="编译">(3) 编译</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
+<p>​ 然后编译：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>这里出了很多warning，但是好像不影响使用。</p>
+</blockquote>
+<h3 id="使用">(4) 使用</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
+<h2 id="参数说明">参数说明</h2>
+<ul>
+<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
+<li><strong>-c/--max-convex-hull</strong> :
+凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
+<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
+<li><strong>-am/--approximate-mode</strong> :
+近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
+<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
+</ul>
+<p><strong>说明</strong>：</p>
+<ol type="1">
+<li>大多数情况下，只需调整<code>threshold</code>
+（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
+<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
+、
+<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>CoACD</tag>
       </tags>
   </entry>
   <entry>
@@ -688,110 +787,6 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
       </tags>
   </entry>
   <entry>
-    <title>Mathjax与渲染引擎marked冲突解决方案</title>
-    <url>/2024/11/11/7-Build_blog/</url>
-    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class="content">
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="highlight-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
-<ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
-Installing
-pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
-]]></content>
-      <categories>
-        <category>博客搭建</category>
-      </categories>
-      <tags>
-        <tag>blog</tag>
-        <tag>mathjax</tag>
-        <tag>marked</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - 高场hfield相关</title>
-    <url>/2024/09/26/1-Hfield/</url>
-    <content><![CDATA[<blockquote>
-<p>The <strong>hfield</strong> type defines a height field geom. The
-geom must reference the desired height field asset with the hfield
-attribute below. The position and orientation of the geom set the
-position and orientation of the height field. The size of the geom is
-ignored, and the size parameters of the height field asset are used
-instead. See the description of the <a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/XMLreference.html#asset-hfield" >hfield<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-element. Similar to planes, height field geoms can only be attached to
-the world body or to static children of the world.</p>
-</blockquote>
-<ol type="1">
-<li><p>可从PNG的灰度图像加载高场数据。每个像素即为一个高度，黑低白高。</p></li>
-<li><p>可从bin文件读入，格式如下：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(int32)   nrow</span><br><span class="line">(int32)   ncol</span><br><span class="line">(float32) data[nrow*ncol]</span><br></pre></td></tr></table></figure></div></li>
-<li><p>高度数据可以在编译时保持未定义。</p></li>
-</ol>
-<ul>
-<li>编译器会自动把高度数据归一化到[0,1]</li>
-<li>高场的位置和方向由geom确定，空间范围由hfield的size字段决定。（与mesh相同）</li>
-<li>高场视为三棱柱的并集，碰撞时首先确认可能碰撞的棱柱网格，然后通过凸面碰撞器计算。高场和geom的碰撞上限限制为50，超过的则被舍弃。</li>
-</ul>
-<h2 id="参数">参数</h2>
-<ul>
-<li><strong>name</strong>:
-名称，用于引用。如果忽略name，可用不带路径和后缀名的文件名代替引用。</li>
-<li><strong>content_type</strong>:
-目前支持<code>image/png</code>和<code>image/vnd.mujoco.hfield</code>。</li>
-<li><strong>file</strong>:
-文件名，若后缀为<code>.png</code>（不区分大小写），则按图像读入；否则以二进制文件读入。</li>
-<li><strong>nrow</strong>, <strong>ncol</strong>: 行数和列数。默认值 0
-表示将从文件加载数据。</li>
-<li><strong>elevation</strong>: 高场，自动归一，默认值0。</li>
-<li><strong>size</strong>:
-(radius_x、radius_y、elevation_z、base_z)，分别是x、y方向的半径，最大高度，和基础厚度。</li>
-</ul>
-<h2 id="使用样例">使用样例</h2>
-<div class="highlight-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mujoco</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">asset</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">hfield</span> <span class="attr">file</span>=<span class="string">&quot;./data/height_field.bin&quot;</span> <span class="attr">name</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">ncol</span>=<span class="string">&quot;100&quot;</span> <span class="attr">nrow</span>=<span class="string">&quot;100&quot;</span> <span class="attr">size</span>=<span class="string">&quot;50 50 1 0.1&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">asset</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">worldbody</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">geom</span> <span class="attr">hfield</span>=<span class="string">&quot;customTerrain&quot;</span> <span class="attr">pos</span>=<span class="string">&quot;0 0 0&quot;</span> <span class="attr">type</span>=<span class="string">&quot;hfield&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">worldbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mujoco</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>hfield</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SplatSim 论文解读</title>
     <url>/2024/11/06/6-SplatSim/</url>
     <content><![CDATA[<h2 id="背景">背景</h2>
@@ -933,52 +928,57 @@ RGB 的操作策略的模拟与真实之间的差距。
       </tags>
   </entry>
   <entry>
-    <title>Mujoco - CoACD简略教程</title>
-    <url>/2024/09/29/3-CoACD_notes/</url>
-    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
-<h2 id="安装教程">安装教程</h2>
-<h3 id="克隆代码">(1) 克隆代码：</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
-<h3 id="安装依赖">(2) 安装依赖：</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
-</blockquote>
-<h3 id="编译">(3) 编译</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
-<p>​ 然后编译：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>这里出了很多warning，但是好像不影响使用。</p>
-</blockquote>
-<h3 id="使用">(4) 使用</h3>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
-<h2 id="参数说明">参数说明</h2>
-<ul>
-<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
-<li><strong>-c/--max-convex-hull</strong> :
-凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
-<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
-<li><strong>-am/--approximate-mode</strong> :
-近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
-<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
-</ul>
-<p><strong>说明</strong>：</p>
+    <title>Mathjax与渲染引擎marked冲突解决方案</title>
+    <url>/2024/11/11/7-Build_blog/</url>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
+<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
+<h3 id="踩坑过程">踩坑过程</h3>
+<h4 id="修改源码失败">1.修改源码（失败）</h4>
+<p>太长了，折叠一下，想看就展开吧👇。</p>
+<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class="content">
+              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
+              </div>
+            </details>
+<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
+<p>最简单的方法，博主最初的妥协。</p>
+<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
+<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
+<p>直接卸载源引擎，更换kramed：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
+<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
 <ol type="1">
-<li>大多数情况下，只需调整<code>threshold</code>
-（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
-<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
-、
-<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
+<li><p>安装Pandoc。</p>
+<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
+Installing
+pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
+<li><p>更换引擎。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>mathjax的安装和配置可参考网上的教程。</p></li>
+<li><p>重新构建。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
 </ol>
+<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
 ]]></content>
       <categories>
-        <category>机器仿真</category>
+        <category>博客搭建</category>
       </categories>
       <tags>
-        <tag>mujoco</tag>
-        <tag>convex</tag>
-        <tag>CoACD</tag>
+        <tag>blog</tag>
+        <tag>mathjax</tag>
+        <tag>marked</tag>
       </tags>
   </entry>
   <entry>
@@ -1134,10 +1134,10 @@ anything）</p>
 <li><p><strong>environment.yml 创建环境
 fail</strong>：创建空环境一步一步安装依赖。</p></li>
 <li><p><strong>pytorch找不到包</strong>：使用国内镜像（需要注意是使用<code>-f</code>而不是<code>--index-url</code>）：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 -f https://mirrors.aliyun.com/pytorch-wheels/cu118</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>pytorch3d找不到包</strong>：去<a class="link" 
  href="https://anaconda.org/pytorch3d/pytorch3d/files?version=0.7.4" >Anaconda官网<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>找到对应版本的安装包复制链接再install：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">conda install https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py39_cu118_pyt201.tar.bz2</span><br></pre></td></tr></table></figure></div></li>
 <li><p><strong>其他 conda 包找不到</strong>：直接pip
 insatll。（换了国内源都没解决掉，只能出此下策）</p></li>
 <li><p><strong>CUDA-capable device(s) is/are busy or
@@ -1250,13 +1250,13 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
 <p><a class="link" 
  href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
 写的教程已经很详尽了。</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
 <p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d，建议还是按推荐配置来。</p>
 <h3 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h3>
 <p>在训练过程中，终端出现了如下的warning：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
 <p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
 <p>不出意外的话就要出意外了：</p>
 <p><img  
                      lazyload
@@ -1265,10 +1265,10 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
                       alt="error" style="zoom: 80%;" 
                 ></p>
 <p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
 <p>然后切换版本：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
-<p>如果有多个版本好像还得执行以下指令切换： <div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
+<p>如果有多个版本好像还得执行以下指令切换： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
 <p>发现还是不行，看报错里有这样一句：</p>
 <p><img  
                      lazyload
@@ -1277,7 +1277,7 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
                       alt="error2" style="zoom:80%;" 
                 ></p>
 <p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
 <p>然后再次执行安装就成功了。</p>
 <p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
 <h2 id="报错及解决方案">报错及解决方案</h2>
@@ -1296,7 +1296,7 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
 toolkit found. gsplat will be disabled. · Issue #249 ·
 nerfstudio-project/gsplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 <p>即，将path添加进去：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
 <p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
 <h4 id="ninja-build-stopped-subcommand-failed.">2. ninja: build stopped:
 subcommand failed.</h4>
@@ -1316,7 +1316,7 @@ ModuleNotFoundError: No module named
 'nerfstudio.fields.visibility_field'</h4>
 <p>在使用<code>nerfbusters</code>方法时，根据<a class="link" 
  href="https://docs.nerf.studio/nerfology/methods/nerfbusters.html" >文档<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>中的教程安装<code>nerfbuster</code>之后，简单的使用<code>--help</code>也会出现如下的报错：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;nerfstudio.fields.visibility_field&#x27;</span></span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;nerfstudio.fields.visibility_field&#x27;</span></span><br></pre></td></tr></table></figure></div>
 <p>切换其他基于<code>NeRF</code>的方法，有的依然会出现这个报错。</p>
 <p>然后在<code>issue</code>中找到了相似的情况：</p>
 <p><a class="link"   href="https://github.com/ethanweber/nerfbusters/issues/17" >Where's
@@ -1335,14 +1335,14 @@ nerfstudio-project/nerfstudio<i class="fa-solid fa-arrow-up-right ml-[0.2em] fon
 <p>其中提到，他们当前使用的branch是<code>nerfbusters-changes</code>，并没有计划把他合并到<code>main</code>
 branch。</p>
 <p>所以需要克隆他们的<code>nerfbusters-changes</code> branch：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b nerfbusters-changes https://github.com/nerfstudio-project/nerfstudio.git</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b nerfbusters-changes https://github.com/nerfstudio-project/nerfstudio.git</span><br></pre></td></tr></table></figure></div>
 <p>然后在根目录执行安装：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
 <p>这样就可以了。</p>
 <h4 id="numpy-has-no-attribute-bool8.-did-you-mean-bool">2. `numpy` has
 no attribute `bool8`. Did you mean: `bool`?</h4>
 <p>这是因为numpy在1.24更新后将<code>bool8</code>更名为了<code>bool</code>，降级numpy版本即可：</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install numpy==1.23</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install numpy==1.23</span><br></pre></td></tr></table></figure></div>
 <h4 id="the-viewer-bridge-server-subprocess-failed.">3. The viewer
 bridge server subprocess failed.</h4>
 <p><img  
@@ -1372,7 +1372,7 @@ id="error-failed-building-wheel-for-cuda_backend-或者-no-module-named-_cuda_ba
 ERROR: Failed building wheel for cuda_backend 或者 No module named
 '_cuda_backend'</h4>
 <p>在使用</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/SuLvXiangXin/zipnerf-pytorch#subdirectory=extensions/cuda</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/SuLvXiangXin/zipnerf-pytorch#subdirectory=extensions/cuda</span><br></pre></td></tr></table></figure></div>
 <p>安装依赖的时候，出现如下报错：</p>
 <p><img  
                      lazyload
@@ -1404,7 +1404,7 @@ AssertionError: <code>pipeline.datamanager.dataparser</code>...</h4>
 <p>第一次出现这长串报错是因为参数没输对，第二次问gpt说是与
 <code>tyro</code> 版本有关，尝试升级 <code>tyro</code>
 库以及相关依赖：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install --upgrade tyro</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install --upgrade tyro</span><br></pre></td></tr></table></figure></div>
 <p>然后看到error怂了：</p>
 <p><img  
                      lazyload
@@ -1413,14 +1413,14 @@ AssertionError: <code>pipeline.datamanager.dataparser</code>...</h4>
                       alt="image-20241126233430107" style="zoom:80%;" 
                 ></p>
 <p>于是又改回了推荐的版本：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install tyro==2.13.3</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install tyro==2.13.3</span><br></pre></td></tr></table></figure></div>
 <p>然后再运行就可以了。</p>
 <h4
 id="assertionerror-colmap-path-dataprocessed_trucksparse0-does-not-exist.">3.
 AssertionError: Colmap path data/processed_truck/sparse/0 does not
 exist.</h4>
 <p>这个原因是<code>zipnerf</code>用的数据集格式和<code>nerfstudio</code>好像不完全一致，我用了下<code>tandt</code>的数据集发现可行，但是它会对图像先进行一次下采样。</p>
-<div class="highlight-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(nerf2mesh) root@I1dc2923c3f00801cdf:~/3D-Reconstruction/nerf2mesh# python main.py nerfstudio/poster/ --workspace trial_syn_poster/ -O --bound 1 --scale 0.8 --dt_gamma 0 --stage 0 --lambda_tv 1e-8</span><br><span class="line">Warning:</span><br><span class="line">Unable to load the following plugins:</span><br><span class="line"></span><br><span class="line">        libio_e57.so: libio_e57.so does not seem to be a Qt Plugin.</span><br><span class="line"></span><br><span class="line">Cannot load library /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/pymeshlab/lib/plugins/libio_e57.so: (/usr/lib/x86_64-linux-gnu/libp11-kit.so.0: undefined symbol: ffi_type_pointer, version LIBFFI_BASE_7.0)</span><br><span class="line"></span><br><span class="line">Loading train data: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 225/225 [00:08&lt;00:00, 25.09it/s]</span><br><span class="line">[INFO] max_epoch 134, eval every 26, save every 2.</span><br><span class="line">[INFO] Trainer: ngp_stage0 | 2024-11-26_15-12-23 | cuda | fp16 | trial_syn_poster/</span><br><span class="line">[INFO] #parameters: 18367240</span><br><span class="line">Namespace(path=&#x27;nerfstudio/poster/&#x27;, O=True, workspace=&#x27;trial_syn_poster/&#x27;, seed=0, stage=0, ckpt=&#x27;latest&#x27;, fp16=True, sdf=False, tcnn=False, progressive_level=False, test=False, test_no_video=False, test_no_mesh=False, camera_traj=&#x27;&#x27;, data_format=&#x27;nerf&#x27;, train_split=&#x27;train&#x27;, preload=True, random_image_batch=True, </span><br><span class="line">downscale=1, bound=1.0, scale=0.8, offset=[0, 0, 0], mesh=&#x27;&#x27;, enable_cam_near_far=False, enable_cam_center=False, min_near=0.05, enable_sparse_depth=False, enable_dense_depth=False, iters=30000, lr=0.01, lr_vert=0.0001, pos_gradient_boost=1, cuda_ray=True, max_steps=1024, update_extra_interval=16, </span><br><span class="line">max_ray_batch=4096, grid_size=128, mark_untrained=True, dt_gamma=0.0, density_thresh=10, diffuse_step=1000, diffuse_only=False, background=&#x27;random&#x27;, enable_offset_nerf_grad=False, n_eval=5, n_ckpt=50, num_rays=4096, adaptive_num_rays=True, num_points=262144, lambda_density=0, lambda_entropy=0, lambda_tv=1e-08, </span><br><span class="line">lambda_depth=0.1, lambda_specular=1e-05, lambda_eikonal=0.1, lambda_rgb=1, lambda_mask=0.1, wo_smooth=False, lambda_lpips=0, lambda_offsets=0.1, lambda_lap=0.001, lambda_normal=0, lambda_edgelen=0, contract=False, patch_size=1, trainable_density_grid=False, color_space=&#x27;srgb&#x27;, ind_dim=0, ind_num=500, </span><br><span class="line">mcubes_reso=512, env_reso=256, decimate_target=300000.0, mesh_visibility_culling=True, visibility_mask_dilation=5, clean_min_f=8, clean_min_d=5, ssaa=2, texture_size=4096, refine=True, refine_steps_ratio=[0.1, 0.2, 0.3, 0.4, 0.5, 0.7], refine_size=0.01, refine_decimate_ratio=0.1, refine_remesh_size=0.02, </span><br><span class="line">vis_pose=False, gui=False, W=1000, H=1000, radius=5, fovy=50, max_spp=1, refine_steps=[3000, 6000, 9000, 12000, 15000, 21000])</span><br><span class="line">NeRFNetwork(</span><br><span class="line">  (encoder): GridEncoder: input_dim=3 num_levels=16 level_dim=1 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 1) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (sigma_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=19, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=1, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (encoder_color): GridEncoder: input_dim=3 num_levels=16 level_dim=2 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 2) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (color_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=35, out_features=64, bias=False)</span><br><span class="line">      (1): Linear(in_features=64, out_features=64, bias=False)</span><br><span class="line">      (2): Linear(in_features=64, out_features=6, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (specular_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=6, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=3, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">)</span><br><span class="line">[INFO] Loading latest checkpoint ...</span><br><span class="line">[WARN] No checkpoint found, abort loading latest model.</span><br><span class="line">Loading val data: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 21.10it/s]</span><br><span class="line">[mark untrained grid] 9364 from 2097152</span><br><span class="line">==&gt; Start Training Epoch 1, lr=0.000100 ...</span><br><span class="line">... ...</span><br><span class="line">loss=0.091703 (0.104557) lr=0.004555: : 100% 225/225 [00:03&lt;00:00, 69.94it/s]</span><br><span class="line">==&gt; Finished Epoch 133, loss = 0.078408.</span><br><span class="line">==&gt; Start Training Epoch 134, lr=0.001006 ...</span><br><span class="line">loss=0.075468 (0.078282) lr=0.000988: : 100% 225/225 [00:04&lt;00:00, 52.46it/s]</span><br><span class="line">==&gt; Finished Epoch 134, loss = 0.078282.</span><br><span class="line">[INFO] training takes 10.078925 minutes.</span><br><span class="line">Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter &#x27;pretrained&#x27; is deprecated since 0.13 and may be removed in the future, please use &#x27;weights&#x27; instead.</span><br><span class="line">  warnings.warn(</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for &#x27;weights&#x27; are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.</span><br><span class="line">  warnings.warn(msg)</span><br><span class="line">Downloading: &quot;https://download.pytorch.org/models/vgg16-397923af.pth&quot; to /root/.cache/torch/hub/checkpoints/vgg16-397923af.pth</span><br><span class="line">100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 528M/528M [35:11&lt;00:00, 262kB/s]</span><br><span class="line">Loading model from: /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/lpips/weights/v0.1/vgg.pth</span><br><span class="line">++&gt; Evaluate at epoch 134 ...</span><br><span class="line">loss=0.213495 (0.213495): : 100% 1/1 [00:00&lt;00:00,  1.07it/s]</span><br><span class="line">PSNR = 6.706122</span><br><span class="line">LPIPS (vgg) = 0.767062</span><br><span class="line">++&gt; Evaluate epoch 134 Finished, loss = 0.213495</span><br><span class="line">==&gt; Start Test, save results to trial_syn_poster/results</span><br><span class="line">100% 11/11 [00:03&lt;00:00,  3.40it/s]Traceback (most recent call last):</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/main.py&quot;, line 263, in &lt;module&gt;</span><br><span class="line">    trainer.test(test_loader, write_video=True) # test and save video</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/nerf/utils.py&quot;, line 1005, in test</span><br><span class="line">    imageio.mimwrite(os.path.join(save_path, f&#x27;&#123;name&#125;_rgb.mp4&#x27;), all_preds, fps=24, quality=8, macro_block_size=1)</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/v2.py&quot;, line 494, in mimwrite</span><br><span class="line">    with imopen(uri, &quot;wI&quot;, **imopen_args) as file:</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/core/imopen.py&quot;, line 281, in imopen</span><br><span class="line">    raise err_type(err_msg)</span><br><span class="line">ValueError: Could not find a backend to open `trial_syn_poster/results/ngp_stage0_ep0134_rgb.mp4`` with iomode `wI`.</span><br><span class="line">Based on the extension, the following plugins might add capable backends:</span><br><span class="line">  FFMPEG:  pip install imageio[ffmpeg]</span><br><span class="line">  pyav:  pip install imageio[pyav]</span><br><span class="line">100% 11/11 [00:04&lt;00:00,  2.67it/s]</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(nerf2mesh) root@I1dc2923c3f00801cdf:~/3D-Reconstruction/nerf2mesh# python main.py nerfstudio/poster/ --workspace trial_syn_poster/ -O --bound 1 --scale 0.8 --dt_gamma 0 --stage 0 --lambda_tv 1e-8</span><br><span class="line">Warning:</span><br><span class="line">Unable to load the following plugins:</span><br><span class="line"></span><br><span class="line">        libio_e57.so: libio_e57.so does not seem to be a Qt Plugin.</span><br><span class="line"></span><br><span class="line">Cannot load library /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/pymeshlab/lib/plugins/libio_e57.so: (/usr/lib/x86_64-linux-gnu/libp11-kit.so.0: undefined symbol: ffi_type_pointer, version LIBFFI_BASE_7.0)</span><br><span class="line"></span><br><span class="line">Loading train data: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 225/225 [00:08&lt;00:00, 25.09it/s]</span><br><span class="line">[INFO] max_epoch 134, eval every 26, save every 2.</span><br><span class="line">[INFO] Trainer: ngp_stage0 | 2024-11-26_15-12-23 | cuda | fp16 | trial_syn_poster/</span><br><span class="line">[INFO] #parameters: 18367240</span><br><span class="line">Namespace(path=&#x27;nerfstudio/poster/&#x27;, O=True, workspace=&#x27;trial_syn_poster/&#x27;, seed=0, stage=0, ckpt=&#x27;latest&#x27;, fp16=True, sdf=False, tcnn=False, progressive_level=False, test=False, test_no_video=False, test_no_mesh=False, camera_traj=&#x27;&#x27;, data_format=&#x27;nerf&#x27;, train_split=&#x27;train&#x27;, preload=True, random_image_batch=True, </span><br><span class="line">downscale=1, bound=1.0, scale=0.8, offset=[0, 0, 0], mesh=&#x27;&#x27;, enable_cam_near_far=False, enable_cam_center=False, min_near=0.05, enable_sparse_depth=False, enable_dense_depth=False, iters=30000, lr=0.01, lr_vert=0.0001, pos_gradient_boost=1, cuda_ray=True, max_steps=1024, update_extra_interval=16, </span><br><span class="line">max_ray_batch=4096, grid_size=128, mark_untrained=True, dt_gamma=0.0, density_thresh=10, diffuse_step=1000, diffuse_only=False, background=&#x27;random&#x27;, enable_offset_nerf_grad=False, n_eval=5, n_ckpt=50, num_rays=4096, adaptive_num_rays=True, num_points=262144, lambda_density=0, lambda_entropy=0, lambda_tv=1e-08, </span><br><span class="line">lambda_depth=0.1, lambda_specular=1e-05, lambda_eikonal=0.1, lambda_rgb=1, lambda_mask=0.1, wo_smooth=False, lambda_lpips=0, lambda_offsets=0.1, lambda_lap=0.001, lambda_normal=0, lambda_edgelen=0, contract=False, patch_size=1, trainable_density_grid=False, color_space=&#x27;srgb&#x27;, ind_dim=0, ind_num=500, </span><br><span class="line">mcubes_reso=512, env_reso=256, decimate_target=300000.0, mesh_visibility_culling=True, visibility_mask_dilation=5, clean_min_f=8, clean_min_d=5, ssaa=2, texture_size=4096, refine=True, refine_steps_ratio=[0.1, 0.2, 0.3, 0.4, 0.5, 0.7], refine_size=0.01, refine_decimate_ratio=0.1, refine_remesh_size=0.02, </span><br><span class="line">vis_pose=False, gui=False, W=1000, H=1000, radius=5, fovy=50, max_spp=1, refine_steps=[3000, 6000, 9000, 12000, 15000, 21000])</span><br><span class="line">NeRFNetwork(</span><br><span class="line">  (encoder): GridEncoder: input_dim=3 num_levels=16 level_dim=1 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 1) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (sigma_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=19, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=1, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (encoder_color): GridEncoder: input_dim=3 num_levels=16 level_dim=2 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 2) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (color_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=35, out_features=64, bias=False)</span><br><span class="line">      (1): Linear(in_features=64, out_features=64, bias=False)</span><br><span class="line">      (2): Linear(in_features=64, out_features=6, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (specular_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=6, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=3, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">)</span><br><span class="line">[INFO] Loading latest checkpoint ...</span><br><span class="line">[WARN] No checkpoint found, abort loading latest model.</span><br><span class="line">Loading val data: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 21.10it/s]</span><br><span class="line">[mark untrained grid] 9364 from 2097152</span><br><span class="line">==&gt; Start Training Epoch 1, lr=0.000100 ...</span><br><span class="line">... ...</span><br><span class="line">loss=0.091703 (0.104557) lr=0.004555: : 100% 225/225 [00:03&lt;00:00, 69.94it/s]</span><br><span class="line">==&gt; Finished Epoch 133, loss = 0.078408.</span><br><span class="line">==&gt; Start Training Epoch 134, lr=0.001006 ...</span><br><span class="line">loss=0.075468 (0.078282) lr=0.000988: : 100% 225/225 [00:04&lt;00:00, 52.46it/s]</span><br><span class="line">==&gt; Finished Epoch 134, loss = 0.078282.</span><br><span class="line">[INFO] training takes 10.078925 minutes.</span><br><span class="line">Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter &#x27;pretrained&#x27; is deprecated since 0.13 and may be removed in the future, please use &#x27;weights&#x27; instead.</span><br><span class="line">  warnings.warn(</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for &#x27;weights&#x27; are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.</span><br><span class="line">  warnings.warn(msg)</span><br><span class="line">Downloading: &quot;https://download.pytorch.org/models/vgg16-397923af.pth&quot; to /root/.cache/torch/hub/checkpoints/vgg16-397923af.pth</span><br><span class="line">100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 528M/528M [35:11&lt;00:00, 262kB/s]</span><br><span class="line">Loading model from: /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/lpips/weights/v0.1/vgg.pth</span><br><span class="line">++&gt; Evaluate at epoch 134 ...</span><br><span class="line">loss=0.213495 (0.213495): : 100% 1/1 [00:00&lt;00:00,  1.07it/s]</span><br><span class="line">PSNR = 6.706122</span><br><span class="line">LPIPS (vgg) = 0.767062</span><br><span class="line">++&gt; Evaluate epoch 134 Finished, loss = 0.213495</span><br><span class="line">==&gt; Start Test, save results to trial_syn_poster/results</span><br><span class="line">100% 11/11 [00:03&lt;00:00,  3.40it/s]Traceback (most recent call last):</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/main.py&quot;, line 263, in &lt;module&gt;</span><br><span class="line">    trainer.test(test_loader, write_video=True) # test and save video</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/nerf/utils.py&quot;, line 1005, in test</span><br><span class="line">    imageio.mimwrite(os.path.join(save_path, f&#x27;&#123;name&#125;_rgb.mp4&#x27;), all_preds, fps=24, quality=8, macro_block_size=1)</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/v2.py&quot;, line 494, in mimwrite</span><br><span class="line">    with imopen(uri, &quot;wI&quot;, **imopen_args) as file:</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/core/imopen.py&quot;, line 281, in imopen</span><br><span class="line">    raise err_type(err_msg)</span><br><span class="line">ValueError: Could not find a backend to open `trial_syn_poster/results/ngp_stage0_ep0134_rgb.mp4`` with iomode `wI`.</span><br><span class="line">Based on the extension, the following plugins might add capable backends:</span><br><span class="line">  FFMPEG:  pip install imageio[ffmpeg]</span><br><span class="line">  pyav:  pip install imageio[pyav]</span><br><span class="line">100% 11/11 [00:04&lt;00:00,  2.67it/s]</span><br></pre></td></tr></table></figure></div>
 <h2 id="运行结果">运行结果</h2>
 <h3
 id="nerfacto和splatfacto渲染效果对比">nerfacto和splatfacto渲染效果对比</h3>
@@ -1458,15 +1458,15 @@ splat转化为网格形式，这是后续工作的重点。</p>
 <code>point cloud</code>和<code>mesh</code>
 ，但是对于不同的方法，导出的格式不同。如基于<code>NeRF</code>的方法只能导出点云和网格，而基于<code>3DGS</code>的方法只能导出三维高斯。</p>
 <p>训练代码示例：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-train nerfacto --data data/processed_truck/ --output-dir outputs/truck_100000 --max-num-iterations 100000</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-train nerfacto --data data/processed_truck/ --output-dir outputs/truck_100000 --max-num-iterations 100000</span><br></pre></td></tr></table></figure></div>
 <p>可以先对训练结果进行可视化：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-viewer --load-config path/to/your/trainresult/config.yml</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-viewer --load-config path/to/your/trainresult/config.yml</span><br></pre></td></tr></table></figure></div>
 <p>然后在网页的<code>export</code>栏可以选择导出参数，并复制导出指令，以<code>possion</code>的导出为例：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face --target-num-faces 50000 --num-pixels-per-side 2048 --num-points 1000000 --remove-outliers True </span><br><span class="line">--normal-method open3d --obb_center 0.0000000000 0.0000000000 0.0000000000 --obb_rotation 0.0000000000 0.0000000000 0.0000000000 --obb_scale 1.0000000000 1.0000000000 1.0000000000</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face --target-num-faces 50000 --num-pixels-per-side 2048 --num-points 1000000 --remove-outliers True </span><br><span class="line">--normal-method open3d --obb_center 0.0000000000 0.0000000000 0.0000000000 --obb_rotation 0.0000000000 0.0000000000 0.0000000000 --obb_scale 1.0000000000 1.0000000000 1.0000000000</span><br></pre></td></tr></table></figure></div>
 <p>还可以选择其他的导出方式，如<code>tsdf</code>：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export tsdf --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export tsdf --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
 <p>或者<code>marching-cubes</code>：</p>
-<div class="highlight-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export marching-cubes --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export marching-cubes --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
 <p>（好像<code>nerfacto</code>的结果不能用<code>marching-cubes</code>）</p>
 <p>下面直观展示下导出<code>mesh</code>的效果（前四种是<code>nerfacto</code>，最后一个是用<code>2DGS</code>方法生成的结果）：</p>
 <table>
