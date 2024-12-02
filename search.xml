@@ -1,53 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/2-Mujoco_notes/</url>
-    <content><![CDATA[<h2 id="collision">Collision</h2>
-<p><a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
-- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms.
-All primitive types are convex. Height fields are not convex but
-internally they are treated as unions of triangular prisms (using custom
-collision pruning beyond the filters described above). Meshes specified
-by the user can be non-convex, and are rendered as such. For collision
-purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the
-user must decompose it into a union of convex geoms (which can be
-primitive shapes or meshes) and attach them to the same body. Open tools
-like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-can be used outside MuJoCo to automate this process. Finally, all
-built-in collision functions can be replaced with custom callbacks. This
-can be used to incorporate a general-purpose “triangle soup” collision
-detector for example. However we do not recommend such an approach.
-Pre-processing the geometry and representing it as a union of convex
-geoms takes some work, but it pays off at runtime and yields both faster
-and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
-MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
-库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>collision</tag>
-        <tag>convex</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mujoco - 高场hfield相关</title>
     <url>/2024/09/26/1-Hfield/</url>
     <content><![CDATA[<blockquote>
@@ -98,31 +51,6 @@ the world body or to static children of the world.</p>
       </tags>
   </entry>
   <entry>
-    <title>NeRF2mesh</title>
-    <url>/2024/11/26/10-NeRF2mesh/</url>
-    <content><![CDATA[<h2 id="实验环境">实验环境</h2>
-<h2 id="踩坑过程">踩坑过程</h2>
-<h3 id="pytorch3d-安装">1. pytorch3d 安装</h3>
-<p>直接安装找不到包，于是选择克隆下来手动安装：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/iopath</span><br><span class="line">pip install -e iopath</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/fvcore</span><br><span class="line">pip install -e fvcore</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/pytorch3d.git</span><br><span class="line"><span class="built_in">cd</span> pytorch3d/</span><br><span class="line">pip install -e .</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-<h3 id="runtimeerror-ninja-is-required-to-load-c-extensions">2.
-RuntimeError: Ninja is required to load C++ extensions</h3>
-<p>其实就是<code>Ninja</code>没安装的原因，直接安装一遍就好了：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install ninja</span><br></pre></td></tr></table></figure></div>
-<h3 id="package-not-found">3. package not found</h3>
-<p>可以根据<code>requirements.txt</code>自行安装，值得注意的是有些包名称不一样。</p>
-<p>比如<code>cv2</code>包名是<code>opencv-python</code>，<code>sklearn</code>是<code>scikit-learn</code>，<code>mcubes</code>是<code>PyMCubes</code>...</p>
-<h2 id="section"></h2>
-<p>用了<code>nerfstudio</code>的<code>poster</code>数据集</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mujoco - CoACD简略教程</title>
     <url>/2024/09/29/3-CoACD_notes/</url>
     <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
@@ -167,8 +95,8 @@ RuntimeError: Ninja is required to load C++ extensions</h3>
       </categories>
       <tags>
         <tag>mujoco</tag>
-        <tag>convex</tag>
         <tag>CoACD</tag>
+        <tag>convex</tag>
       </tags>
   </entry>
   <entry>
@@ -493,6 +421,53 @@ alt="Figure6"
       <tags>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/2-Mujoco_notes/</url>
+    <content><![CDATA[<h2 id="collision">Collision</h2>
+<p><a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
+- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms.
+All primitive types are convex. Height fields are not convex but
+internally they are treated as unions of triangular prisms (using custom
+collision pruning beyond the filters described above). Meshes specified
+by the user can be non-convex, and are rendered as such. For collision
+purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the
+user must decompose it into a union of convex geoms (which can be
+primitive shapes or meshes) and attach them to the same body. Open tools
+like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+can be used outside MuJoCo to automate this process. Finally, all
+built-in collision functions can be replaced with custom callbacks. This
+can be used to incorporate a general-purpose “triangle soup” collision
+detector for example. However we do not recommend such an approach.
+Pre-processing the geometry and representing it as a union of convex
+geoms takes some work, but it pays off at runtime and yields both faster
+and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
+MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
+库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>collision</tag>
       </tags>
   </entry>
   <entry>
@@ -925,6 +900,31 @@ RGB 的操作策略的模拟与真实之间的差距。
       <tags>
         <tag>3DGS</tag>
         <tag>Sim2Real</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NeRF2mesh</title>
+    <url>/2024/11/26/10-NeRF2mesh/</url>
+    <content><![CDATA[<h2 id="实验环境">实验环境</h2>
+<h2 id="踩坑过程">踩坑过程</h2>
+<h3 id="pytorch3d-安装">1. pytorch3d 安装</h3>
+<p>直接安装找不到包，于是选择克隆下来手动安装：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/iopath</span><br><span class="line">pip install -e iopath</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/fvcore</span><br><span class="line">pip install -e fvcore</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/facebookresearch/pytorch3d.git</span><br><span class="line"><span class="built_in">cd</span> pytorch3d/</span><br><span class="line">pip install -e .</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+<h3 id="runtimeerror-ninja-is-required-to-load-c-extensions">2.
+RuntimeError: Ninja is required to load C++ extensions</h3>
+<p>其实就是<code>Ninja</code>没安装的原因，直接安装一遍就好了：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install ninja</span><br></pre></td></tr></table></figure></div>
+<h3 id="package-not-found">3. package not found</h3>
+<p>可以根据<code>requirements.txt</code>自行安装，值得注意的是有些包名称不一样。</p>
+<p>比如<code>cv2</code>包名是<code>opencv-python</code>，<code>sklearn</code>是<code>scikit-learn</code>，<code>mcubes</code>是<code>PyMCubes</code>...</p>
+<h2 id="section"></h2>
+<p>用了<code>nerfstudio</code>的<code>poster</code>数据集</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
       </tags>
   </entry>
   <entry>
