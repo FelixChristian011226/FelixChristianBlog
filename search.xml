@@ -194,6 +194,116 @@ MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" 
     <url>/2024/12/10/11-MeshToMujoco/</url>
     <content><![CDATA[<h2 id="一数据预处理">一、数据预处理</h2>
 <p>nerfstudio里整合了COLMAP工具，可通过它的指令直接对现有的数据进行预处理，转化为nerfstudio需要的格式。支持的数据类型如下表所示：</p>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th>Data</th>
+<th>Capture Device</th>
+<th>Requirements</th>
+<th><code>ns-process-data</code> Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📷 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#images-or-video" >Images<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐢</td>
+</tr>
+<tr>
+<td>📹 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#images-or-video" >Video<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐢</td>
+</tr>
+<tr>
+<td>🌎 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#data-equirectangular" >360
+Data<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐢</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#polycam-capture" >Polycam<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS with LiDAR</td>
+<td><a class="link"   href="https://poly.cam/" >Polycam App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#kiri-engine-capture" >KIRI
+Engine<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS or Android</td>
+<td><a class="link"   href="https://www.kiriengine.com/" >KIRI Engine App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#record3d-capture" >Record3D<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS with LiDAR</td>
+<td><a class="link"   href="https://record3d.app/" >Record3D app<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#spectacularai" >Spectacular
+AI<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS, OAK, <a class="link" 
+ href="https://www.spectacularai.com/mapping#supported-devices" >others<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td><a class="link" 
+ href="https://apps.apple.com/us/app/spectacular-rec/id6473188128" >App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+/ <a
+href="https://www.spectacularai.com/mapping"><code>sai-cli</code></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🖥 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#metashape" >Metashape<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://www.agisoft.com/" >Metashape<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🖥 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#realitycapture" >RealityCapture<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link" 
+ href="https://www.capturingreality.com/realitycapture" >RealityCapture<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🖥 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#odm" >ODM<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://github.com/OpenDroneMap/ODM" >ODM<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>👓 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#aria" >Aria<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Aria glasses</td>
+<td><a class="link"   href="https://projectaria.com/" >Project Aria<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🛠 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/data_conventions.html" >Custom<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td>Camera Poses</td>
+<td>🐇</td>
+</tr>
+</tbody>
+</table>
 <p>一个简单的处理的代码示例如下： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-process-data &#123;video,images,polycam,record3d&#125; --data &#123;DATA_PATH&#125; --output-dir &#123;PROCESSED_DATA_DIR&#125;</span><br></pre></td></tr></table></figure></div></p>
 <p>完整的参数集可参考<a class="link" 
  href="https://docs.nerf.studio/reference/cli/ns_process_data.html" >此处<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>。在<a class="link" 
