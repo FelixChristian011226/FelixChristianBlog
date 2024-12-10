@@ -51,6 +51,268 @@ the world body or to static children of the world.</p>
       </tags>
   </entry>
   <entry>
+    <title>将现有场景生成网格导入mujoco的简要pipeline</title>
+    <url>/2024/12/10/11-MeshToMujoco/</url>
+    <content><![CDATA[<h2 id="一数据预处理">一、数据预处理</h2>
+<p>nerfstudio里整合了COLMAP工具，可通过它的指令直接对现有的数据进行预处理，转化为nerfstudio需要的格式。支持的数据类型如下表所示：</p>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th>Data</th>
+<th>Capture Device</th>
+<th>Requirements</th>
+<th><code>ns-process-data</code> Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📷 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#images-or-video" >Images<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐢</td>
+</tr>
+<tr>
+<td>📹 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#images-or-video" >Video<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐢</td>
+</tr>
+<tr>
+<td>🌎 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#data-equirectangular" >360
+Data<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐢</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#polycam-capture" >Polycam<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS with LiDAR</td>
+<td><a class="link"   href="https://poly.cam/" >Polycam App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#kiri-engine-capture" >KIRI
+Engine<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS or Android</td>
+<td><a class="link"   href="https://www.kiriengine.com/" >KIRI Engine App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#record3d-capture" >Record3D<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS with LiDAR</td>
+<td><a class="link"   href="https://record3d.app/" >Record3D app<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>📱 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#spectacularai" >Spectacular
+AI<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>IOS, OAK, <a class="link" 
+ href="https://www.spectacularai.com/mapping#supported-devices" >others<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td><a class="link" 
+ href="https://apps.apple.com/us/app/spectacular-rec/id6473188128" >App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+/ <a
+href="https://www.spectacularai.com/mapping"><code>sai-cli</code></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🖥 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#metashape" >Metashape<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://www.agisoft.com/" >Metashape<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🖥 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#realitycapture" >RealityCapture<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link" 
+ href="https://www.capturingreality.com/realitycapture" >RealityCapture<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🖥 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#odm" >ODM<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td><a class="link"   href="https://github.com/OpenDroneMap/ODM" >ODM<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>👓 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html#aria" >Aria<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Aria glasses</td>
+<td><a class="link"   href="https://projectaria.com/" >Project Aria<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>🐇</td>
+</tr>
+<tr>
+<td>🛠 <a class="link" 
+ href="https://docs.nerf.studio/quickstart/data_conventions.html" >Custom<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
+<td>Any</td>
+<td>Camera Poses</td>
+<td>🐇</td>
+</tr>
+</tbody>
+</table>
+<p>一个简单的处理的代码示例如下： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-process-data &#123;video,images,polycam,record3d&#125; --data &#123;DATA_PATH&#125; --output-dir &#123;PROCESSED_DATA_DIR&#125;</span><br></pre></td></tr></table></figure></div></p>
+<p>完整的参数集可参考<a class="link" 
+ href="https://docs.nerf.studio/reference/cli/ns_process_data.html" >此处<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>。在<a class="link" 
+ href="https://docs.nerf.studio/quickstart/custom_dataset.html" >教程网站<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>也有更多其他类型数据的捕获教程。</p>
+<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>踩坑 点击展开 </summary>
+              <div class='content'>
+              <p class='h3' id="一colmap-feature_extractor报错">(一)、colmapfeature_extractor报错：</h3><p><strong>报错内容</strong>：</p><p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a782ca87807e6116d05be3d9526f7ff9.png"
+                      alt="image-20241210152913623" style="zoom: 67%;" 
+                ></p><p><strong>解决方案</strong>：</p><ol type="1"><li><p>确认<code>xcb</code>插件是否安装：</p><div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install libxcb-*</span><br></pre></td></tr></table></figure></div></li><li><p>设置环境变量：</p><div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> QT_QPA_PLATFORM_PLUGIN_PATH=/home/felix/.local/lib/python3.10/site-packages/cv2/qt/plugins</span><br><span class="line"><span class="built_in">export</span> QT_QPA_PLATFORM=offscreen</span><br></pre></td></tr></table></figure></div><p>（路径记得改成自己的路径）</p></li></ol><p>这样应该就可以了，至少博主执行这两串代码后能成功运行。（虽然这个处理过程确实很慢）</p>
+              </div>
+            </details>
+<h2 id="二模型训练">二、模型训练</h2>
+<p>可直接对处理后的数据用nerfacto方法进行训练：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">ns-train nerfacto --data &#123;PROCESSED_DATA_DIR&#125;</span><br></pre></td></tr></table></figure></div>
+<p>还有一些比较常用的参数：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">--<span class="built_in">help</span> <span class="comment">#显示帮助菜单</span></span><br><span class="line">--output-dir <span class="comment">#输出文件夹</span></span><br><span class="line">--steps-per-save <span class="comment">#多少step保存一次，默认为2000</span></span><br><span class="line">--max-num-iterations <span class="comment">#最大iteration，默认为30000</span></span><br><span class="line">--mixed-precision <span class="comment">#是否启用混合精度，默认为true</span></span><br><span class="line">--load-config <span class="comment">#从配置文件读取，可从之前的训练中继续</span></span><br></pre></td></tr></table></figure></div>
+<p>训练结果默认会保存在outputs文件夹中。其中包含一个<code>config.yml</code>文件，记录了训练的配置信息。可通过读取它来进行接续的训练或者可视化：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-viewer --load-config &#123;outputs/.../config.yml&#125;</span><br></pre></td></tr></table></figure></div>
+<h2 id="三模型导出">三、模型导出</h2>
+<p>在nerfstudio里支持三种类型的模型导出：<code>3d gaussion</code>、<code>point cloud</code>和<code>mesh</code>。这里只提及<code>mesh</code>的导出。</p>
+<p>最简单的导出指令为：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config CONFIG.yml --output-dir OUTPUT_DIR</span><br></pre></td></tr></table></figure></div>
+<p>而在可视化界面中，可以自动生成导出指令：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/291b1e3654b600855e834fc4b8800818.png"
+                      alt="image-20241210172317358" style="zoom:80%;" 
+                ></p>
+<p>其中可以对参数进行调整，比如<code>Use Crop</code>可以自动裁剪保留中心物体，<code># Faces</code>可以控制产生的面数的上限，<code># Points</code>控制点数的上限。最后生成的指令为以下结构：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config &#123;outputs/.../config.yml&#125; --output-dir &#123;OUTPUT_DIR&#125; --target-num-faces 50000 --num-pixels-per-side 2048 --num-points 1000000 --remove-outliers True --normal-method open3d --obb_center 0.0000000000 0.0000000000 0.0000000000 --obb_rotation 0.0000000000 0.0000000000 0.0000000000 --obb_scale 1.0000000000 1.0000000000 1.0000000000</span><br></pre></td></tr></table></figure></div>
+<p>其中<code>possion</code>
+表示使用泊松重建方法，nerfstudio还支持其他的重建方法，如<code>marching-cubes</code>和<code>tsdf</code>等，但效果都不尽如人意（可参考我之前的文章<a class="link" 
+ href="https://felixchristian.top/2024/11/12/8-NeRF_Studio/" >NeRF
+Studio简要教程 | FelixChristian's Blog<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，里面有重建结果）。</p>
+<h2 id="四凸分解">四、凸分解</h2>
+<p>在我之前的文章<a class="link" 
+ href="https://felixchristian.top/2024/09/29/3-CoACD_notes/" >Mujoco -
+CoACD简略教程 | FelixChristian's
+Blog<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>中有介绍到CoACD工具的安装和使用。</p>
+<p>当编译完CoACD之后，可直接执行凸分解指令： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div></p>
+<p>需要注意的是，两个<code>PATH</code>都是需要以具体的<code>.obj</code>文件结尾的。最终导出的单个<code>.obj</code>文件是以多个组件结合的。如果直接导入mujoco，它还是会对整个文件再次进行替换。</p>
+<p>为了在mujoco中实现正常的碰撞。必须把单个<code>.obj</code>文件导出为多个<code>.stl</code>文件，再在mujoco的<code>.xml</code>文件中进行引用。</p>
+<p>这里借助了Blender的<a class="link" 
+ href="https://github.com/mrtripie/Blender-Super-Batch-Export" >Super-Batch-Export<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>插件：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/1a9a797389874618f4db594e7c9dcdd9.png"
+                      alt="image-20241210190612219" style="zoom:80%;" 
+                ></p>
+<p>需要注意的是，根据mujoco的官方文档介绍：</p>
+<blockquote>
+<p>MuJoCo can load triangulated meshes from OBJ files and binary STL.
+Software such as <a class="link"   href="https://www.meshlab.net/" >MeshLab<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> can be
+used to convert from other formats. While any collection of triangles
+can be loaded and visualized as a mesh, the collision detector works
+with the convex hull. There are compile-time options for scaling the
+mesh, as well as fitting a primitive geometric shape to it. The mesh can
+also be used to automatically infer inertial properties – by treating it
+as a union of triangular pyramids and combining their masses and
+inertias. Note that meshes have no color, instead the mesh is colored
+using the material properties of the referencing geom. In contrast, all
+spatial properties are determined by the mesh data. MuJoCo supports both
+OBJ and a custom binary file format for normals and texture coordinates.
+Meshes can also be embedded directly in the XML.</p>
+</blockquote>
+<p>mujoco可以从<code>.obj</code>文件和<code>.stl</code>文件加载三角网格，所以在用Blender进行批量导出时，需要选择这两种格式。</p>
+<h2 id="五导入mujoco">五、导入mujoco</h2>
+<p>以<code>.obj</code>文件为例（<code>.stl</code>文件同理）：</p>
+<p>在上一步中导出的文件为<code>convex_0.obj</code>、<code>convex_1.obj</code>、...
+、<code>convex_n.obj</code>的形式。在我的<a class="link" 
+ href="https://github.com/FelixChristian011226/Mujoco-RL" >FelixChristian011226/Mujoco-RL<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>仓库中，编写了一个简单的脚本<a class="link" 
+ href="https://github.com/FelixChristian011226/Mujoco-RL/blob/main/terrain/gen_component/gen_convex.py" >gen_convex.py<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，用于生成<code>.xml</code>文件中相应的引用。使用过程如下：</p>
+<ol type="1">
+<li><p>首先，将生成的多个<code>.obj</code>文件，存放在<code>./terrain/mesh/&#123;your_mesh_name&#125;/</code>文件夹中。</p></li>
+<li><p>然后进入<code>./terrain</code>目录，使用如下指令：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">python3 ./gen_component/gen_convex.py &#123;model_folder&#125; &#123;indent_level&#125; &#123;total_count&#125;</span><br></pre></td></tr></table></figure></div>
+<p>其中<code>model_folder</code>对应<code>your_mesh_name</code>，即<code>./terrain/mesh/</code>目录下存放<code>.obj</code>文件的文件夹名称。</p>
+<p><code>indent_level</code>是缩进量，一般为2，仅仅为了<code>.xml</code>文件中美观而设置。</p>
+<p><code>total_count</code>是总的<code>.obj</code>文件数量，即最后一个文件的下标加一。</p></li>
+<li><p>最后将<code>.terrain/component/convex.xml</code>文件中的前半部分内容，复制到对应的<code>.xml</code>的<code>&lt;asset&gt;</code>部分，后半部分内容复制到<code>&lt;worldbody&gt;</code>部分。然后给其设置纹理，如：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;material name=&quot;mat_&#123;name&#125;&quot; rgba=&quot;0.8 0.8 0.8 1&quot;/&gt;</span><br></pre></td></tr></table></figure></div>
+<p>其中<code>name</code>应该和文件夹名对应。</p></li>
+<li><p>最后再运行对应的<code>.xml</code>文件即可。</p></li>
+</ol>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>mesh</tag>
+        <tag>NeRF</tag>
+        <tag>CoACD</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/2-Mujoco_notes/</url>
+    <content><![CDATA[<h2 id="collision">Collision</h2>
+<p><a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
+- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms.
+All primitive types are convex. Height fields are not convex but
+internally they are treated as unions of triangular prisms (using custom
+collision pruning beyond the filters described above). Meshes specified
+by the user can be non-convex, and are rendered as such. For collision
+purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the
+user must decompose it into a union of convex geoms (which can be
+primitive shapes or meshes) and attach them to the same body. Open tools
+like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+can be used outside MuJoCo to automate this process. Finally, all
+built-in collision functions can be replaced with custom callbacks. This
+can be used to incorporate a general-purpose “triangle soup” collision
+detector for example. However we do not recommend such an approach.
+Pre-processing the geometry and representing it as a union of convex
+geoms takes some work, but it pays off at runtime and yields both faster
+and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
+MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
+库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>collision</tag>
+        <tag>convex</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Photometric Stereo</title>
     <url>/2024/12/09/10-PhotometricStereo/</url>
     <content><![CDATA[<h2 id="一实验目的">一、实验目的</h2>
@@ -286,255 +548,43 @@ alt="potPNG_ReRendered"
       </tags>
   </entry>
   <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/2-Mujoco_notes/</url>
-    <content><![CDATA[<h2 id="collision">Collision</h2>
-<p><a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
-- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+    <title>Mujoco - CoACD简略教程</title>
+    <url>/2024/09/29/3-CoACD_notes/</url>
+    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
+<h2 id="安装教程">安装教程</h2>
+<h3 id="克隆代码">(1) 克隆代码：</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
+<h3 id="安装依赖">(2) 安装依赖：</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
 <blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms.
-All primitive types are convex. Height fields are not convex but
-internally they are treated as unions of triangular prisms (using custom
-collision pruning beyond the filters described above). Meshes specified
-by the user can be non-convex, and are rendered as such. For collision
-purposes however they are replaced with their convex hulls.</p>
+<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
 </blockquote>
+<h3 id="编译">(3) 编译</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
+<p>​ 然后编译：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>这里出了很多warning，但是好像不影响使用。</p>
+</blockquote>
+<h3 id="使用">(4) 使用</h3>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
+<h2 id="参数说明">参数说明</h2>
 <ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
+<li><strong>-c/--max-convex-hull</strong> :
+凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
+<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
+<li><strong>-am/--approximate-mode</strong> :
+近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
+<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
 </ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the
-user must decompose it into a union of convex geoms (which can be
-primitive shapes or meshes) and attach them to the same body. Open tools
-like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-can be used outside MuJoCo to automate this process. Finally, all
-built-in collision functions can be replaced with custom callbacks. This
-can be used to incorporate a general-purpose “triangle soup” collision
-detector for example. However we do not recommend such an approach.
-Pre-processing the geometry and representing it as a union of convex
-geoms takes some work, but it pays off at runtime and yields both faster
-and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
-MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
-库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>collision</tag>
-        <tag>convex</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>将现有场景生成网格导入mujoco的简要pipeline</title>
-    <url>/2024/12/10/11-MeshToMujoco/</url>
-    <content><![CDATA[<h2 id="一数据预处理">一、数据预处理</h2>
-<p>nerfstudio里整合了COLMAP工具，可通过它的指令直接对现有的数据进行预处理，转化为nerfstudio需要的格式。支持的数据类型如下表所示：</p>
-<table>
-<colgroup>
-<col style="width: 29%" />
-<col style="width: 29%" />
-<col style="width: 29%" />
-<col style="width: 11%" />
-</colgroup>
-<thead>
-<tr>
-<th>Data</th>
-<th>Capture Device</th>
-<th>Requirements</th>
-<th><code>ns-process-data</code> Speed</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>📷 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#images-or-video" >Images<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐢</td>
-</tr>
-<tr>
-<td>📹 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#images-or-video" >Video<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐢</td>
-</tr>
-<tr>
-<td>🌎 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#data-equirectangular" >360
-Data<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td><a class="link"   href="https://colmap.github.io/install.html" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐢</td>
-</tr>
-<tr>
-<td>📱 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#polycam-capture" >Polycam<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>IOS with LiDAR</td>
-<td><a class="link"   href="https://poly.cam/" >Polycam App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>📱 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#kiri-engine-capture" >KIRI
-Engine<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>IOS or Android</td>
-<td><a class="link"   href="https://www.kiriengine.com/" >KIRI Engine App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>📱 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#record3d-capture" >Record3D<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>IOS with LiDAR</td>
-<td><a class="link"   href="https://record3d.app/" >Record3D app<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>📱 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#spectacularai" >Spectacular
-AI<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>IOS, OAK, <a class="link" 
- href="https://www.spectacularai.com/mapping#supported-devices" >others<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td><a class="link" 
- href="https://apps.apple.com/us/app/spectacular-rec/id6473188128" >App<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-/ <a
-href="https://www.spectacularai.com/mapping"><code>sai-cli</code></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>🖥 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#metashape" >Metashape<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td><a class="link"   href="https://www.agisoft.com/" >Metashape<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>🖥 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#realitycapture" >RealityCapture<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td><a class="link" 
- href="https://www.capturingreality.com/realitycapture" >RealityCapture<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>🖥 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#odm" >ODM<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td><a class="link"   href="https://github.com/OpenDroneMap/ODM" >ODM<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>👓 <a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html#aria" >Aria<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Aria glasses</td>
-<td><a class="link"   href="https://projectaria.com/" >Project Aria<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>🐇</td>
-</tr>
-<tr>
-<td>🛠 <a class="link" 
- href="https://docs.nerf.studio/quickstart/data_conventions.html" >Custom<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
-<td>Any</td>
-<td>Camera Poses</td>
-<td>🐇</td>
-</tr>
-</tbody>
-</table>
-<p>一个简单的处理的代码示例如下： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-process-data &#123;video,images,polycam,record3d&#125; --data &#123;DATA_PATH&#125; --output-dir &#123;PROCESSED_DATA_DIR&#125;</span><br></pre></td></tr></table></figure></div></p>
-<p>完整的参数集可参考<a class="link" 
- href="https://docs.nerf.studio/reference/cli/ns_process_data.html" >此处<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>。在<a class="link" 
- href="https://docs.nerf.studio/quickstart/custom_dataset.html" >教程网站<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>也有更多其他类型数据的捕获教程。</p>
-<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>踩坑 点击展开 </summary>
-              <div class='content'>
-              <p class='h3' id="一colmap-feature_extractor报错">(一)、colmapfeature_extractor报错：</h3><p><strong>报错内容</strong>：</p><p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a782ca87807e6116d05be3d9526f7ff9.png"
-                      alt="image-20241210152913623" style="zoom: 67%;" 
-                ></p><p><strong>解决方案</strong>：</p><ol type="1"><li><p>确认<code>xcb</code>插件是否安装：</p><div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install libxcb-*</span><br></pre></td></tr></table></figure></div></li><li><p>设置环境变量：</p><div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> QT_QPA_PLATFORM_PLUGIN_PATH=/home/felix/.local/lib/python3.10/site-packages/cv2/qt/plugins</span><br><span class="line"><span class="built_in">export</span> QT_QPA_PLATFORM=offscreen</span><br></pre></td></tr></table></figure></div><p>（路径记得改成自己的路径）</p></li></ol><p>这样应该就可以了，至少博主执行这两串代码后能成功运行。（虽然这个处理过程确实很慢）</p>
-              </div>
-            </details>
-<h2 id="二模型训练">二、模型训练</h2>
-<p>可直接对处理后的数据用nerfacto方法进行训练：</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">ns-train nerfacto --data &#123;PROCESSED_DATA_DIR&#125;</span><br></pre></td></tr></table></figure></div>
-<p>还有一些比较常用的参数：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">--<span class="built_in">help</span> <span class="comment">#显示帮助菜单</span></span><br><span class="line">--output-dir <span class="comment">#输出文件夹</span></span><br><span class="line">--steps-per-save <span class="comment">#多少step保存一次，默认为2000</span></span><br><span class="line">--max-num-iterations <span class="comment">#最大iteration，默认为30000</span></span><br><span class="line">--mixed-precision <span class="comment">#是否启用混合精度，默认为true</span></span><br><span class="line">--load-config <span class="comment">#从配置文件读取，可从之前的训练中继续</span></span><br></pre></td></tr></table></figure></div>
-<p>训练结果默认会保存在outputs文件夹中。其中包含一个<code>config.yml</code>文件，记录了训练的配置信息。可通过读取它来进行接续的训练或者可视化：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-viewer --load-config &#123;outputs/.../config.yml&#125;</span><br></pre></td></tr></table></figure></div>
-<h2 id="三模型导出">三、模型导出</h2>
-<p>在nerfstudio里支持三种类型的模型导出：<code>3d gaussion</code>、<code>point cloud</code>和<code>mesh</code>。这里只提及<code>mesh</code>的导出。</p>
-<p>最简单的导出指令为：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config CONFIG.yml --output-dir OUTPUT_DIR</span><br></pre></td></tr></table></figure></div>
-<p>而在可视化界面中，可以自动生成导出指令：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/291b1e3654b600855e834fc4b8800818.png"
-                      alt="image-20241210172317358" style="zoom:80%;" 
-                ></p>
-<p>其中可以对参数进行调整，比如<code>Use Crop</code>可以自动裁剪保留中心物体，<code># Faces</code>可以控制产生的面数的上限，<code># Points</code>控制点数的上限。最后生成的指令为以下结构：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config &#123;outputs/.../config.yml&#125; --output-dir &#123;OUTPUT_DIR&#125; --target-num-faces 50000 --num-pixels-per-side 2048 --num-points 1000000 --remove-outliers True --normal-method open3d --obb_center 0.0000000000 0.0000000000 0.0000000000 --obb_rotation 0.0000000000 0.0000000000 0.0000000000 --obb_scale 1.0000000000 1.0000000000 1.0000000000</span><br></pre></td></tr></table></figure></div>
-<p>其中<code>possion</code>
-表示使用泊松重建方法，nerfstudio还支持其他的重建方法，如<code>marching-cubes</code>和<code>tsdf</code>等，但效果都不尽如人意（可参考我之前的文章<a class="link" 
- href="https://felixchristian.top/2024/11/12/8-NeRF_Studio/" >NeRF
-Studio简要教程 | FelixChristian's Blog<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，里面有重建结果）。</p>
-<h2 id="四凸分解">四、凸分解</h2>
-<p>在我之前的文章<a class="link" 
- href="https://felixchristian.top/2024/09/29/3-CoACD_notes/" >Mujoco -
-CoACD简略教程 | FelixChristian's
-Blog<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>中有介绍到CoACD工具的安装和使用。</p>
-<p>当编译完CoACD之后，可直接执行凸分解指令： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div></p>
-<p>需要注意的是，两个<code>PATH</code>都是需要以具体的<code>.obj</code>文件结尾的。最终导出的单个<code>.obj</code>文件是以多个组件结合的。如果直接导入mujoco，它还是会对整个文件再次进行替换。</p>
-<p>为了在mujoco中实现正常的碰撞。必须把单个<code>.obj</code>文件导出为多个<code>.stl</code>文件，再在mujoco的<code>.xml</code>文件中进行引用。</p>
-<p>这里借助了Blender的<a class="link" 
- href="https://github.com/mrtripie/Blender-Super-Batch-Export" >Super-Batch-Export<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>插件：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/1a9a797389874618f4db594e7c9dcdd9.png"
-                      alt="image-20241210190612219" style="zoom:80%;" 
-                ></p>
-<p>需要注意的是，根据mujoco的官方文档介绍：</p>
-<blockquote>
-<p>MuJoCo can load triangulated meshes from OBJ files and binary STL.
-Software such as <a class="link"   href="https://www.meshlab.net/" >MeshLab<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a> can be
-used to convert from other formats. While any collection of triangles
-can be loaded and visualized as a mesh, the collision detector works
-with the convex hull. There are compile-time options for scaling the
-mesh, as well as fitting a primitive geometric shape to it. The mesh can
-also be used to automatically infer inertial properties – by treating it
-as a union of triangular pyramids and combining their masses and
-inertias. Note that meshes have no color, instead the mesh is colored
-using the material properties of the referencing geom. In contrast, all
-spatial properties are determined by the mesh data. MuJoCo supports both
-OBJ and a custom binary file format for normals and texture coordinates.
-Meshes can also be embedded directly in the XML.</p>
-</blockquote>
-<p>mujoco可以从<code>.obj</code>文件和<code>.stl</code>文件加载三角网格，所以在用Blender进行批量导出时，需要选择这两种格式。</p>
-<h2 id="五导入mujoco">五、导入mujoco</h2>
-<p>以<code>.obj</code>文件为例（<code>.stl</code>文件同理）：</p>
-<p>在上一步中导出的文件为<code>convex_0.obj</code>、<code>convex_1.obj</code>、...
-、<code>convex_n.obj</code>的形式。在我的<a class="link" 
- href="https://github.com/FelixChristian011226/Mujoco-RL" >FelixChristian011226/Mujoco-RL<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>仓库中，编写了一个简单的脚本<a class="link" 
- href="https://github.com/FelixChristian011226/Mujoco-RL/blob/main/terrain/gen_component/gen_convex.py" >gen_convex.py<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，用于生成<code>.xml</code>文件中相应的引用。使用过程如下：</p>
+<p><strong>说明</strong>：</p>
 <ol type="1">
-<li><p>首先，将生成的多个<code>.obj</code>文件，存放在<code>./terrain/mesh/&#123;your_mesh_name&#125;/</code>文件夹中。</p></li>
-<li><p>然后进入<code>./terrain</code>目录，使用如下指令：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">python3 ./gen_component/gen_convex.py &#123;model_folder&#125; &#123;indent_level&#125; &#123;total_count&#125;</span><br></pre></td></tr></table></figure></div>
-<p>其中<code>model_folder</code>对应<code>your_mesh_name</code>，即<code>./terrain/mesh/</code>目录下存放<code>.obj</code>文件的文件夹名称。</p>
-<p><code>indent_level</code>是缩进量，一般为2，仅仅为了<code>.xml</code>文件中美观而设置。</p>
-<p><code>total_count</code>是总的<code>.obj</code>文件数量，即最后一个文件的下标加一。</p></li>
-<li><p>最后将<code>.terrain/component/convex.xml</code>文件中的前半部分内容，复制到对应的<code>.xml</code>的<code>&lt;asset&gt;</code>部分，后半部分内容复制到<code>&lt;worldbody&gt;</code>部分。然后给其设置纹理，如：</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;material name=&quot;mat_&#123;name&#125;&quot; rgba=&quot;0.8 0.8 0.8 1&quot;/&gt;</span><br></pre></td></tr></table></figure></div>
-<p>其中<code>name</code>应该和文件夹名对应。</p></li>
-<li><p>最后再运行对应的<code>.xml</code>文件即可。</p></li>
+<li>大多数情况下，只需调整<code>threshold</code>
+（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
+<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
+、
+<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
 </ol>
 ]]></content>
       <categories>
@@ -542,9 +592,8 @@ Meshes can also be embedded directly in the XML.</p>
       </categories>
       <tags>
         <tag>mujoco</tag>
-        <tag>mesh</tag>
-        <tag>NeRF</tag>
         <tag>CoACD</tag>
+        <tag>convex</tag>
       </tags>
   </entry>
   <entry>
@@ -1160,109 +1209,6 @@ alt="Figure6"
       <tags>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mujoco - CoACD简略教程</title>
-    <url>/2024/09/29/3-CoACD_notes/</url>
-    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
-<h2 id="安装教程">安装教程</h2>
-<h3 id="克隆代码">(1) 克隆代码：</h3>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
-<h3 id="安装依赖">(2) 安装依赖：</h3>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
-</blockquote>
-<h3 id="编译">(3) 编译</h3>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
-<p>​ 然后编译：</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>这里出了很多warning，但是好像不影响使用。</p>
-</blockquote>
-<h3 id="使用">(4) 使用</h3>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
-<h2 id="参数说明">参数说明</h2>
-<ul>
-<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
-<li><strong>-c/--max-convex-hull</strong> :
-凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
-<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
-<li><strong>-am/--approximate-mode</strong> :
-近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
-<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
-</ul>
-<p><strong>说明</strong>：</p>
-<ol type="1">
-<li>大多数情况下，只需调整<code>threshold</code>
-（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
-<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
-、
-<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>convex</tag>
-        <tag>CoACD</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mathjax与渲染引擎marked冲突解决方案</title>
-    <url>/2024/11/11/7-Build_blog/</url>
-    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class='content'>
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~|])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
-<ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link"   href="https://pandoc.org/installing.html" >Pandoc -
-Installing
-pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
-]]></content>
-      <categories>
-        <category>博客搭建</category>
-      </categories>
-      <tags>
-        <tag>blog</tag>
-        <tag>mathjax</tag>
-        <tag>marked</tag>
       </tags>
   </entry>
   <entry>
@@ -2005,6 +1951,60 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
         <tag>2DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mathjax与渲染引擎marked冲突解决方案</title>
+    <url>/2024/11/11/7-Build_blog/</url>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
+<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
+<h3 id="踩坑过程">踩坑过程</h3>
+<h4 id="修改源码失败">1.修改源码（失败）</h4>
+<p>太长了，折叠一下，想看就展开吧👇。</p>
+<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class='content'>
+              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
+              </div>
+            </details>
+<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
+<p>最简单的方法，博主最初的妥协。</p>
+<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
+<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
+<p>直接卸载源引擎，更换kramed：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
+<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~|])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
+<ol type="1">
+<li><p>安装Pandoc。</p>
+<p>在官网<a class="link"   href="https://pandoc.org/installing.html" >Pandoc -
+Installing
+pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
+<li><p>更换引擎。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>mathjax的安装和配置可参考网上的教程。</p></li>
+<li><p>重新构建。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
+]]></content>
+      <categories>
+        <category>博客搭建</category>
+      </categories>
+      <tags>
+        <tag>blog</tag>
+        <tag>mathjax</tag>
+        <tag>marked</tag>
       </tags>
   </entry>
 </search>
