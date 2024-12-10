@@ -1,6 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Photometric Stereo</title>
+    <url>/2024/12/09/10-PhotometricStereo/</url>
+    <content><![CDATA[<h2 id="一实验目的">一、实验目的</h2>
+<p>实验的目的是通过实现光度立体（Photometric
+Stereo）算法，利用多张不同光照方向的图像来估计物体表面的法向量和反射率，并根据其来重新渲染指定光照方向下的图像。</p>
+<ul>
+<li><strong>法向量计算</strong>：根据朗博模型的公式<span
+class="math inline">\(I=\rho\overrightarrow{n}\cdot\overrightarrow{l}\)</span>，<span
+class="math inline">\(\rho\)</span>是表面的反射率，<span
+class="math inline">\(\overrightarrow{n}\)</span>是法向量，<span
+class="math inline">\(\overrightarrow{l}\)</span>是光照方向。根据课程介绍的算法，当至少提供三张已知光照方向的图像时，<span
+class="math inline">\(\rho\)</span>和<span
+class="math inline">\(\overrightarrow{l}\)</span>都可以唯一确定。</li>
+<li><strong>阴影高光处理</strong>：阴影和高光打破了线性的朗博模型，一个简单的解决方案是对每个像素的所有观测值排序，丢弃某一百分比的最亮和最暗像素，以去除阴影和高光。</li>
+</ul>
+<h2 id="二实验原理">二、实验原理</h2>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/0dade61b941065d1325153ebd11cd867.png"
+                      alt="Lambert" style="zoom: 33%;" 
+                ></p>
+<p>根据朗博模型（这是一个纯漫反射的模型），对于每一个光线反射点，有个固定的反射率<span
+class="math inline">\(\rho_0\)</span>，而反射光线<span
+class="math inline">\(L_o\)</span>的强度仅仅与反射率<span
+class="math inline">\(\rho_0\)</span>和与入射光线角度<span
+class="math inline">\(\theta_i\)</span>（与法向量的夹角）有关。公式如下：
+<span class="math display">\[
+L_o=L_i\rho_0\cos\theta_i=L_i\rho_0\boldsymbol{n}\cdot\boldsymbol{l}
+\]</span>
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a0fd7c0140bfcafeb008f056358914a7.png"
+                      alt="image-20241207132846933" style="zoom: 33%;" 
+                ></p>
+<p>当我们拥有不同光照方向的图像时，就可以利用朗博模型对每个像素点进行单独的分析了。当我们有三个光照角度的图像时，可以以矩阵形式获得朗博模型下的等式：
+<span class="math display">\[
+\begin{pmatrix}
+I_1 \\
+I_2 \\
+I_3
+\end{pmatrix}=
+\begin{pmatrix}
+\boldsymbol{l}_1^T \\
+\boldsymbol{l}_2^T \\
+\boldsymbol{l}_3^T
+\end{pmatrix}\mathrm{\rho}\boldsymbol{n}
+\]</span> 由于反射光强<span
+class="math inline">\(I_i\)</span>和入射光角度<span
+class="math inline">\(\boldsymbol{l}_i\)</span>都是已知的，所以通过三个光照角度的数据，就可以通过简单的矩阵求逆获得反射率<span
+class="math inline">\(\mathrm{\rho}\)</span>和法向量<span
+class="math inline">\(\boldsymbol{n}\)</span>。</p>
+<p>知道反射率和法向量的基础上，再对指定光照角度的图像渲染就很容易了，直接根据朗博模型求每个像素的光照即可。</p>
+<h2 id="三实验内容">三、实验内容</h2>
+<p>在这次实验给出的代码框架里，需要自己实现的基本上只有<code>myPMS.m</code>文件。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/53166fad82ee50e249ecc6a5f518cde9.png"
+                      alt="image-20241207134101820" style="zoom:50%;" 
+                ></p>
+<p>首先，对原本给出的函数声明进行了改动，因为最后要求输出的三幅图像，但是给出的框架里面又只输出了法向量，所以把反射率图像和重渲染图像也加到函数返回里了。然后函数输入新增了一个<code>shadow_removal_percentage</code>，它表示我在处理阴影高光是要舍弃的最亮最暗的像素值的百分比（比如它的值如果是20，那我要舍弃最暗的20%和最亮的20%）。</p>
+<p>在数据预处理阶段，用<code>N</code>、<code>albedo</code>、<code>re_rendered_img</code>分别表示法向量图、反射率图和重渲染图。它们都是三通道的。<code>I</code>用来暂存三个通道的光照强度值。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/1d0863310ac9b5c8a1ee62cfa2fa5735.png"
+                      alt="image-20241207134531010" style="zoom:50%;" 
+                ></p>
+<p>通过简单的循环遍历，先是对原图像经过了<code>mask</code>，通过遮罩把主体提取出来，防止背景的影响。然后在RGB的每个通道分别除以给出的<code>light_intensity</code>，获取每个通道真实的光照强度<code>I</code>。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/12820516d1dd2c93dc4760f293d792fc.png"
+                      alt="image-20241207134953399" style="zoom:50%;" 
+                ></p>
+<p>然后再遍历每一个像素点，对所有图像的光照强度进行排序，舍弃最亮和最暗的给定百分比的部分，存放到<code>I_col_filtered</code>里面。根据公式<span
+class="math inline">\(I=\rho\overrightarrow{n}\cdot\overrightarrow{l}\)</span>，可以先反推<span
+class="math inline">\(\rho\)</span>，简单的通过光照方向<code>s_filtered</code>和光照强度<code>I_col_filtered</code>作最小二乘法，即可获得每个像素点的反射率和法向量的积<code>A</code>。对<code>A</code>求norm即可获得反射率的值，然后对<code>A</code>除以这个反射率即可获得单位法向量。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/20fdbf89aed0546975b7f8d49893a762.png"
+                      alt="image-20241207140409970" style="zoom:50%;" 
+                ></p>
+<p>有以上的信息，重渲染就很简单了。直接遍历对每个像素通过朗博模型的公式套上去就可以了。但是由于作业要求里好像没有要求入射光的RGB分量，所以就默认都为1了。</p>
+<p>至此，光度立体法的主体函数就完成了，以下是对Baseline进行的小修改：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/0ace3623602bd317629dd0b1f47f7056.png"
+                      alt="image-20241207140539892" style="zoom:50%;" 
+                ></p>
+<p>首先函数调用这块，按照我改之后的输入输出来的，这里为处理阴影高光舍弃的百分比为20，即丢弃最暗的20%和最亮的20%。为了最后显示的重渲染图像更美观，这里还将它进行了归一化。</p>
+<p>光度立体法的具体代码如下(可展开折叠)：</p>
+<p>（在我的github仓库<a class="link" 
+ href="https://github.com/FelixChristian011226/ComputerVision/tree/main/Homework%201" >ComputerVision/Homework
+1<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>也可以找到）</p>
+<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class='content'>
+              <div class="code-container" data-rel="Matlab"><figure class="iseeu highlight matlab"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[N, albedo, re_rendered_img]</span> = <span class="title">L2_PMS</span><span class="params">(data, m, shadow_removal_percentage)</span></span></span><br><span class="line"></span><br><span class="line">    num_images = <span class="built_in">size</span>(data.s, <span class="number">1</span>);</span><br><span class="line">    [height, width, ~] = <span class="built_in">size</span>(data.imgs&#123;<span class="number">1</span>&#125;);</span><br><span class="line">    </span><br><span class="line">    N = <span class="built_in">zeros</span>(height, width, <span class="number">3</span>);</span><br><span class="line">    albedo = <span class="built_in">zeros</span>(height, width, <span class="number">3</span>);</span><br><span class="line">    re_rendered_img = <span class="built_in">zeros</span>(height, width, <span class="number">3</span>);</span><br><span class="line">    I = <span class="built_in">zeros</span>(num_images, <span class="built_in">length</span>(m), <span class="number">3</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">% Extract pixel intensities for each image</span></span><br><span class="line">    <span class="keyword">for</span> c = <span class="number">1</span>:<span class="number">3</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:num_images</span><br><span class="line">            img = double(data.imgs&#123;<span class="built_in">i</span>&#125;);</span><br><span class="line">            img = img(m);</span><br><span class="line">            img = img / data.L(<span class="built_in">i</span>, c);</span><br><span class="line">            I(<span class="built_in">i</span>, :, c) = img;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> c = <span class="number">1</span>:<span class="number">3</span></span><br><span class="line">    <span class="comment">% Remove shadows and highlights, compute normals and albedo</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:<span class="built_in">length</span>(m)</span><br><span class="line">            I_col = I(:, <span class="built_in">i</span>, c);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Sort intensities and remove shadows/highlights</span></span><br><span class="line">            [sorted_I, idx] = <span class="built_in">sort</span>(I_col);</span><br><span class="line">            num_to_remove = <span class="built_in">round</span>(<span class="built_in">length</span>(sorted_I) * shadow_removal_percentage / <span class="number">100</span>);</span><br><span class="line">            valid_idx = idx(num_to_remove+<span class="number">1</span>:<span class="keyword">end</span>-num_to_remove);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Filter light source directions and intensities</span></span><br><span class="line">            s_filtered = data.s(valid_idx, :);</span><br><span class="line">            I_col_filtered = sorted_I(num_to_remove+<span class="number">1</span>:<span class="keyword">end</span>-num_to_remove);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Solve for normal and albedo</span></span><br><span class="line">            A = s_filtered \ I_col_filtered;</span><br><span class="line">            albedo_val = norm(A);</span><br><span class="line"></span><br><span class="line">            norm_A = A / albedo_val;</span><br><span class="line">            [row, col] = <span class="built_in">ind2sub</span>([height, width], m(<span class="built_in">i</span>));</span><br><span class="line">            N(row, col, :) = norm_A&#x27;;</span><br><span class="line">            albedo(row, col, c) = albedo_val;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment">% Re-render the image using recovered normals and albedo</span></span><br><span class="line">    viewing_direction = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> c = <span class="number">1</span>:<span class="number">3</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:height</span><br><span class="line">            <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:width</span><br><span class="line">                normal = <span class="built_in">squeeze</span>(N(<span class="built_in">i</span>, <span class="built_in">j</span>, :));</span><br><span class="line">                <span class="keyword">if</span> norm(normal) &gt; <span class="number">0</span></span><br><span class="line">                    re_rendered_img(<span class="built_in">i</span>, <span class="built_in">j</span>, c) = <span class="built_in">max</span>(<span class="number">0</span>, <span class="built_in">dot</span>(normal, viewing_direction)) * albedo(<span class="built_in">i</span>, <span class="built_in">j</span>, c);</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure></div>
+              </div>
+            </details>
+<h2 id="四实验结果">四、实验结果</h2>
+<table>
+<colgroup>
+<col style="width: 3%" />
+<col style="width: 32%" />
+<col style="width: 32%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Normal Map</th>
+<th>Albedo Map</th>
+<th>Re-rendered Picture</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bear</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/5ae7f5df5e480e32313eeadfc218a1ec.png"
+                      alt="bearPNG_Normal"  
+                ></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/11126f4fba79a877396cbb649b85eae2.png"
+                      alt="bearPNG_Albedo"  
+                ></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/b1e038833411195869dccfc94e9311c9.png"
+                      alt="bearPNG_ReRendered"  
+                ></td>
+</tr>
+<tr>
+<td>buddha</td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/77db0ed558a8954d54ed24bd548b61ec.png"
+                     
+alt="buddhaPNG_Normal" 
+                ></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/624f4c0c73b765a0b7725128394ead80.png"
+                     
+alt="buddhaPNG_Albedo" 
+                ></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/551786fccd59bfbe22ee559df3473d6d.png"
+                     
+alt="buddhaPNG_ReRendered" 
+                ></td>
+</tr>
+<tr>
+<td>cat</td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/1ca2781d392d4258eee056952fa7ac6e.png"
+                     
+alt="catPNG_Normal" 
+                ></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/63a725360b18d28c825f364ab06f1c4f.png"
+                     
+alt="catPNG_Albedo" 
+                ></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/e897663e32bde8e338e11397699d2ed1.png"
+                     
+alt="catPNG_ReRendered" 
+                ></td>
+</tr>
+<tr>
+<td>pot</td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/198d54d72124b26b50beea61be1a33a2.png"
+                     
+alt="potPNG_Normal" 
+                ></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a6ed46b80000be1e8402a751e14fdbe4.png"
+                     
+alt="potPNG_Albedo" 
+                ></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/4bf4ac3fb69d12f957b4f42600ebb596.png"
+                     
+alt="potPNG_ReRendered" 
+                ></td>
+</tr>
+</tbody>
+</table>
+]]></content>
+      <categories>
+        <category>研究生课程</category>
+        <category>计算机视觉</category>
+      </categories>
+      <tags>
+        <tag>Photometric Stereo</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Mujoco - 高场hfield相关</title>
     <url>/2024/09/26/1-Hfield/</url>
     <content><![CDATA[<blockquote>
@@ -313,238 +548,327 @@ MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" 
       </tags>
   </entry>
   <entry>
-    <title>Photometric Stereo</title>
-    <url>/2024/12/09/10-PhotometricStereo/</url>
-    <content><![CDATA[<h2 id="一实验目的">一、实验目的</h2>
-<p>实验的目的是通过实现光度立体（Photometric
-Stereo）算法，利用多张不同光照方向的图像来估计物体表面的法向量和反射率，并根据其来重新渲染指定光照方向下的图像。</p>
-<ul>
-<li><strong>法向量计算</strong>：根据朗博模型的公式<span
-class="math inline">\(I=\rho\overrightarrow{n}\cdot\overrightarrow{l}\)</span>，<span
-class="math inline">\(\rho\)</span>是表面的反射率，<span
-class="math inline">\(\overrightarrow{n}\)</span>是法向量，<span
-class="math inline">\(\overrightarrow{l}\)</span>是光照方向。根据课程介绍的算法，当至少提供三张已知光照方向的图像时，<span
-class="math inline">\(\rho\)</span>和<span
-class="math inline">\(\overrightarrow{l}\)</span>都可以唯一确定。</li>
-<li><strong>阴影高光处理</strong>：阴影和高光打破了线性的朗博模型，一个简单的解决方案是对每个像素的所有观测值排序，丢弃某一百分比的最亮和最暗像素，以去除阴影和高光。</li>
-</ul>
-<h2 id="二实验原理">二、实验原理</h2>
-<p><img  
+    <title>GauU-Scene V2 论文解读</title>
+    <url>/2024/11/05/5-GauU_Scene_V2/</url>
+    <content><![CDATA[<p>论文：</p>
+<blockquote>
+<p>GauU-Scene V2: Assessing the Reliability of Image-Based Metrics with
+Expansive Lidar Image Dataset Using 3DGS and NeRF</p>
+</blockquote>
+<h2 id="数据集">数据集</h2>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/0dade61b941065d1325153ebd11cd867.png"
-                      alt="Lambert" style="zoom: 33%;" 
-                ></p>
-<p>根据朗博模型（这是一个纯漫反射的模型），对于每一个光线反射点，有个固定的反射率<span
-class="math inline">\(\rho_0\)</span>，而反射光线<span
-class="math inline">\(L_o\)</span>的强度仅仅与反射率<span
-class="math inline">\(\rho_0\)</span>和与入射光线角度<span
-class="math inline">\(\theta_i\)</span>（与法向量的夹角）有关。公式如下：
-<span class="math display">\[
-L_o=L_i\rho_0\cos\theta_i=L_i\rho_0\boldsymbol{n}\cdot\boldsymbol{l}
-\]</span>
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a0fd7c0140bfcafeb008f056358914a7.png"
-                      alt="image-20241207132846933" style="zoom: 33%;" 
-                ></p>
-<p>当我们拥有不同光照方向的图像时，就可以利用朗博模型对每个像素点进行单独的分析了。当我们有三个光照角度的图像时，可以以矩阵形式获得朗博模型下的等式：
-<span class="math display">\[
-\begin{pmatrix}
-I_1 \\
-I_2 \\
-I_3
-\end{pmatrix}=
-\begin{pmatrix}
-\boldsymbol{l}_1^T \\
-\boldsymbol{l}_2^T \\
-\boldsymbol{l}_3^T
-\end{pmatrix}\mathrm{\rho}\boldsymbol{n}
-\]</span> 由于反射光强<span
-class="math inline">\(I_i\)</span>和入射光角度<span
-class="math inline">\(\boldsymbol{l}_i\)</span>都是已知的，所以通过三个光照角度的数据，就可以通过简单的矩阵求逆获得反射率<span
-class="math inline">\(\mathrm{\rho}\)</span>和法向量<span
-class="math inline">\(\boldsymbol{n}\)</span>。</p>
-<p>知道反射率和法向量的基础上，再对指定光照角度的图像渲染就很容易了，直接根据朗博模型求每个像素的光照即可。</p>
-<h2 id="三实验内容">三、实验内容</h2>
-<p>在这次实验给出的代码框架里，需要自己实现的基本上只有<code>myPMS.m</code>文件。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/53166fad82ee50e249ecc6a5f518cde9.png"
-                      alt="image-20241207134101820" style="zoom:50%;" 
-                ></p>
-<p>首先，对原本给出的函数声明进行了改动，因为最后要求输出的三幅图像，但是给出的框架里面又只输出了法向量，所以把反射率图像和重渲染图像也加到函数返回里了。然后函数输入新增了一个<code>shadow_removal_percentage</code>，它表示我在处理阴影高光是要舍弃的最亮最暗的像素值的百分比（比如它的值如果是20，那我要舍弃最暗的20%和最亮的20%）。</p>
-<p>在数据预处理阶段，用<code>N</code>、<code>albedo</code>、<code>re_rendered_img</code>分别表示法向量图、反射率图和重渲染图。它们都是三通道的。<code>I</code>用来暂存三个通道的光照强度值。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/1d0863310ac9b5c8a1ee62cfa2fa5735.png"
-                      alt="image-20241207134531010" style="zoom:50%;" 
-                ></p>
-<p>通过简单的循环遍历，先是对原图像经过了<code>mask</code>，通过遮罩把主体提取出来，防止背景的影响。然后在RGB的每个通道分别除以给出的<code>light_intensity</code>，获取每个通道真实的光照强度<code>I</code>。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/12820516d1dd2c93dc4760f293d792fc.png"
-                      alt="image-20241207134953399" style="zoom:50%;" 
-                ></p>
-<p>然后再遍历每一个像素点，对所有图像的光照强度进行排序，舍弃最亮和最暗的给定百分比的部分，存放到<code>I_col_filtered</code>里面。根据公式<span
-class="math inline">\(I=\rho\overrightarrow{n}\cdot\overrightarrow{l}\)</span>，可以先反推<span
-class="math inline">\(\rho\)</span>，简单的通过光照方向<code>s_filtered</code>和光照强度<code>I_col_filtered</code>作最小二乘法，即可获得每个像素点的反射率和法向量的积<code>A</code>。对<code>A</code>求norm即可获得反射率的值，然后对<code>A</code>除以这个反射率即可获得单位法向量。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/20fdbf89aed0546975b7f8d49893a762.png"
-                      alt="image-20241207140409970" style="zoom:50%;" 
-                ></p>
-<p>有以上的信息，重渲染就很简单了。直接遍历对每个像素通过朗博模型的公式套上去就可以了。但是由于作业要求里好像没有要求入射光的RGB分量，所以就默认都为1了。</p>
-<p>至此，光度立体法的主体函数就完成了，以下是对Baseline进行的小修改：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/0ace3623602bd317629dd0b1f47f7056.png"
-                      alt="image-20241207140539892" style="zoom:50%;" 
-                ></p>
-<p>首先函数调用这块，按照我改之后的输入输出来的，这里为处理阴影高光舍弃的百分比为20，即丢弃最暗的20%和最亮的20%。为了最后显示的重渲染图像更美观，这里还将它进行了归一化。</p>
-<p>光度立体法的具体代码如下(可展开折叠)：</p>
-<p>（在我的github仓库<a class="link" 
- href="https://github.com/FelixChristian011226/ComputerVision/tree/main/Homework%201" >ComputerVision/Homework
-1<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>也可以找到）</p>
-<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class='content'>
-              <div class="code-container" data-rel="Matlab"><figure class="iseeu highlight matlab"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="params">[N, albedo, re_rendered_img]</span> = <span class="title">L2_PMS</span><span class="params">(data, m, shadow_removal_percentage)</span></span></span><br><span class="line"></span><br><span class="line">    num_images = <span class="built_in">size</span>(data.s, <span class="number">1</span>);</span><br><span class="line">    [height, width, ~] = <span class="built_in">size</span>(data.imgs&#123;<span class="number">1</span>&#125;);</span><br><span class="line">    </span><br><span class="line">    N = <span class="built_in">zeros</span>(height, width, <span class="number">3</span>);</span><br><span class="line">    albedo = <span class="built_in">zeros</span>(height, width, <span class="number">3</span>);</span><br><span class="line">    re_rendered_img = <span class="built_in">zeros</span>(height, width, <span class="number">3</span>);</span><br><span class="line">    I = <span class="built_in">zeros</span>(num_images, <span class="built_in">length</span>(m), <span class="number">3</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">% Extract pixel intensities for each image</span></span><br><span class="line">    <span class="keyword">for</span> c = <span class="number">1</span>:<span class="number">3</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:num_images</span><br><span class="line">            img = double(data.imgs&#123;<span class="built_in">i</span>&#125;);</span><br><span class="line">            img = img(m);</span><br><span class="line">            img = img / data.L(<span class="built_in">i</span>, c);</span><br><span class="line">            I(<span class="built_in">i</span>, :, c) = img;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> c = <span class="number">1</span>:<span class="number">3</span></span><br><span class="line">    <span class="comment">% Remove shadows and highlights, compute normals and albedo</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:<span class="built_in">length</span>(m)</span><br><span class="line">            I_col = I(:, <span class="built_in">i</span>, c);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Sort intensities and remove shadows/highlights</span></span><br><span class="line">            [sorted_I, idx] = <span class="built_in">sort</span>(I_col);</span><br><span class="line">            num_to_remove = <span class="built_in">round</span>(<span class="built_in">length</span>(sorted_I) * shadow_removal_percentage / <span class="number">100</span>);</span><br><span class="line">            valid_idx = idx(num_to_remove+<span class="number">1</span>:<span class="keyword">end</span>-num_to_remove);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Filter light source directions and intensities</span></span><br><span class="line">            s_filtered = data.s(valid_idx, :);</span><br><span class="line">            I_col_filtered = sorted_I(num_to_remove+<span class="number">1</span>:<span class="keyword">end</span>-num_to_remove);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">% Solve for normal and albedo</span></span><br><span class="line">            A = s_filtered \ I_col_filtered;</span><br><span class="line">            albedo_val = norm(A);</span><br><span class="line"></span><br><span class="line">            norm_A = A / albedo_val;</span><br><span class="line">            [row, col] = <span class="built_in">ind2sub</span>([height, width], m(<span class="built_in">i</span>));</span><br><span class="line">            N(row, col, :) = norm_A&#x27;;</span><br><span class="line">            albedo(row, col, c) = albedo_val;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="comment">% Re-render the image using recovered normals and albedo</span></span><br><span class="line">    viewing_direction = [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span> c = <span class="number">1</span>:<span class="number">3</span></span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">i</span> = <span class="number">1</span>:height</span><br><span class="line">            <span class="keyword">for</span> <span class="built_in">j</span> = <span class="number">1</span>:width</span><br><span class="line">                normal = <span class="built_in">squeeze</span>(N(<span class="built_in">i</span>, <span class="built_in">j</span>, :));</span><br><span class="line">                <span class="keyword">if</span> norm(normal) &gt; <span class="number">0</span></span><br><span class="line">                    re_rendered_img(<span class="built_in">i</span>, <span class="built_in">j</span>, c) = <span class="built_in">max</span>(<span class="number">0</span>, <span class="built_in">dot</span>(normal, viewing_direction)) * albedo(<span class="built_in">i</span>, <span class="built_in">j</span>, c);</span><br><span class="line">                <span class="keyword">end</span></span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure></div>
-              </div>
-            </details>
-<h2 id="四实验结果">四、实验结果</h2>
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png"
+                     
+alt="dataset" 
+                >
+<figcaption aria-hidden="true">dataset</figcaption>
+</figure>
 <table>
 <colgroup>
-<col style="width: 3%" />
-<col style="width: 32%" />
-<col style="width: 32%" />
-<col style="width: 32%" />
+<col style="width: 15%" />
+<col style="width: 41%" />
+<col style="width: 43%" />
 </colgroup>
 <thead>
 <tr>
-<th></th>
-<th>Normal Map</th>
-<th>Albedo Map</th>
-<th>Re-rendered Picture</th>
+<th>方法</th>
+<th>做法</th>
+<th>缺点</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>bear</td>
-<td><img  
+<td>bungeenerf</td>
+<td>卫星捕获图像</td>
+<td>时间差异、无地面实况</td>
+</tr>
+<tr>
+<td>KITTI</td>
+<td>汽车雷达捕获点云数据</td>
+<td>屋顶、高层建筑捕获存在不足</td>
+</tr>
+<tr>
+<td>blockNeRF</td>
+<td>Style Transformation解决时间差异</td>
+<td>不提供公开可用的点云数据集</td>
+</tr>
+<tr>
+<td>UrbanBIS</td>
+<td>多视图相机捕获点云</td>
+<td>未用高精度激光雷达</td>
+</tr>
+<tr>
+<td>Urbanscene3D</td>
+<td>无人机配合激光雷达</td>
+<td>坐标差异，雷达点云和图像关系不明确</td>
+</tr>
+</tbody>
+</table>
+<p><strong>优势：</strong></p>
+<ul>
+<li>利用Zenmuse L1来获取地面真实几何，而大多数数据集（ blocknerf ）（
+megaNeRF ）（ UrbanBIS
+）依赖单目或多视图相机进行数据采集，这更适合新视图合成而不是场景重建。</li>
+<li>提供了城市规模的信息，包括高层建筑、湖泊、山脉和屋顶，而其他数据集很少提供。</li>
+<li>double-return技术，去除移动物体，确保更稳定的光照效果。</li>
+<li>去除飞行路线中连续图像之间的冗余信息，图像更少，但信息量仍然具有可比性。</li>
+</ul>
+<h2 id="评估指标">评估指标</h2>
+<h3 id="psnr">PSNR</h3>
+<p>PSNR(Peak signal-to-noise ratio 峰值信噪比)
+用于表示信号的最大可能功率与影响其表示的保真度的破坏噪声的功率之间的比率，通常使用分贝标度表示为对数量。</p>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/5ae7f5df5e480e32313eeadfc218a1ec.png"
-                      alt="bearPNG_Normal"  
-                ></td>
-<td><img  
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d6245af1d4a65be444fc779e62074667.png"
+                     
+alt="MSE" 
+                >
+<figcaption aria-hidden="true">MSE</figcaption>
+</figure>
+<figure>
+<img 
+
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/11126f4fba79a877396cbb649b85eae2.png"
-                      alt="bearPNG_Albedo"  
-                ></td>
-<td><img  
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d0eb05ab65303b4ae37eabbfc43212b7.png"
+                     
+alt="PSNR" 
+                >
+<figcaption aria-hidden="true">PSNR</figcaption>
+</figure>
+<h3 id="ssim">SSIM</h3>
+<p>SSIM全称为Structural
+Similarity，即结构相似性。算法会提取以下三个特征。</p>
+<ul>
+<li><strong>亮度</strong></li>
+<li><strong>对比度</strong></li>
+<li><strong>结构</strong></li>
+</ul>
+<p>亮度的估计与平均灰度有关：<img 
+
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/b1e038833411195869dccfc94e9311c9.png"
-                      alt="bearPNG_ReRendered"  
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/cfd417d0ced2bd8f64a88b7fa799f8c5.png"
+                     
+alt="均值" 
+                ></p>
+<p>对比度的估计则用标准差衡量：<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/ff69fd63d0e036d0866f420595dc2668.png"
+                     
+alt="标准差" 
+                ></p>
+<p>结构比较是通过使用一个合并公式来完成。</p>
+<p>三个对比函数分别如下：</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>公式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>亮度</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9615320354732921de0c9a7268823ca3.png"
+                     
+alt="亮度" 
                 ></td>
 </tr>
 <tr>
-<td>buddha</td>
+<td><strong>对比度</strong></td>
 <td><img 
 
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/77db0ed558a8954d54ed24bd548b61ec.png"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f82417d40a829e317089fc1240823192.png"
                      
-alt="buddhaPNG_Normal" 
-                ></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/624f4c0c73b765a0b7725128394ead80.png"
-                     
-alt="buddhaPNG_Albedo" 
-                ></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/551786fccd59bfbe22ee559df3473d6d.png"
-                     
-alt="buddhaPNG_ReRendered" 
+alt="对比度" 
                 ></td>
 </tr>
 <tr>
-<td>cat</td>
+<td><strong>结构</strong></td>
 <td><img 
 
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/1ca2781d392d4258eee056952fa7ac6e.png"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3765b0064f96885e010bb8eb3725455a.png"
                      
-alt="catPNG_Normal" 
-                ></td>
-<td><img 
+alt="结构" 
+                >其中<img 
 
                      lazyload
                      src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/63a725360b18d28c825f364ab06f1c4f.png"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/6ba650fa5b1715045873b1422610d366.png"
                      
-alt="catPNG_Albedo" 
-                ></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/e897663e32bde8e338e11397699d2ed1.png"
-                     
-alt="catPNG_ReRendered" 
-                ></td>
-</tr>
-<tr>
-<td>pot</td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/198d54d72124b26b50beea61be1a33a2.png"
-                     
-alt="potPNG_Normal" 
-                ></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a6ed46b80000be1e8402a751e14fdbe4.png"
-                     
-alt="potPNG_Albedo" 
-                ></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/4bf4ac3fb69d12f957b4f42600ebb596.png"
-                     
-alt="potPNG_ReRendered" 
+alt="协方差" 
                 ></td>
 </tr>
 </tbody>
 </table>
+<p>结合即得到SSIM函数：</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fdd23e8d54ad6380ebc851cd06a0a12d.png"
+                     
+alt="SSIM" 
+                >
+<figcaption aria-hidden="true">SSIM</figcaption>
+</figure>
+<h3 id="lpips">LPIPS</h3>
+<p>学习感知图像块相似度(Learned Perceptual Image Patch Similarity,
+LPIPS)，通过深度学习模型来评估两个图像之间的感知差异。使用预训练的深度网络（如
+VGG、AlexNet）来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度。</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg"
+                     
+alt="LPIPS" 
+                >
+<figcaption aria-hidden="true">LPIPS</figcaption>
+</figure>
+<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2/PSNR,
+SSIM,
+FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
+<h3 id="倒角距离">倒角距离</h3>
+<p>出自：</p>
+<blockquote>
+<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
+object reconstruction from a single image,” <a class="link" 
+ href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>,
+2017.</p>
+</blockquote>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2c25811a255e9fb0702799148f56c8ed.png"
+                     
+alt="Chamfer distance" 
+                >
+<figcaption aria-hidden="true">Chamfer distance</figcaption>
+</figure>
+<p>算法：</p>
+<ol type="1">
+<li>对S1中任意一点x，计算它与S2中所有点的距离，取最小距离的平方。</li>
+<li>遍历S1中的点，重复1中过程，求和所有距离平方。</li>
+<li>同样的步骤，对S2中所有点遍历，重复1、2过程。</li>
+<li>将两个求和结果相加，作为倒角距离。</li>
+</ol>
+<p>倒角距离用于衡量两个点云之间的相似度。如果该距离较大，则说明两组点云区别较大；如果距离较小，则说明重建效果较好。</p>
+<h2 id="实验">实验</h2>
+<h3 id="实验环境">实验环境</h3>
+<ul>
+<li><strong>Vanilla Gaussian Splatting</strong>: RTX 3090 * 1</li>
+<li><strong>NeRF-based models</strong>: RTX 3090 * 4</li>
+</ul>
+<h3 id="实验结果">实验结果</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f83245b067971c4b84de5cd9895d823.png"
+                     
+alt="Table3" 
+                >
+<figcaption aria-hidden="true">Table3</figcaption>
+</figure>
+<ul>
+<li>3DGS和SuGaR在图像的渲染中，有更优的效果（三个参数都更优），且训练时间更短。</li>
+</ul>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b6069787b5c845e9080f4ef1d4751090.png"
+                     
+alt="Table4" 
+                >
+<figcaption aria-hidden="true">Table4</figcaption>
+</figure>
+<ul>
+<li>NeRF: 使用ns-export生成3D点云。</li>
+<li>3DGS: 每个Gaussian Splatting的均值作为一个点，输出点云。</li>
+<li>神经辐射场生成的点云，通常包含很多与场景无关的异常值。</li>
+<li>3DGS也存在边缘效应，边缘会模糊。</li>
+</ul>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png"
+                     
+alt="CD" 
+                >
+<figcaption aria-hidden="true">CD</figcaption>
+</figure>
+<p>（图源项目网址：<a class="link" 
+ href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
+<ul>
+<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
+<li>SuGaR
+是一种专为几何对齐设计的方法，排名却倒数。再对SuGaR进行定量分析，发现SuGaR在几何重建方面确实有更好的表现。</li>
+</ul>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3472d29a30085a95fb9679362e2c9f49.png"
+                     
+alt="SuGaR" 
+                >
+<figcaption aria-hidden="true">SuGaR</figcaption>
+</figure>
+<p>图中的蓝点在其他方法中很常见，而绿色甚至略带红色的点在其他方法中却很少见。更何况SuGaR中绿色点如此之多。
+从定量的角度来看，如果我们忽略这里显示的异常值，SuGaR
+的确是最好的方法。</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png"
+                     
+alt="Figure6" 
+                >
+<figcaption aria-hidden="true">Figure6</figcaption>
+</figure>
+<p>对高斯泼溅的alpha值进行了简单分析，其中几乎三分之二的alpha值几乎是透明的。通过删除这些值，渲染的图像变得更加清晰，几乎没有信息丢失。这些近乎透明的高斯飞溅实例漂浮在3D空间中。尽管它们在渲染图像中看不到，但它们会导致几何测量指标的退化。</p>
 ]]></content>
       <categories>
-        <category>研究生课程</category>
-        <category>计算机视觉</category>
+        <category>三维重建</category>
       </categories>
       <tags>
-        <tag>Photometric Stereo</tag>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
       </tags>
   </entry>
   <entry>
@@ -888,330 +1212,6 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
       </tags>
   </entry>
   <entry>
-    <title>GauU-Scene V2 论文解读</title>
-    <url>/2024/11/05/5-GauU_Scene_V2/</url>
-    <content><![CDATA[<p>论文：</p>
-<blockquote>
-<p>GauU-Scene V2: Assessing the Reliability of Image-Based Metrics with
-Expansive Lidar Image Dataset Using 3DGS and NeRF</p>
-</blockquote>
-<h2 id="数据集">数据集</h2>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png"
-                     
-alt="dataset" 
-                >
-<figcaption aria-hidden="true">dataset</figcaption>
-</figure>
-<table>
-<colgroup>
-<col style="width: 15%" />
-<col style="width: 41%" />
-<col style="width: 43%" />
-</colgroup>
-<thead>
-<tr>
-<th>方法</th>
-<th>做法</th>
-<th>缺点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>bungeenerf</td>
-<td>卫星捕获图像</td>
-<td>时间差异、无地面实况</td>
-</tr>
-<tr>
-<td>KITTI</td>
-<td>汽车雷达捕获点云数据</td>
-<td>屋顶、高层建筑捕获存在不足</td>
-</tr>
-<tr>
-<td>blockNeRF</td>
-<td>Style Transformation解决时间差异</td>
-<td>不提供公开可用的点云数据集</td>
-</tr>
-<tr>
-<td>UrbanBIS</td>
-<td>多视图相机捕获点云</td>
-<td>未用高精度激光雷达</td>
-</tr>
-<tr>
-<td>Urbanscene3D</td>
-<td>无人机配合激光雷达</td>
-<td>坐标差异，雷达点云和图像关系不明确</td>
-</tr>
-</tbody>
-</table>
-<p><strong>优势：</strong></p>
-<ul>
-<li>利用Zenmuse L1来获取地面真实几何，而大多数数据集（ blocknerf ）（
-megaNeRF ）（ UrbanBIS
-）依赖单目或多视图相机进行数据采集，这更适合新视图合成而不是场景重建。</li>
-<li>提供了城市规模的信息，包括高层建筑、湖泊、山脉和屋顶，而其他数据集很少提供。</li>
-<li>double-return技术，去除移动物体，确保更稳定的光照效果。</li>
-<li>去除飞行路线中连续图像之间的冗余信息，图像更少，但信息量仍然具有可比性。</li>
-</ul>
-<h2 id="评估指标">评估指标</h2>
-<h3 id="psnr">PSNR</h3>
-<p>PSNR(Peak signal-to-noise ratio 峰值信噪比)
-用于表示信号的最大可能功率与影响其表示的保真度的破坏噪声的功率之间的比率，通常使用分贝标度表示为对数量。</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d6245af1d4a65be444fc779e62074667.png"
-                     
-alt="MSE" 
-                >
-<figcaption aria-hidden="true">MSE</figcaption>
-</figure>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d0eb05ab65303b4ae37eabbfc43212b7.png"
-                     
-alt="PSNR" 
-                >
-<figcaption aria-hidden="true">PSNR</figcaption>
-</figure>
-<h3 id="ssim">SSIM</h3>
-<p>SSIM全称为Structural
-Similarity，即结构相似性。算法会提取以下三个特征。</p>
-<ul>
-<li><strong>亮度</strong></li>
-<li><strong>对比度</strong></li>
-<li><strong>结构</strong></li>
-</ul>
-<p>亮度的估计与平均灰度有关：<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/cfd417d0ced2bd8f64a88b7fa799f8c5.png"
-                     
-alt="均值" 
-                ></p>
-<p>对比度的估计则用标准差衡量：<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/ff69fd63d0e036d0866f420595dc2668.png"
-                     
-alt="标准差" 
-                ></p>
-<p>结构比较是通过使用一个合并公式来完成。</p>
-<p>三个对比函数分别如下：</p>
-<table>
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 85%" />
-</colgroup>
-<thead>
-<tr>
-<th></th>
-<th>公式</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>亮度</strong></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9615320354732921de0c9a7268823ca3.png"
-                     
-alt="亮度" 
-                ></td>
-</tr>
-<tr>
-<td><strong>对比度</strong></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f82417d40a829e317089fc1240823192.png"
-                     
-alt="对比度" 
-                ></td>
-</tr>
-<tr>
-<td><strong>结构</strong></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3765b0064f96885e010bb8eb3725455a.png"
-                     
-alt="结构" 
-                >其中<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/6ba650fa5b1715045873b1422610d366.png"
-                     
-alt="协方差" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>结合即得到SSIM函数：</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fdd23e8d54ad6380ebc851cd06a0a12d.png"
-                     
-alt="SSIM" 
-                >
-<figcaption aria-hidden="true">SSIM</figcaption>
-</figure>
-<h3 id="lpips">LPIPS</h3>
-<p>学习感知图像块相似度(Learned Perceptual Image Patch Similarity,
-LPIPS)，通过深度学习模型来评估两个图像之间的感知差异。使用预训练的深度网络（如
-VGG、AlexNet）来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度。</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg"
-                     
-alt="LPIPS" 
-                >
-<figcaption aria-hidden="true">LPIPS</figcaption>
-</figure>
-<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2/PSNR,
-SSIM,
-FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
-<h3 id="倒角距离">倒角距离</h3>
-<p>出自：</p>
-<blockquote>
-<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
-object reconstruction from a single image,” <a class="link" 
- href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>,
-2017.</p>
-</blockquote>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2c25811a255e9fb0702799148f56c8ed.png"
-                     
-alt="Chamfer distance" 
-                >
-<figcaption aria-hidden="true">Chamfer distance</figcaption>
-</figure>
-<p>算法：</p>
-<ol type="1">
-<li>对S1中任意一点x，计算它与S2中所有点的距离，取最小距离的平方。</li>
-<li>遍历S1中的点，重复1中过程，求和所有距离平方。</li>
-<li>同样的步骤，对S2中所有点遍历，重复1、2过程。</li>
-<li>将两个求和结果相加，作为倒角距离。</li>
-</ol>
-<p>倒角距离用于衡量两个点云之间的相似度。如果该距离较大，则说明两组点云区别较大；如果距离较小，则说明重建效果较好。</p>
-<h2 id="实验">实验</h2>
-<h3 id="实验环境">实验环境</h3>
-<ul>
-<li><strong>Vanilla Gaussian Splatting</strong>: RTX 3090 * 1</li>
-<li><strong>NeRF-based models</strong>: RTX 3090 * 4</li>
-</ul>
-<h3 id="实验结果">实验结果</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f83245b067971c4b84de5cd9895d823.png"
-                     
-alt="Table3" 
-                >
-<figcaption aria-hidden="true">Table3</figcaption>
-</figure>
-<ul>
-<li>3DGS和SuGaR在图像的渲染中，有更优的效果（三个参数都更优），且训练时间更短。</li>
-</ul>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b6069787b5c845e9080f4ef1d4751090.png"
-                     
-alt="Table4" 
-                >
-<figcaption aria-hidden="true">Table4</figcaption>
-</figure>
-<ul>
-<li>NeRF: 使用ns-export生成3D点云。</li>
-<li>3DGS: 每个Gaussian Splatting的均值作为一个点，输出点云。</li>
-<li>神经辐射场生成的点云，通常包含很多与场景无关的异常值。</li>
-<li>3DGS也存在边缘效应，边缘会模糊。</li>
-</ul>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png"
-                     
-alt="CD" 
-                >
-<figcaption aria-hidden="true">CD</figcaption>
-</figure>
-<p>（图源项目网址：<a class="link" 
- href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
-<ul>
-<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
-<li>SuGaR
-是一种专为几何对齐设计的方法，排名却倒数。再对SuGaR进行定量分析，发现SuGaR在几何重建方面确实有更好的表现。</li>
-</ul>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3472d29a30085a95fb9679362e2c9f49.png"
-                     
-alt="SuGaR" 
-                >
-<figcaption aria-hidden="true">SuGaR</figcaption>
-</figure>
-<p>图中的蓝点在其他方法中很常见，而绿色甚至略带红色的点在其他方法中却很少见。更何况SuGaR中绿色点如此之多。
-从定量的角度来看，如果我们忽略这里显示的异常值，SuGaR
-的确是最好的方法。</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png"
-                     
-alt="Figure6" 
-                >
-<figcaption aria-hidden="true">Figure6</figcaption>
-</figure>
-<p>对高斯泼溅的alpha值进行了简单分析，其中几乎三分之二的alpha值几乎是透明的。通过删除这些值，渲染的图像变得更加清晰，几乎没有信息丢失。这些近乎透明的高斯飞溅实例漂浮在3D空间中。尽管它们在渲染图像中看不到，但它们会导致几何测量指标的退化。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SplatSim 论文解读</title>
     <url>/2024/11/06/6-SplatSim/</url>
     <content><![CDATA[<h2 id="背景">背景</h2>
@@ -1395,6 +1395,60 @@ RGB 的操作策略的模拟与真实之间的差距。
       <tags>
         <tag>3DGS</tag>
         <tag>Sim2Real</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mathjax与渲染引擎marked冲突解决方案</title>
+    <url>/2024/11/11/7-Build_blog/</url>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
+<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
+<h3 id="踩坑过程">踩坑过程</h3>
+<h4 id="修改源码失败">1.修改源码（失败）</h4>
+<p>太长了，折叠一下，想看就展开吧👇。</p>
+<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class='content'>
+              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
+              </div>
+            </details>
+<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
+<p>最简单的方法，博主最初的妥协。</p>
+<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
+<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
+<p>直接卸载源引擎，更换kramed：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
+<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~|])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
+<ol type="1">
+<li><p>安装Pandoc。</p>
+<p>在官网<a class="link"   href="https://pandoc.org/installing.html" >Pandoc -
+Installing
+pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
+<li><p>更换引擎。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>mathjax的安装和配置可参考网上的教程。</p></li>
+<li><p>重新构建。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
+]]></content>
+      <categories>
+        <category>博客搭建</category>
+      </categories>
+      <tags>
+        <tag>blog</tag>
+        <tag>mathjax</tag>
+        <tag>marked</tag>
       </tags>
   </entry>
   <entry>
@@ -1951,60 +2005,6 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
         <tag>2DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mathjax与渲染引擎marked冲突解决方案</title>
-    <url>/2024/11/11/7-Build_blog/</url>
-    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class='content'>
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*&#123;&#125;\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: &#123;</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~|])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">&#x27;])&#x27;</span>, <span class="string">&#x27;~])&#x27;</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
-<ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link"   href="https://pandoc.org/installing.html" >Pandoc -
-Installing
-pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
-]]></content>
-      <categories>
-        <category>博客搭建</category>
-      </categories>
-      <tags>
-        <tag>blog</tag>
-        <tag>mathjax</tag>
-        <tag>marked</tag>
       </tags>
   </entry>
 </search>

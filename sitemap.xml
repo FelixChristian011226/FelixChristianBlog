@@ -155,6 +155,13 @@
 
   
   <url>
+    <loc>https://felixchristian.fra1.zeabur.app/tags/Photometric-Stereo/</loc>
+    <lastmod>2024-12-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.fra1.zeabur.app/tags/mujoco/</loc>
     <lastmod>2024-12-10</lastmod>
     <changefreq>weekly</changefreq>
@@ -204,13 +211,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/tags/Photometric-Stereo/</loc>
-    <lastmod>2024-12-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.fra1.zeabur.app/tags/3DGS/</loc>
     <lastmod>2024-12-10</lastmod>
     <changefreq>weekly</changefreq>
@@ -219,13 +219,6 @@
   
   <url>
     <loc>https://felixchristian.fra1.zeabur.app/tags/Sim2Real/</loc>
-    <lastmod>2024-12-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.fra1.zeabur.app/tags/2DGS/</loc>
     <lastmod>2024-12-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -252,17 +245,24 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>https://felixchristian.fra1.zeabur.app/tags/2DGS/</loc>
+    <lastmod>2024-12-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/categories/%E6%9C%BA%E5%99%A8%E4%BB%BF%E7%9C%9F/</loc>
+    <loc>https://felixchristian.fra1.zeabur.app/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/</loc>
     <lastmod>2024-12-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.fra1.zeabur.app/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/</loc>
+    <loc>https://felixchristian.fra1.zeabur.app/categories/%E6%9C%BA%E5%99%A8%E4%BB%BF%E7%9C%9F/</loc>
     <lastmod>2024-12-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
