@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://felixchristian.top/2024/12/28/13-PanoramaStitching/</loc>
+    
+    <lastmod>2024-12-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/2024/12/09/10-PhotometricStereo/</loc>
     
     <lastmod>2024-12-28</lastmod>
@@ -171,6 +180,13 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.top/tags/hfield/</loc>
+    <lastmod>2024-12-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/tags/collision/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
@@ -179,20 +195,6 @@
   
   <url>
     <loc>https://felixchristian.top/tags/convex/</loc>
-    <lastmod>2024-12-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/hfield/</loc>
-    <lastmod>2024-12-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/CoACD/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -213,7 +215,21 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.top/tags/CoACD/</loc>
+    <lastmod>2024-12-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/tags/Sim2Real/</loc>
+    <lastmod>2024-12-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -241,14 +257,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
+    <loc>https://felixchristian.top/tags/2DGS/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/2DGS/</loc>
+    <loc>https://felixchristian.top/tags/mesh/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -262,7 +278,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/mesh/</loc>
+    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -285,14 +301,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</loc>
+    <loc>https://felixchristian.top/categories/Graduate-Course/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/Graduate-Course/</loc>
+    <loc>https://felixchristian.top/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</loc>
     <lastmod>2024-12-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
