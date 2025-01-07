@@ -187,20 +187,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/NeRF/</loc>
-    <lastmod>2025-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/3DGS/</loc>
-    <lastmod>2025-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/tags/collision/</loc>
     <lastmod>2025-01-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -215,13 +201,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/CoACD/</loc>
-    <lastmod>2025-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/tags/Sim2Real/</loc>
     <lastmod>2025-01-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -229,7 +208,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/2DGS/</loc>
+    <loc>https://felixchristian.top/tags/3DGS/</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/NeRF/</loc>
     <lastmod>2025-01-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -257,7 +243,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
+    <loc>https://felixchristian.top/tags/CoACD/</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/2DGS/</loc>
     <lastmod>2025-01-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -271,6 +264,13 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/tags/mesh/</loc>
     <lastmod>2025-01-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -278,7 +278,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
+    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
     <lastmod>2025-01-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
