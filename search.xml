@@ -51,53 +51,6 @@ the world body or to static children of the world.</p>
       </tags>
   </entry>
   <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/02-Mujoco_notes/</url>
-    <content><![CDATA[<h2 id="collision">Collision</h2>
-<p><a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
-- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms.
-All primitive types are convex. Height fields are not convex but
-internally they are treated as unions of triangular prisms (using custom
-collision pruning beyond the filters described above). Meshes specified
-by the user can be non-convex, and are rendered as such. For collision
-purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the
-user must decompose it into a union of convex geoms (which can be
-primitive shapes or meshes) and attach them to the same body. Open tools
-like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-can be used outside MuJoCo to automate this process. Finally, all
-built-in collision functions can be replaced with custom callbacks. This
-can be used to incorporate a general-purpose “triangle soup” collision
-detector for example. However we do not recommend such an approach.
-Pre-processing the geometry and representing it as a union of convex
-geoms takes some work, but it pays off at runtime and yields both faster
-and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
-MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
-库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>collision</tag>
-        <tag>convex</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NeRF和3DGS对比</title>
     <url>/2024/10/30/04-NeRFvs3DGS/</url>
     <content><![CDATA[<h2 id="nerf">NeRF</h2>
@@ -389,101 +342,50 @@ Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</
       </tags>
   </entry>
   <entry>
-    <title>Mujoco - CoACD简略教程</title>
-    <url>/2024/09/29/03-CoACD_notes/</url>
-    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
-<h2 id="一源代码编译">一、源代码编译</h2>
-<h3 id="安装教程">安装教程</h3>
-<h4 id="克隆代码">(1) 克隆代码：</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
-<h4 id="安装依赖">(2) 安装依赖：</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/02-Mujoco_notes/</url>
+    <content><![CDATA[<h2 id="collision">Collision</h2>
+<p><a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
+- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 <blockquote>
-<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms.
+All primitive types are convex. Height fields are not convex but
+internally they are treated as unions of triangular prisms (using custom
+collision pruning beyond the filters described above). Meshes specified
+by the user can be non-convex, and are rendered as such. For collision
+purposes however they are replaced with their convex hulls.</p>
 </blockquote>
-<h4 id="编译">(3) 编译</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
-<p>​ 然后编译：</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
 <blockquote>
-<p>这里出了很多warning，但是好像不影响使用。</p>
+<p>In order to model a non-convex object other than a height field, the
+user must decompose it into a union of convex geoms (which can be
+primitive shapes or meshes) and attach them to the same body. Open tools
+like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+can be used outside MuJoCo to automate this process. Finally, all
+built-in collision functions can be replaced with custom callbacks. This
+can be used to incorporate a general-purpose “triangle soup” collision
+detector for example. However we do not recommend such an approach.
+Pre-processing the geometry and representing it as a union of convex
+geoms takes some work, but it pays off at runtime and yields both faster
+and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
+MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
+库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
 </blockquote>
-<h4 id="使用">(4) 使用</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
-<h3 id="参数说明">参数说明</h3>
-<ul>
-<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
-<li><strong>-c/--max-convex-hull</strong> :
-凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
-<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
-<li><strong>-am/--approximate-mode</strong> :
-近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
-<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
-</ul>
-<p><strong>说明</strong>：</p>
-<ol type="1">
-<li>大多数情况下，只需调整<code>threshold</code>
-（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
-<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
-、
-<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
-</ol>
-<h2 id="二pypi">二、PyPI</h2>
-<h3 id="安装">安装</h3>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install coacd</span><br></pre></td></tr></table></figure></div>
-<h3 id="使用-1">使用</h3>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line">parts = coacd.run_coacd(mesh) <span class="comment"># a list of convex hulls.</span></span><br></pre></td></tr></table></figure></div>
-<h3 id="参数">参数</h3>
-<p>官方文档里没有提到详细的参数列表，通过以下指令自己查询了下：
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"><span class="built_in">print</span>(inspect.getsource(coacd.run_coacd))</span><br></pre></td></tr></table></figure></div></p>
-<p>查询到的参数和对应的解释如下：</p>
-<ul>
-<li><strong>threshold (float)</strong>:
-用于决定分解精度的阈值。较低的阈值意味着更精确的分解，但可能需要更多的计算资源。默认值为
-<code>0.05</code>。</li>
-<li><strong>max_convex_hull (int)</strong>:
-最大凸包数量。如果你希望限制生成的凸包数量，可以设置此值。例如，如果设置为
-5，则最多生成 5 个凸包，默认值为 <code>-1</code>，表示不限制。</li>
-<li><strong>preprocess_mode (str)</strong>:
-预处理模式，<code>"on"</code> 启用，<code>"off"</code>
-禁用，<code>"auto"</code>
-自动选择（推荐）。预处理可能影响分解的速度和结果。</li>
-<li><strong>resolution (int)</strong>:
-处理网格的分辨率，值越高，结果越精确，但计算量也越大。默认值为
-<code>2000</code>。</li>
-<li><strong>mcts_nodes (int)</strong>:
-MCTS（蒙特卡洛树搜索）中每个节点的最大数量。值越大，搜索的深度越高，可能会增加分解的准确度，但会消耗更多的计算资源。</li>
-<li><strong>mcts_iterations (int)</strong>:
-MCTS的迭代次数，更多的迭代次数意味着更高的准确性，但会增加计算负担。</li>
-<li><strong>pca (bool)</strong>:
-是否使用主成分分析（PCA）来减少维度。<code>True</code>
-表示启用，<code>False</code> 表示禁用。</li>
-<li><strong>merge (bool)</strong>: 是否合并小的凸包。如果设置为
-<code>True</code>，可能会减少生成的凸包数量。</li>
-<li><strong>decimate (bool)</strong>:
-是否在生成凸包时进行简化，减少网格面片的数量。</li>
-<li><strong>max_ch_vertex (int)</strong>:
-每个凸包允许的最大顶点数量。</li>
-<li><strong>extrude (bool)</strong>:
-是否对凸包进行拉伸。<code>True</code> 表示拉伸，<code>False</code>
-表示不拉伸。</li>
-<li><strong>extrude_margin (float)</strong>: 如果 <code>extrude</code>
-为 <code>True</code>，设置拉伸的边距。</li>
-<li><strong>apx_mode (str)</strong>: 设置近似方式，<code>"ch"</code>
-代表使用凸包，<code>"box"</code> 表示使用包围盒。</li>
-<li><strong>seed (int)</strong>:
-随机种子，设置它可以帮助重现相同的结果。</li>
-</ul>
-<p>根据参数，一个简要的包含输出的代码如下：</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"><span class="keyword">import</span> trimesh</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">input_file = <span class="string">&quot;input.obj&quot;</span></span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line"></span><br><span class="line">parts = coacd.run_coacd(</span><br><span class="line">    mesh,</span><br><span class="line">    threshold=<span class="number">0.05</span>,  <span class="comment"># 精度阈值，默认: 0.05</span></span><br><span class="line">    max_convex_hull=-<span class="number">1</span>,  <span class="comment"># 最大凸包数量，默认: -1 (无限制)</span></span><br><span class="line">    preprocess_mode=<span class="string">&quot;auto&quot;</span>,  <span class="comment"># 预处理模式，默认: &quot;auto&quot;</span></span><br><span class="line">    preprocess_resolution=<span class="number">30</span>,  <span class="comment"># 预处理分辨率，默认: 30</span></span><br><span class="line">    resolution=<span class="number">2000</span>,  <span class="comment"># 分解分辨率，默认: 2000</span></span><br><span class="line">    mcts_nodes=<span class="number">20</span>,  <span class="comment"># MCTS节点数，默认: 20</span></span><br><span class="line">    mcts_iterations=<span class="number">150</span>,  <span class="comment"># MCTS迭代次数，默认: 150</span></span><br><span class="line">    mcts_max_depth=<span class="number">3</span>,  <span class="comment"># MCTS最大深度，默认: 3</span></span><br><span class="line">    pca=<span class="literal">False</span>,  <span class="comment"># 是否启用PCA降维，默认: False</span></span><br><span class="line">    merge=<span class="literal">True</span>,  <span class="comment"># 是否合并小凸包，默认: True</span></span><br><span class="line">    decimate=<span class="literal">False</span>,  <span class="comment"># 是否简化凸包，默认: False</span></span><br><span class="line">    max_ch_vertex=<span class="number">256</span>,  <span class="comment"># 每个凸包的最大顶点数，默认: 256</span></span><br><span class="line">    extrude=<span class="literal">False</span>,  <span class="comment"># 是否拉伸凸包，默认: False</span></span><br><span class="line">    extrude_margin=<span class="number">0.01</span>,  <span class="comment"># 拉伸边距，默认: 0.01</span></span><br><span class="line">    apx_mode=<span class="string">&quot;ch&quot;</span>,  <span class="comment"># 近似模式，默认: &quot;ch&quot; (凸包)</span></span><br><span class="line">    seed=<span class="number">0</span>  <span class="comment"># 随机种子，默认: 0</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">output_dir = <span class="string">&quot;./output_parts/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(output_dir):</span><br><span class="line">    os.makedirs(output_dir)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, part <span class="keyword">in</span> <span class="built_in">enumerate</span>(parts):</span><br><span class="line">    part_mesh = trimesh.Trimesh(vertices=part[<span class="number">0</span>], faces=part[<span class="number">1</span>])</span><br><span class="line">    part_mesh.export(os.path.join(output_dir, <span class="string">f&quot;part_<span class="subst">&#123;i&#125;</span>.obj&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Exported <span class="subst">&#123;<span class="built_in">len</span>(parts)&#125;</span> convex parts to <span class="subst">&#123;output_dir&#125;</span>&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
 ]]></content>
       <categories>
         <category>机器仿真</category>
       </categories>
       <tags>
         <tag>mujoco</tag>
+        <tag>collision</tag>
         <tag>convex</tag>
-        <tag>CoACD</tag>
       </tags>
   </entry>
   <entry>
@@ -811,6 +713,104 @@ alt="Figure6"
       </tags>
   </entry>
   <entry>
+    <title>Mujoco - CoACD简略教程</title>
+    <url>/2024/09/29/03-CoACD_notes/</url>
+    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
+<h2 id="一源代码编译">一、源代码编译</h2>
+<h3 id="安装教程">安装教程</h3>
+<h4 id="克隆代码">(1) 克隆代码：</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
+<h4 id="安装依赖">(2) 安装依赖：</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
+</blockquote>
+<h4 id="编译">(3) 编译</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
+<p>​ 然后编译：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>这里出了很多warning，但是好像不影响使用。</p>
+</blockquote>
+<h4 id="使用">(4) 使用</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
+<h3 id="参数说明">参数说明</h3>
+<ul>
+<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
+<li><strong>-c/--max-convex-hull</strong> :
+凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
+<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
+<li><strong>-am/--approximate-mode</strong> :
+近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
+<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
+</ul>
+<p><strong>说明</strong>：</p>
+<ol type="1">
+<li>大多数情况下，只需调整<code>threshold</code>
+（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
+<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
+、
+<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
+</ol>
+<h2 id="二pypi">二、PyPI</h2>
+<h3 id="安装">安装</h3>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install coacd</span><br></pre></td></tr></table></figure></div>
+<h3 id="使用-1">使用</h3>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line">parts = coacd.run_coacd(mesh) <span class="comment"># a list of convex hulls.</span></span><br></pre></td></tr></table></figure></div>
+<h3 id="参数">参数</h3>
+<p>官方文档里没有提到详细的参数列表，通过以下指令自己查询了下：
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"><span class="built_in">print</span>(inspect.getsource(coacd.run_coacd))</span><br></pre></td></tr></table></figure></div></p>
+<p>查询到的参数和对应的解释如下：</p>
+<ul>
+<li><strong>threshold (float)</strong>:
+用于决定分解精度的阈值。较低的阈值意味着更精确的分解，但可能需要更多的计算资源。默认值为
+<code>0.05</code>。</li>
+<li><strong>max_convex_hull (int)</strong>:
+最大凸包数量。如果你希望限制生成的凸包数量，可以设置此值。例如，如果设置为
+5，则最多生成 5 个凸包，默认值为 <code>-1</code>，表示不限制。</li>
+<li><strong>preprocess_mode (str)</strong>:
+预处理模式，<code>"on"</code> 启用，<code>"off"</code>
+禁用，<code>"auto"</code>
+自动选择（推荐）。预处理可能影响分解的速度和结果。</li>
+<li><strong>resolution (int)</strong>:
+处理网格的分辨率，值越高，结果越精确，但计算量也越大。默认值为
+<code>2000</code>。</li>
+<li><strong>mcts_nodes (int)</strong>:
+MCTS（蒙特卡洛树搜索）中每个节点的最大数量。值越大，搜索的深度越高，可能会增加分解的准确度，但会消耗更多的计算资源。</li>
+<li><strong>mcts_iterations (int)</strong>:
+MCTS的迭代次数，更多的迭代次数意味着更高的准确性，但会增加计算负担。</li>
+<li><strong>pca (bool)</strong>:
+是否使用主成分分析（PCA）来减少维度。<code>True</code>
+表示启用，<code>False</code> 表示禁用。</li>
+<li><strong>merge (bool)</strong>: 是否合并小的凸包。如果设置为
+<code>True</code>，可能会减少生成的凸包数量。</li>
+<li><strong>decimate (bool)</strong>:
+是否在生成凸包时进行简化，减少网格面片的数量。</li>
+<li><strong>max_ch_vertex (int)</strong>:
+每个凸包允许的最大顶点数量。</li>
+<li><strong>extrude (bool)</strong>:
+是否对凸包进行拉伸。<code>True</code> 表示拉伸，<code>False</code>
+表示不拉伸。</li>
+<li><strong>extrude_margin (float)</strong>: 如果 <code>extrude</code>
+为 <code>True</code>，设置拉伸的边距。</li>
+<li><strong>apx_mode (str)</strong>: 设置近似方式，<code>"ch"</code>
+代表使用凸包，<code>"box"</code> 表示使用包围盒。</li>
+<li><strong>seed (int)</strong>:
+随机种子，设置它可以帮助重现相同的结果。</li>
+</ul>
+<p>根据参数，一个简要的包含输出的代码如下：</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"><span class="keyword">import</span> trimesh</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">input_file = <span class="string">&quot;input.obj&quot;</span></span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line"></span><br><span class="line">parts = coacd.run_coacd(</span><br><span class="line">    mesh,</span><br><span class="line">    threshold=<span class="number">0.05</span>,  <span class="comment"># 精度阈值，默认: 0.05</span></span><br><span class="line">    max_convex_hull=-<span class="number">1</span>,  <span class="comment"># 最大凸包数量，默认: -1 (无限制)</span></span><br><span class="line">    preprocess_mode=<span class="string">&quot;auto&quot;</span>,  <span class="comment"># 预处理模式，默认: &quot;auto&quot;</span></span><br><span class="line">    preprocess_resolution=<span class="number">30</span>,  <span class="comment"># 预处理分辨率，默认: 30</span></span><br><span class="line">    resolution=<span class="number">2000</span>,  <span class="comment"># 分解分辨率，默认: 2000</span></span><br><span class="line">    mcts_nodes=<span class="number">20</span>,  <span class="comment"># MCTS节点数，默认: 20</span></span><br><span class="line">    mcts_iterations=<span class="number">150</span>,  <span class="comment"># MCTS迭代次数，默认: 150</span></span><br><span class="line">    mcts_max_depth=<span class="number">3</span>,  <span class="comment"># MCTS最大深度，默认: 3</span></span><br><span class="line">    pca=<span class="literal">False</span>,  <span class="comment"># 是否启用PCA降维，默认: False</span></span><br><span class="line">    merge=<span class="literal">True</span>,  <span class="comment"># 是否合并小凸包，默认: True</span></span><br><span class="line">    decimate=<span class="literal">False</span>,  <span class="comment"># 是否简化凸包，默认: False</span></span><br><span class="line">    max_ch_vertex=<span class="number">256</span>,  <span class="comment"># 每个凸包的最大顶点数，默认: 256</span></span><br><span class="line">    extrude=<span class="literal">False</span>,  <span class="comment"># 是否拉伸凸包，默认: False</span></span><br><span class="line">    extrude_margin=<span class="number">0.01</span>,  <span class="comment"># 拉伸边距，默认: 0.01</span></span><br><span class="line">    apx_mode=<span class="string">&quot;ch&quot;</span>,  <span class="comment"># 近似模式，默认: &quot;ch&quot; (凸包)</span></span><br><span class="line">    seed=<span class="number">0</span>  <span class="comment"># 随机种子，默认: 0</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">output_dir = <span class="string">&quot;./output_parts/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(output_dir):</span><br><span class="line">    os.makedirs(output_dir)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, part <span class="keyword">in</span> <span class="built_in">enumerate</span>(parts):</span><br><span class="line">    part_mesh = trimesh.Trimesh(vertices=part[<span class="number">0</span>], faces=part[<span class="number">1</span>])</span><br><span class="line">    part_mesh.export(os.path.join(output_dir, <span class="string">f&quot;part_<span class="subst">&#123;i&#125;</span>.obj&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Exported <span class="subst">&#123;<span class="built_in">len</span>(parts)&#125;</span> convex parts to <span class="subst">&#123;output_dir&#125;</span>&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>CoACD</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SplatSim 论文解读</title>
     <url>/2024/11/06/06-SplatSim/</url>
     <content><![CDATA[<h2 id="背景">背景</h2>
@@ -949,301 +949,6 @@ RGB 的操作策略的模拟与真实之间的差距。
       <tags>
         <tag>3DGS</tag>
         <tag>Sim2Real</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeRF Studio简要教程</title>
-    <url>/2024/11/12/08-NeRF_Studio/</url>
-    <content><![CDATA[<h2 id="准备工作">准备工作</h2>
-<h3 id="安装nerf-studio">安装NeRF Studio</h3>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-写的教程已经很详尽了。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
-<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d，建议还是按推荐配置来。</p>
-<h3 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h3>
-<p>在训练过程中，终端出现了如下的warning：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
-<p>不出意外的话就要出意外了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
-                      alt="error" style="zoom: 80%;" 
-                ></p>
-<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
-<p>然后切换版本：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
-<p>如果有多个版本好像还得执行以下指令切换： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
-<p>发现还是不行，看报错里有这样一句：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
-                      alt="error2" style="zoom:80%;" 
-                ></p>
-<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
-<p>然后再次执行安装就成功了。</p>
-<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
-<h2 id="报错及解决方案">报错及解决方案</h2>
-<h3 id="使用splatfacto训练报错">使用splatfacto训练报错</h3>
-<h4 id="no-cuda-toolkit-found.">1. No CUDA toolkit found.</h4>
-<p>在使用splatfacto进行训练时报错：
-<img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
-                      alt="error3" style="zoom:80%;" 
-                ></p>
-<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
-<p>在github的issue里找到了解决方案：<a class="link" 
- href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
-toolkit found. gsplat will be disabled. · Issue #249 ·
-nerfstudio-project/gsplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<p>即，将path添加进去：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
-<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
-<h4 id="ninja-build-stopped-subcommand-failed.">2. ninja: build stopped:
-subcommand failed.</h4>
-<p>解决上个问题后结果还是报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
-                      alt="error4" style="zoom:80%;" 
-                ></p>
-<p>查阅发现是内存不够，进程直接被kill了。自己的WSL虚拟机内存太少了。尝试租服务器，解决。</p>
-<h3
-id="使用nerfbusters训练报错未完全解决">使用nerfbusters训练报错（未完全解决）</h3>
-<h4
-id="modulenotfounderror-no-module-named-nerfstudio.fields.visibility_field">1.
-ModuleNotFoundError: No module named
-'nerfstudio.fields.visibility_field'</h4>
-<p>在使用<code>nerfbusters</code>方法时，根据<a class="link" 
- href="https://docs.nerf.studio/nerfology/methods/nerfbusters.html" >文档<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>中的教程安装<code>nerfbuster</code>之后，简单的使用<code>--help</code>也会出现如下的报错：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;nerfstudio.fields.visibility_field&#x27;</span></span><br></pre></td></tr></table></figure></div>
-<p>切换其他基于<code>NeRF</code>的方法，有的依然会出现这个报错。</p>
-<p>然后在<code>issue</code>中找到了相似的情况：</p>
-<p><a class="link"   href="https://github.com/ethanweber/nerfbusters/issues/17" >Where's
-nerfstudio VisibilityFIeld come from? · Issue #17 ·
-ethanweber/nerfbusters<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio/issues/3185" >from
-nerfstudio.fields.visibility_field import VisibilityField
-ModuleNotFoundError: No module named
-'nerfstudio.fields.visibility_field' · Issue #3185 ·
-nerfstudio-project/nerfstudio<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<p><a class="link" 
- href="https://github.com/nerfstudio-project/nerfstudio/pull/2264" >Visibility
-Field from Nerfbusters by ethanweber · Pull Request #2264 ·
-nerfstudio-project/nerfstudio<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<p>其中提到，他们当前使用的branch是<code>nerfbusters-changes</code>，并没有计划把他合并到<code>main</code>
-branch。</p>
-<p>所以需要克隆他们的<code>nerfbusters-changes</code> branch：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b nerfbusters-changes https://github.com/nerfstudio-project/nerfstudio.git</span><br></pre></td></tr></table></figure></div>
-<p>然后在根目录执行安装：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
-<p>这样就可以了。</p>
-<h4 id="numpy-has-no-attribute-bool8.-did-you-mean-bool">2. `numpy` has
-no attribute `bool8`. Did you mean: `bool`?</h4>
-<p>这是因为numpy在1.24更新后将<code>bool8</code>更名为了<code>bool</code>，降级numpy版本即可：</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install numpy==1.23</span><br></pre></td></tr></table></figure></div>
-<h4 id="the-viewer-bridge-server-subprocess-failed.">3. The viewer
-bridge server subprocess failed.</h4>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/511ceec6536981ff7b744e6a521940cd.png"
-                      alt="image-20241126213428268" style="zoom:80%;" 
-                ></p>
-<p>切换分支后运行原有的方法都会出现如下报错。说是<code>viewer</code>的服务启动失败了，通过<code>--viewer.websocket-port</code>更改窗口依然是相同的报错，于是根据提示查看了log：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e26e3f4efeb2a6e74a7b49493d5bf70b.png"
-                      alt="image-20241126213554646" style="zoom:80%;" 
-                ></p>
-<p>好嘛，给我原来的module搞没了，我又回原来的分支重新<code>pip install -e .</code>，然后再运行。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/33aa4114532b180a7cb9cc5a485ea9bf.png"
-                      alt="image-20241126214834818" style="zoom:80%;" 
-                ></p>
-<p>闹鬼了，我不玩了行吧，nerfbusters给劳资滚！😠</p>
-<h3 id="使用zipnerf报错">使用zipnerf报错</h3>
-<h4
-id="error-failed-building-wheel-for-cuda_backend-或者-no-module-named-_cuda_backend">1.
-ERROR: Failed building wheel for cuda_backend 或者 No module named
-'_cuda_backend'</h4>
-<p>在使用</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/SuLvXiangXin/zipnerf-pytorch#subdirectory=extensions/cuda</span><br></pre></td></tr></table></figure></div>
-<p>安装依赖的时候，出现如下报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/dd5fcccf23bab67884491c42c534f451.png"
-                      alt="image-20241126233030691" style="zoom:80%;" 
-                ></p>
-<p>开始没有管他，直到最后训练的时候又弹出报错：</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f39f4928d4cdc95d4268681db55ca98.png"
-                     
-alt="image-20241126233117488" 
-                >
-<figcaption aria-hidden="true">image-20241126233117488</figcaption>
-</figure>
-<p>看样子是逃不掉了。</p>
-<h4 id="assertionerror-pipeline.datamanager.dataparser...">2.
-AssertionError: <code>pipeline.datamanager.dataparser</code>...</h4>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0bbf42cce63eb2803ee4bac0f676f5a9.png"
-                      alt="image-20241126233225832" style="zoom:80%;" 
-                ></p>
-<p>第一次出现这长串报错是因为参数没输对，第二次问gpt说是与
-<code>tyro</code> 版本有关，尝试升级 <code>tyro</code>
-库以及相关依赖：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install --upgrade tyro</span><br></pre></td></tr></table></figure></div>
-<p>然后看到error怂了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bda407fee5eb83019937880b7434e75b.png"
-                      alt="image-20241126233430107" style="zoom:80%;" 
-                ></p>
-<p>于是又改回了推荐的版本：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install tyro==2.13.3</span><br></pre></td></tr></table></figure></div>
-<p>然后再运行就可以了。</p>
-<h4
-id="assertionerror-colmap-path-dataprocessed_trucksparse0-does-not-exist.">3.
-AssertionError: Colmap path data/processed_truck/sparse/0 does not
-exist.</h4>
-<p>这个原因是<code>zipnerf</code>用的数据集格式和<code>nerfstudio</code>好像不完全一致，我用了下<code>tandt</code>的数据集发现可行，但是它会对图像先进行一次下采样。</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(nerf2mesh) root@I1dc2923c3f00801cdf:~/3D-Reconstruction/nerf2mesh# python main.py nerfstudio/poster/ --workspace trial_syn_poster/ -O --bound 1 --scale 0.8 --dt_gamma 0 --stage 0 --lambda_tv 1e-8</span><br><span class="line">Warning:</span><br><span class="line">Unable to load the following plugins:</span><br><span class="line"></span><br><span class="line">        libio_e57.so: libio_e57.so does not seem to be a Qt Plugin.</span><br><span class="line"></span><br><span class="line">Cannot load library /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/pymeshlab/lib/plugins/libio_e57.so: (/usr/lib/x86_64-linux-gnu/libp11-kit.so.0: undefined symbol: ffi_type_pointer, version LIBFFI_BASE_7.0)</span><br><span class="line"></span><br><span class="line">Loading train data: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 225/225 [00:08&lt;00:00, 25.09it/s]</span><br><span class="line">[INFO] max_epoch 134, eval every 26, save every 2.</span><br><span class="line">[INFO] Trainer: ngp_stage0 | 2024-11-26_15-12-23 | cuda | fp16 | trial_syn_poster/</span><br><span class="line">[INFO] #parameters: 18367240</span><br><span class="line">Namespace(path=&#x27;nerfstudio/poster/&#x27;, O=True, workspace=&#x27;trial_syn_poster/&#x27;, seed=0, stage=0, ckpt=&#x27;latest&#x27;, fp16=True, sdf=False, tcnn=False, progressive_level=False, test=False, test_no_video=False, test_no_mesh=False, camera_traj=&#x27;&#x27;, data_format=&#x27;nerf&#x27;, train_split=&#x27;train&#x27;, preload=True, random_image_batch=True, </span><br><span class="line">downscale=1, bound=1.0, scale=0.8, offset=[0, 0, 0], mesh=&#x27;&#x27;, enable_cam_near_far=False, enable_cam_center=False, min_near=0.05, enable_sparse_depth=False, enable_dense_depth=False, iters=30000, lr=0.01, lr_vert=0.0001, pos_gradient_boost=1, cuda_ray=True, max_steps=1024, update_extra_interval=16, </span><br><span class="line">max_ray_batch=4096, grid_size=128, mark_untrained=True, dt_gamma=0.0, density_thresh=10, diffuse_step=1000, diffuse_only=False, background=&#x27;random&#x27;, enable_offset_nerf_grad=False, n_eval=5, n_ckpt=50, num_rays=4096, adaptive_num_rays=True, num_points=262144, lambda_density=0, lambda_entropy=0, lambda_tv=1e-08, </span><br><span class="line">lambda_depth=0.1, lambda_specular=1e-05, lambda_eikonal=0.1, lambda_rgb=1, lambda_mask=0.1, wo_smooth=False, lambda_lpips=0, lambda_offsets=0.1, lambda_lap=0.001, lambda_normal=0, lambda_edgelen=0, contract=False, patch_size=1, trainable_density_grid=False, color_space=&#x27;srgb&#x27;, ind_dim=0, ind_num=500, </span><br><span class="line">mcubes_reso=512, env_reso=256, decimate_target=300000.0, mesh_visibility_culling=True, visibility_mask_dilation=5, clean_min_f=8, clean_min_d=5, ssaa=2, texture_size=4096, refine=True, refine_steps_ratio=[0.1, 0.2, 0.3, 0.4, 0.5, 0.7], refine_size=0.01, refine_decimate_ratio=0.1, refine_remesh_size=0.02, </span><br><span class="line">vis_pose=False, gui=False, W=1000, H=1000, radius=5, fovy=50, max_spp=1, refine_steps=[3000, 6000, 9000, 12000, 15000, 21000])</span><br><span class="line">NeRFNetwork(</span><br><span class="line">  (encoder): GridEncoder: input_dim=3 num_levels=16 level_dim=1 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 1) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (sigma_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=19, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=1, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (encoder_color): GridEncoder: input_dim=3 num_levels=16 level_dim=2 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 2) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (color_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=35, out_features=64, bias=False)</span><br><span class="line">      (1): Linear(in_features=64, out_features=64, bias=False)</span><br><span class="line">      (2): Linear(in_features=64, out_features=6, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (specular_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=6, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=3, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">)</span><br><span class="line">[INFO] Loading latest checkpoint ...</span><br><span class="line">[WARN] No checkpoint found, abort loading latest model.</span><br><span class="line">Loading val data: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 21.10it/s]</span><br><span class="line">[mark untrained grid] 9364 from 2097152</span><br><span class="line">==&gt; Start Training Epoch 1, lr=0.000100 ...</span><br><span class="line">... ...</span><br><span class="line">loss=0.091703 (0.104557) lr=0.004555: : 100% 225/225 [00:03&lt;00:00, 69.94it/s]</span><br><span class="line">==&gt; Finished Epoch 133, loss = 0.078408.</span><br><span class="line">==&gt; Start Training Epoch 134, lr=0.001006 ...</span><br><span class="line">loss=0.075468 (0.078282) lr=0.000988: : 100% 225/225 [00:04&lt;00:00, 52.46it/s]</span><br><span class="line">==&gt; Finished Epoch 134, loss = 0.078282.</span><br><span class="line">[INFO] training takes 10.078925 minutes.</span><br><span class="line">Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter &#x27;pretrained&#x27; is deprecated since 0.13 and may be removed in the future, please use &#x27;weights&#x27; instead.</span><br><span class="line">  warnings.warn(</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for &#x27;weights&#x27; are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.</span><br><span class="line">  warnings.warn(msg)</span><br><span class="line">Downloading: &quot;https://download.pytorch.org/models/vgg16-397923af.pth&quot; to /root/.cache/torch/hub/checkpoints/vgg16-397923af.pth</span><br><span class="line">100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 528M/528M [35:11&lt;00:00, 262kB/s]</span><br><span class="line">Loading model from: /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/lpips/weights/v0.1/vgg.pth</span><br><span class="line">++&gt; Evaluate at epoch 134 ...</span><br><span class="line">loss=0.213495 (0.213495): : 100% 1/1 [00:00&lt;00:00,  1.07it/s]</span><br><span class="line">PSNR = 6.706122</span><br><span class="line">LPIPS (vgg) = 0.767062</span><br><span class="line">++&gt; Evaluate epoch 134 Finished, loss = 0.213495</span><br><span class="line">==&gt; Start Test, save results to trial_syn_poster/results</span><br><span class="line">100% 11/11 [00:03&lt;00:00,  3.40it/s]Traceback (most recent call last):</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/main.py&quot;, line 263, in &lt;module&gt;</span><br><span class="line">    trainer.test(test_loader, write_video=True) # test and save video</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/nerf/utils.py&quot;, line 1005, in test</span><br><span class="line">    imageio.mimwrite(os.path.join(save_path, f&#x27;&#123;name&#125;_rgb.mp4&#x27;), all_preds, fps=24, quality=8, macro_block_size=1)</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/v2.py&quot;, line 494, in mimwrite</span><br><span class="line">    with imopen(uri, &quot;wI&quot;, **imopen_args) as file:</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/core/imopen.py&quot;, line 281, in imopen</span><br><span class="line">    raise err_type(err_msg)</span><br><span class="line">ValueError: Could not find a backend to open `trial_syn_poster/results/ngp_stage0_ep0134_rgb.mp4`` with iomode `wI`.</span><br><span class="line">Based on the extension, the following plugins might add capable backends:</span><br><span class="line">  FFMPEG:  pip install imageio[ffmpeg]</span><br><span class="line">  pyav:  pip install imageio[pyav]</span><br><span class="line">100% 11/11 [00:04&lt;00:00,  2.67it/s]</span><br></pre></td></tr></table></figure></div>
-<h2 id="运行结果">运行结果</h2>
-<h3
-id="nerfacto和splatfacto渲染效果对比">nerfacto和splatfacto渲染效果对比</h3>
-<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
-<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
-                      alt="nerfacto" style="zoom: 67%;" 
-                ></p>
-<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
-<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
-splat。为了对其进行可视化，选择使用了 <a class="link" 
- href="https://github.com/playcanvas/supersplat" >supersplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-这个工具：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
-                      alt="1" style="zoom:67%;" 
-                ></p>
-<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
-splat。</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
-                      alt="image-20241119133706308" style="zoom:67%;" 
-                ></p>
-<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
-splat转化为网格形式，这是后续工作的重点。</p>
-<h3 id="mesh导出">Mesh导出</h3>
-<p>在<code>NeRF Studio</code>中可以对训练结果进行可视化的导出。支持<code>3D gaussian</code>,
-<code>point cloud</code>和<code>mesh</code>
-，但是对于不同的方法，导出的格式不同。如基于<code>NeRF</code>的方法只能导出点云和网格，而基于<code>3DGS</code>的方法只能导出三维高斯。</p>
-<p>训练代码示例：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-train nerfacto --data data/processed_truck/ --output-dir outputs/truck_100000 --max-num-iterations 100000</span><br></pre></td></tr></table></figure></div>
-<p>可以先对训练结果进行可视化：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-viewer --load-config path/to/your/trainresult/config.yml</span><br></pre></td></tr></table></figure></div>
-<p>然后在网页的<code>export</code>栏可以选择导出参数，并复制导出指令，以<code>possion</code>的导出为例：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face --target-num-faces 50000 --num-pixels-per-side 2048 --num-points 1000000 --remove-outliers True </span><br><span class="line">--normal-method open3d --obb_center 0.0000000000 0.0000000000 0.0000000000 --obb_rotation 0.0000000000 0.0000000000 0.0000000000 --obb_scale 1.0000000000 1.0000000000 1.0000000000</span><br></pre></td></tr></table></figure></div>
-<p>还可以选择其他的导出方式，如<code>tsdf</code>：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export tsdf --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
-<p>或者<code>marching-cubes</code>：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export marching-cubes --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
-<p>（好像<code>nerfacto</code>的结果不能用<code>marching-cubes</code>）</p>
-<p>下面直观展示下导出<code>mesh</code>的效果（前四种是<code>nerfacto</code>，最后一个是用<code>2DGS</code>方法生成的结果）：</p>
-<table>
-<colgroup>
-<col style="width: 37%" />
-<col style="width: 62%" />
-</colgroup>
-<thead>
-<tr>
-<th style="text-align: center;">possion (30k iters, 50k faces)</th>
-<th><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/1c1ac2e6320eaf5e8bcd849e54715188.gif"
-                      alt="2024-11-26-17-05-29" style="zoom: 80%;" 
-                ></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;"><strong>possion (100k iters, 50k
-faces)</strong></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/5392674dd8736a531079d3f8643d6d7c.gif"
-                      alt="2024-11-26-17-06-26" style="zoom: 80%;" 
-                ></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>possion (100k iters, 100k
-faces)</strong></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/299d0d4cf36fa66f3195efdd15ec7bac.gif"
-                      alt="2024-11-26-17-08-08" style="zoom:80%;" 
-                ></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>tsdf (100k iters, 50k
-faces)</strong></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/65ea32e143162450ebfa80c39fc288bc.gif"
-                      alt="2024-11-26-16-52-37" style="zoom: 80%;" 
-                ></td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>2DGS (2m faces)</strong></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/34ed3d848689502c6897a0aee256bace.gif"
-                      alt="2024-11-26-16-52-37" style="zoom: 80%;" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>可以看到，<code>tsdf</code>提取的网格质量过低，而<code>possion</code>提取的网格相较而言则更精确。总体而言，对于<code>nerfacto</code>方法来说，<code>iteration</code>的提升貌似没有对最终的网格产生比较大的改善，30k的迭代次数已经足够，而<code>face</code>的增加其实也显得不是很必要，50k的面数已经足够表达一个复杂的结构体了。对于<code>2DGS</code>，由于它没有整合到<code>NeRF Studio</code>里，它的重建没有固定面数，最终生成了2m的面，虽然重建效果好很多，但是对计算负载的压力更大。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
       </tags>
   </entry>
   <entry>
@@ -1562,6 +1267,301 @@ pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top 
       </tags>
   </entry>
   <entry>
+    <title>NeRF Studio简要教程</title>
+    <url>/2024/11/12/08-NeRF_Studio/</url>
+    <content><![CDATA[<h2 id="准备工作">准备工作</h2>
+<h3 id="安装nerf-studio">安装NeRF Studio</h3>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio?tab=readme-ov-file" >官方仓库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+写的教程已经很详尽了。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/nerfstudio-project/nerfstudio.git</span><br><span class="line"><span class="built_in">cd</span> nerfstudio</span><br><span class="line">pip install --upgrade pip setuptools</span><br><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<p>值得注意的是，<code>open3d</code>库只支持<code>python 3.8-3.11</code>，博主是用<code>python 3.10</code>安装的依赖。后面租了个服务器用<code>python 3.12</code>，结果找不到相应版本的open3d，建议还是按推荐配置来。</p>
+<h3 id="安装tiny-cuda-nn">安装tiny-cuda-nn</h3>
+<p>在训练过程中，终端出现了如下的warning：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the SHEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the NeRFEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLPWithHashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the MLP module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">WARNING: Using a slow implementation <span class="keyword">for</span> the HashEncoding module. </span><br><span class="line">🏃 🏃 Install tcnn <span class="keyword">for</span> speedups 🏃 🏃</span><br><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>提示你可以用tcnn进行加速。根据它的提示输入指令：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch</span><br></pre></td></tr></table></figure></div>
+<p>不出意外的话就要出意外了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/a212c4626ca45c549cddfa3d72efbbc3.png"
+                      alt="error" style="zoom: 80%;" 
+                ></p>
+<p>先是查看了下文档，说是要求 g++ &lt; 11 ，于是安装了g++-9：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install g++-9</span><br></pre></td></tr></table></figure></div>
+<p>然后切换版本：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 20</span><br></pre></td></tr></table></figure></div>
+<p>如果有多个版本好像还得执行以下指令切换： <div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> update-alternatives --config g++</span><br></pre></td></tr></table></figure></div></p>
+<p>发现还是不行，看报错里有这样一句：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/57fec14ddd5574caba775cff7b69445e.png"
+                      alt="error2" style="zoom:80%;" 
+                ></p>
+<p>说明问题出在<code>lcuda</code>，g++找不到<code>lcuda</code>。因为博主使用的WSL，<code>cuda</code>库存放在<code>/usr/lib/wsl/lib</code>中，将它复制出来即可：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">cp</span> /usr/lib/wsl/lib/* /usr/lib</span><br></pre></td></tr></table></figure></div>
+<p>然后再次执行安装就成功了。</p>
+<p>值得注意的是，在安装<code>tcnn</code>之前，博主用<code>nerfacto</code>训练30000个step用了两小时，而安装之后仅需20分钟，这个提升还是蛮可观的。</p>
+<h2 id="报错及解决方案">报错及解决方案</h2>
+<h3 id="使用splatfacto训练报错">使用splatfacto训练报错</h3>
+<h4 id="no-cuda-toolkit-found.">1. No CUDA toolkit found.</h4>
+<p>在使用splatfacto进行训练时报错：
+<img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/16ca70d9990e612c0f7fce1c4513128b.png"
+                      alt="error3" style="zoom:80%;" 
+                ></p>
+<p>显示CUDA Tookit找不到，然而我的用户目录里是有的。</p>
+<p>在github的issue里找到了解决方案：<a class="link" 
+ href="https://github.com/nerfstudio-project/gsplat/issues/249" >No CUDA
+toolkit found. gsplat will be disabled. · Issue #249 ·
+nerfstudio-project/gsplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p>即，将path添加进去：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=/usr/local/cuda-12.6/bin<span class="variable">$&#123;PATH:+:<span class="variable">$&#123;PATH&#125;</span>&#125;</span></span><br></pre></td></tr></table></figure></div>
+<p>可以将这句添加到<code>~/.bashrc</code>里，每次打开terminal就不用再输入一遍了。</p>
+<h4 id="ninja-build-stopped-subcommand-failed.">2. ninja: build stopped:
+subcommand failed.</h4>
+<p>解决上个问题后结果还是报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/19d2701071cf3a88991cac45b0e1de85.png"
+                      alt="error4" style="zoom:80%;" 
+                ></p>
+<p>查阅发现是内存不够，进程直接被kill了。自己的WSL虚拟机内存太少了。尝试租服务器，解决。</p>
+<h3
+id="使用nerfbusters训练报错未完全解决">使用nerfbusters训练报错（未完全解决）</h3>
+<h4
+id="modulenotfounderror-no-module-named-nerfstudio.fields.visibility_field">1.
+ModuleNotFoundError: No module named
+'nerfstudio.fields.visibility_field'</h4>
+<p>在使用<code>nerfbusters</code>方法时，根据<a class="link" 
+ href="https://docs.nerf.studio/nerfology/methods/nerfbusters.html" >文档<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>中的教程安装<code>nerfbuster</code>之后，简单的使用<code>--help</code>也会出现如下的报错：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;nerfstudio.fields.visibility_field&#x27;</span></span><br></pre></td></tr></table></figure></div>
+<p>切换其他基于<code>NeRF</code>的方法，有的依然会出现这个报错。</p>
+<p>然后在<code>issue</code>中找到了相似的情况：</p>
+<p><a class="link"   href="https://github.com/ethanweber/nerfbusters/issues/17" >Where's
+nerfstudio VisibilityFIeld come from? · Issue #17 ·
+ethanweber/nerfbusters<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio/issues/3185" >from
+nerfstudio.fields.visibility_field import VisibilityField
+ModuleNotFoundError: No module named
+'nerfstudio.fields.visibility_field' · Issue #3185 ·
+nerfstudio-project/nerfstudio<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p><a class="link" 
+ href="https://github.com/nerfstudio-project/nerfstudio/pull/2264" >Visibility
+Field from Nerfbusters by ethanweber · Pull Request #2264 ·
+nerfstudio-project/nerfstudio<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p>其中提到，他们当前使用的branch是<code>nerfbusters-changes</code>，并没有计划把他合并到<code>main</code>
+branch。</p>
+<p>所以需要克隆他们的<code>nerfbusters-changes</code> branch：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b nerfbusters-changes https://github.com/nerfstudio-project/nerfstudio.git</span><br></pre></td></tr></table></figure></div>
+<p>然后在根目录执行安装：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install -e .</span><br></pre></td></tr></table></figure></div>
+<p>这样就可以了。</p>
+<h4 id="numpy-has-no-attribute-bool8.-did-you-mean-bool">2. `numpy` has
+no attribute `bool8`. Did you mean: `bool`?</h4>
+<p>这是因为numpy在1.24更新后将<code>bool8</code>更名为了<code>bool</code>，降级numpy版本即可：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">pip install numpy==1.23</span><br></pre></td></tr></table></figure></div>
+<h4 id="the-viewer-bridge-server-subprocess-failed.">3. The viewer
+bridge server subprocess failed.</h4>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/511ceec6536981ff7b744e6a521940cd.png"
+                      alt="image-20241126213428268" style="zoom:80%;" 
+                ></p>
+<p>切换分支后运行原有的方法都会出现如下报错。说是<code>viewer</code>的服务启动失败了，通过<code>--viewer.websocket-port</code>更改窗口依然是相同的报错，于是根据提示查看了log：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e26e3f4efeb2a6e74a7b49493d5bf70b.png"
+                      alt="image-20241126213554646" style="zoom:80%;" 
+                ></p>
+<p>好嘛，给我原来的module搞没了，我又回原来的分支重新<code>pip install -e .</code>，然后再运行。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/33aa4114532b180a7cb9cc5a485ea9bf.png"
+                      alt="image-20241126214834818" style="zoom:80%;" 
+                ></p>
+<p>闹鬼了，我不玩了行吧，nerfbusters给劳资滚！😠</p>
+<h3 id="使用zipnerf报错">使用zipnerf报错</h3>
+<h4
+id="error-failed-building-wheel-for-cuda_backend-或者-no-module-named-_cuda_backend">1.
+ERROR: Failed building wheel for cuda_backend 或者 No module named
+'_cuda_backend'</h4>
+<p>在使用</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install git+https://github.com/SuLvXiangXin/zipnerf-pytorch#subdirectory=extensions/cuda</span><br></pre></td></tr></table></figure></div>
+<p>安装依赖的时候，出现如下报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/dd5fcccf23bab67884491c42c534f451.png"
+                      alt="image-20241126233030691" style="zoom:80%;" 
+                ></p>
+<p>开始没有管他，直到最后训练的时候又弹出报错：</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f39f4928d4cdc95d4268681db55ca98.png"
+                     
+alt="image-20241126233117488" 
+                >
+<figcaption aria-hidden="true">image-20241126233117488</figcaption>
+</figure>
+<p>看样子是逃不掉了。</p>
+<h4 id="assertionerror-pipeline.datamanager.dataparser...">2.
+AssertionError: <code>pipeline.datamanager.dataparser</code>...</h4>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0bbf42cce63eb2803ee4bac0f676f5a9.png"
+                      alt="image-20241126233225832" style="zoom:80%;" 
+                ></p>
+<p>第一次出现这长串报错是因为参数没输对，第二次问gpt说是与
+<code>tyro</code> 版本有关，尝试升级 <code>tyro</code>
+库以及相关依赖：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install --upgrade tyro</span><br></pre></td></tr></table></figure></div>
+<p>然后看到error怂了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bda407fee5eb83019937880b7434e75b.png"
+                      alt="image-20241126233430107" style="zoom:80%;" 
+                ></p>
+<p>于是又改回了推荐的版本：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install tyro==2.13.3</span><br></pre></td></tr></table></figure></div>
+<p>然后再运行就可以了。</p>
+<h4
+id="assertionerror-colmap-path-dataprocessed_trucksparse0-does-not-exist.">3.
+AssertionError: Colmap path data/processed_truck/sparse/0 does not
+exist.</h4>
+<p>这个原因是<code>zipnerf</code>用的数据集格式和<code>nerfstudio</code>好像不完全一致，我用了下<code>tandt</code>的数据集发现可行，但是它会对图像先进行一次下采样。</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">(nerf2mesh) root@I1dc2923c3f00801cdf:~/3D-Reconstruction/nerf2mesh# python main.py nerfstudio/poster/ --workspace trial_syn_poster/ -O --bound 1 --scale 0.8 --dt_gamma 0 --stage 0 --lambda_tv 1e-8</span><br><span class="line">Warning:</span><br><span class="line">Unable to load the following plugins:</span><br><span class="line"></span><br><span class="line">        libio_e57.so: libio_e57.so does not seem to be a Qt Plugin.</span><br><span class="line"></span><br><span class="line">Cannot load library /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/pymeshlab/lib/plugins/libio_e57.so: (/usr/lib/x86_64-linux-gnu/libp11-kit.so.0: undefined symbol: ffi_type_pointer, version LIBFFI_BASE_7.0)</span><br><span class="line"></span><br><span class="line">Loading train data: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 225/225 [00:08&lt;00:00, 25.09it/s]</span><br><span class="line">[INFO] max_epoch 134, eval every 26, save every 2.</span><br><span class="line">[INFO] Trainer: ngp_stage0 | 2024-11-26_15-12-23 | cuda | fp16 | trial_syn_poster/</span><br><span class="line">[INFO] #parameters: 18367240</span><br><span class="line">Namespace(path=&#x27;nerfstudio/poster/&#x27;, O=True, workspace=&#x27;trial_syn_poster/&#x27;, seed=0, stage=0, ckpt=&#x27;latest&#x27;, fp16=True, sdf=False, tcnn=False, progressive_level=False, test=False, test_no_video=False, test_no_mesh=False, camera_traj=&#x27;&#x27;, data_format=&#x27;nerf&#x27;, train_split=&#x27;train&#x27;, preload=True, random_image_batch=True, </span><br><span class="line">downscale=1, bound=1.0, scale=0.8, offset=[0, 0, 0], mesh=&#x27;&#x27;, enable_cam_near_far=False, enable_cam_center=False, min_near=0.05, enable_sparse_depth=False, enable_dense_depth=False, iters=30000, lr=0.01, lr_vert=0.0001, pos_gradient_boost=1, cuda_ray=True, max_steps=1024, update_extra_interval=16, </span><br><span class="line">max_ray_batch=4096, grid_size=128, mark_untrained=True, dt_gamma=0.0, density_thresh=10, diffuse_step=1000, diffuse_only=False, background=&#x27;random&#x27;, enable_offset_nerf_grad=False, n_eval=5, n_ckpt=50, num_rays=4096, adaptive_num_rays=True, num_points=262144, lambda_density=0, lambda_entropy=0, lambda_tv=1e-08, </span><br><span class="line">lambda_depth=0.1, lambda_specular=1e-05, lambda_eikonal=0.1, lambda_rgb=1, lambda_mask=0.1, wo_smooth=False, lambda_lpips=0, lambda_offsets=0.1, lambda_lap=0.001, lambda_normal=0, lambda_edgelen=0, contract=False, patch_size=1, trainable_density_grid=False, color_space=&#x27;srgb&#x27;, ind_dim=0, ind_num=500, </span><br><span class="line">mcubes_reso=512, env_reso=256, decimate_target=300000.0, mesh_visibility_culling=True, visibility_mask_dilation=5, clean_min_f=8, clean_min_d=5, ssaa=2, texture_size=4096, refine=True, refine_steps_ratio=[0.1, 0.2, 0.3, 0.4, 0.5, 0.7], refine_size=0.01, refine_decimate_ratio=0.1, refine_remesh_size=0.02, </span><br><span class="line">vis_pose=False, gui=False, W=1000, H=1000, radius=5, fovy=50, max_spp=1, refine_steps=[3000, 6000, 9000, 12000, 15000, 21000])</span><br><span class="line">NeRFNetwork(</span><br><span class="line">  (encoder): GridEncoder: input_dim=3 num_levels=16 level_dim=1 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 1) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (sigma_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=19, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=1, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (encoder_color): GridEncoder: input_dim=3 num_levels=16 level_dim=2 resolution=16 -&gt; 2048 per_level_scale=1.3819 params=(6119864, 2) gridtype=hash align_corners=False interpolation=linear</span><br><span class="line">  (color_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=35, out_features=64, bias=False)</span><br><span class="line">      (1): Linear(in_features=64, out_features=64, bias=False)</span><br><span class="line">      (2): Linear(in_features=64, out_features=6, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">  (specular_net): MLP(</span><br><span class="line">    (net): ModuleList(</span><br><span class="line">      (0): Linear(in_features=6, out_features=32, bias=False)</span><br><span class="line">      (1): Linear(in_features=32, out_features=3, bias=False)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">)</span><br><span class="line">[INFO] Loading latest checkpoint ...</span><br><span class="line">[WARN] No checkpoint found, abort loading latest model.</span><br><span class="line">Loading val data: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 21.10it/s]</span><br><span class="line">[mark untrained grid] 9364 from 2097152</span><br><span class="line">==&gt; Start Training Epoch 1, lr=0.000100 ...</span><br><span class="line">... ...</span><br><span class="line">loss=0.091703 (0.104557) lr=0.004555: : 100% 225/225 [00:03&lt;00:00, 69.94it/s]</span><br><span class="line">==&gt; Finished Epoch 133, loss = 0.078408.</span><br><span class="line">==&gt; Start Training Epoch 134, lr=0.001006 ...</span><br><span class="line">loss=0.075468 (0.078282) lr=0.000988: : 100% 225/225 [00:04&lt;00:00, 52.46it/s]</span><br><span class="line">==&gt; Finished Epoch 134, loss = 0.078282.</span><br><span class="line">[INFO] training takes 10.078925 minutes.</span><br><span class="line">Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter &#x27;pretrained&#x27; is deprecated since 0.13 and may be removed in the future, please use &#x27;weights&#x27; instead.</span><br><span class="line">  warnings.warn(</span><br><span class="line">/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for &#x27;weights&#x27; are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.</span><br><span class="line">  warnings.warn(msg)</span><br><span class="line">Downloading: &quot;https://download.pytorch.org/models/vgg16-397923af.pth&quot; to /root/.cache/torch/hub/checkpoints/vgg16-397923af.pth</span><br><span class="line">100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 528M/528M [35:11&lt;00:00, 262kB/s]</span><br><span class="line">Loading model from: /usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/lpips/weights/v0.1/vgg.pth</span><br><span class="line">++&gt; Evaluate at epoch 134 ...</span><br><span class="line">loss=0.213495 (0.213495): : 100% 1/1 [00:00&lt;00:00,  1.07it/s]</span><br><span class="line">PSNR = 6.706122</span><br><span class="line">LPIPS (vgg) = 0.767062</span><br><span class="line">++&gt; Evaluate epoch 134 Finished, loss = 0.213495</span><br><span class="line">==&gt; Start Test, save results to trial_syn_poster/results</span><br><span class="line">100% 11/11 [00:03&lt;00:00,  3.40it/s]Traceback (most recent call last):</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/main.py&quot;, line 263, in &lt;module&gt;</span><br><span class="line">    trainer.test(test_loader, write_video=True) # test and save video</span><br><span class="line">  File &quot;/root/3D-Reconstruction/nerf2mesh/nerf/utils.py&quot;, line 1005, in test</span><br><span class="line">    imageio.mimwrite(os.path.join(save_path, f&#x27;&#123;name&#125;_rgb.mp4&#x27;), all_preds, fps=24, quality=8, macro_block_size=1)</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/v2.py&quot;, line 494, in mimwrite</span><br><span class="line">    with imopen(uri, &quot;wI&quot;, **imopen_args) as file:</span><br><span class="line">  File &quot;/usr/local/miniconda3/envs/nerf2mesh/lib/python3.10/site-packages/imageio/core/imopen.py&quot;, line 281, in imopen</span><br><span class="line">    raise err_type(err_msg)</span><br><span class="line">ValueError: Could not find a backend to open `trial_syn_poster/results/ngp_stage0_ep0134_rgb.mp4`` with iomode `wI`.</span><br><span class="line">Based on the extension, the following plugins might add capable backends:</span><br><span class="line">  FFMPEG:  pip install imageio[ffmpeg]</span><br><span class="line">  pyav:  pip install imageio[pyav]</span><br><span class="line">100% 11/11 [00:04&lt;00:00,  2.67it/s]</span><br></pre></td></tr></table></figure></div>
+<h2 id="运行结果">运行结果</h2>
+<h3
+id="nerfacto和splatfacto渲染效果对比">nerfacto和splatfacto渲染效果对比</h3>
+<p>由于背景场景太过杂乱，在导出的时候选择了crop一下，只保留了主体。</p>
+<p>对于基于<code>NeRF</code>的方法<code>nerfacto</code>，可以选择导出点云或者网格。导出的网格在<code>meshlab</code>进行可视化，效果如下：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3352878e1ae4701c1140250512516ff5.png"
+                      alt="nerfacto" style="zoom: 67%;" 
+                ></p>
+<p>可以看到，<code>poster</code>的内容是比较清晰地还原出来了，然而椅子的形状结构却有些损坏，尤其是越靠近中心缺损越严重。</p>
+<p>而对于基于<code>3DGS</code>的方法<code>splatfacto</code>，它只能选择导出gaussian
+splat。为了对其进行可视化，选择使用了 <a class="link" 
+ href="https://github.com/playcanvas/supersplat" >supersplat<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+这个工具：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fe681800c80665393e977b430120f321.png"
+                      alt="1" style="zoom:67%;" 
+                ></p>
+<p>可以看到，除了中心的主体外，为了渲染出背景，在即便是很远的地方也生成了很多个gaussian
+splat。</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/684268fc7c4fbd9c6ccc174ea9ae2481.png"
+                      alt="image-20241119133706308" style="zoom:67%;" 
+                ></p>
+<p>将摄像头拉近到主体，发现这个重构效果还是蛮好的。然而如何将gaussian
+splat转化为网格形式，这是后续工作的重点。</p>
+<h3 id="mesh导出">Mesh导出</h3>
+<p>在<code>NeRF Studio</code>中可以对训练结果进行可视化的导出。支持<code>3D gaussian</code>,
+<code>point cloud</code>和<code>mesh</code>
+，但是对于不同的方法，导出的格式不同。如基于<code>NeRF</code>的方法只能导出点云和网格，而基于<code>3DGS</code>的方法只能导出三维高斯。</p>
+<p>训练代码示例：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-train nerfacto --data data/processed_truck/ --output-dir outputs/truck_100000 --max-num-iterations 100000</span><br></pre></td></tr></table></figure></div>
+<p>可以先对训练结果进行可视化：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-viewer --load-config path/to/your/trainresult/config.yml</span><br></pre></td></tr></table></figure></div>
+<p>然后在网页的<code>export</code>栏可以选择导出参数，并复制导出指令，以<code>possion</code>的导出为例：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export poisson --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face --target-num-faces 50000 --num-pixels-per-side 2048 --num-points 1000000 --remove-outliers True </span><br><span class="line">--normal-method open3d --obb_center 0.0000000000 0.0000000000 0.0000000000 --obb_rotation 0.0000000000 0.0000000000 0.0000000000 --obb_scale 1.0000000000 1.0000000000 1.0000000000</span><br></pre></td></tr></table></figure></div>
+<p>还可以选择其他的导出方式，如<code>tsdf</code>：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export tsdf --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
+<p>或者<code>marching-cubes</code>：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">ns-export marching-cubes --load-config outputs/truck_100000/processed_truck/nerfacto/2024-11-26_142623/config.yml --output-dir exports/mesh/truck_100000iter_50000face_tsdf --target-num-faces 50000 --num-pixels-per-side 2048</span><br></pre></td></tr></table></figure></div>
+<p>（好像<code>nerfacto</code>的结果不能用<code>marching-cubes</code>）</p>
+<p>下面直观展示下导出<code>mesh</code>的效果（前四种是<code>nerfacto</code>，最后一个是用<code>2DGS</code>方法生成的结果）：</p>
+<table>
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">possion (30k iters, 50k faces)</th>
+<th><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/1c1ac2e6320eaf5e8bcd849e54715188.gif"
+                      alt="2024-11-26-17-05-29" style="zoom: 80%;" 
+                ></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>possion (100k iters, 50k
+faces)</strong></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/5392674dd8736a531079d3f8643d6d7c.gif"
+                      alt="2024-11-26-17-06-26" style="zoom: 80%;" 
+                ></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>possion (100k iters, 100k
+faces)</strong></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/299d0d4cf36fa66f3195efdd15ec7bac.gif"
+                      alt="2024-11-26-17-08-08" style="zoom:80%;" 
+                ></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>tsdf (100k iters, 50k
+faces)</strong></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/65ea32e143162450ebfa80c39fc288bc.gif"
+                      alt="2024-11-26-16-52-37" style="zoom: 80%;" 
+                ></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2DGS (2m faces)</strong></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/34ed3d848689502c6897a0aee256bace.gif"
+                      alt="2024-11-26-16-52-37" style="zoom: 80%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，<code>tsdf</code>提取的网格质量过低，而<code>possion</code>提取的网格相较而言则更精确。总体而言，对于<code>nerfacto</code>方法来说，<code>iteration</code>的提升貌似没有对最终的网格产生比较大的改善，30k的迭代次数已经足够，而<code>face</code>的增加其实也显得不是很必要，50k的面数已经足够表达一个复杂的结构体了。对于<code>2DGS</code>，由于它没有整合到<code>NeRF Studio</code>里，它的重建没有固定面数，最终生成了2m的面，虽然重建效果好很多，但是对计算负载的压力更大。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Photometric Stereo</title>
     <url>/2024/12/09/10-PhotometricStereo/</url>
     <content><![CDATA[<h2 id="experiment-purpose">1. Experiment Purpose</h2>
@@ -1709,6 +1709,211 @@ normalized.</p>
       </categories>
       <tags>
         <tag>Photometric Stereo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Genesis</title>
+    <url>/2024/12/19/12-genesis/</url>
+    <content><![CDATA[<h2 id="introduction">Introduction</h2>
+<p>Genesis
+是一个物理平台，专为通用机器人/嵌入式人工智能/物理人工智能应用而设计。它同时是多种事物：</p>
+<ul>
+<li>从头开始重建的通用物理引擎，能够模拟各种材料和物理现象。</li>
+<li>一个轻量级、超快速、Pythonic 且用户友好的机器人仿真平台。</li>
+<li>强大且快速的逼真渲染系统。</li>
+<li>一种生成数据引擎，可将用户提示的自然语言描述转换为各种数据形式。</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<p>分别测试现有的<code>examples</code>中的场景，结果如下：</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr>
+<th>File</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cloth_on_rigid.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/cbf169adaa98f0d5a7dadcea030fa4aa.gif"
+                      alt="2025-01-07-23-51-16" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>cut_dragon.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/5eeb2157a3a3e0e65b8a637f6a7606e3.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>flush_cubes.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/26a959a4222e4081cf3d1a857826f54d.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>grasp_soft_cube.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0bcd1e4a3f57d947106226115420ec5f.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>sand_wheel.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0cf95542a6a2c8ca4d92bd467fbdeb3a.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>sph_mpm.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/6f40c4612af0b57fb0622993b8f94254.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>sph_rigid.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0021b8d6814eda6e28cc377649cb104c.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>water_wheel.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/682cd236c42bb05631c3979e68929646.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<h2 id="errors-solutions">Errors &amp; Solutions</h2>
+<h3
+id="opengl.error.error-attempt-to-retrieve-context-when-no-valid-context">1.
+OpenGL.error.Error: Attempt to retrieve context when no valid
+context</h3>
+<p>笔者在<code>Windows</code>的<code>WSL</code>虚拟机中安装了<code>Ubuntu</code>系统，在直接运行测试样例时会出现如下的报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/6d69fa4bfe85a80c6f4952d7840f4de9.png"
+                      alt="image-20241219162641596" style="zoom: 67%;" 
+                ></p>
+<p>在<a class="link" 
+ href="https://github.com/yt-project/yt_idv/issues/81" >Github<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>上面有类似的问题和解决方案。</p>
+<p><strong>原因</strong>：Ubuntu 的最新版本已默认切换为使用 Wayland
+图形协议（来自 Xorg）。目前，pyglet 不支持 Wayland。虽然单独使用 pyglet
+仍然有效（感谢 xWayland），但使用 pyimgui-pyglet 会导致 PyOpenGL
+选择不正确的图形后端。</p>
+<p><strong>解决方案</strong>：在运行前强制指定PyOpenGL使用Xorg：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PYOPENGL_PLATFORM=<span class="string">&#x27;glx&#x27;</span></span><br></pre></td></tr></table></figure></div>
+<h2 id="unsolved-problems">Unsolved Problems</h2>
+<h3 id="decomposition-deactivates-collision">1. Decomposition
+deactivates collision</h3>
+<p>在genesis中导入的mesh，在导入时可以设置参数进行凸分解。底层还是调用的<code>CoACD</code>工具。笔者试图在genesis对mesh直接进行凸分解，但是发现凸分解之后偶尔会导致碰撞失效。
+<strong>参数设置</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>不进行凸分解</th>
+<th>凸分解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/55dcc1efda7f3dd408108f1b16815f7e.png"
+                      alt="image-20250107220338773" style="zoom:67%;" 
+                ></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/89dab658e2494000a882275df1559ec5.png"
+                      alt="image-20250107220752936" style="zoom:67%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>在genesis的<code>Mesh</code>类中，有两个参数与凸分解有关：</p>
+<ul>
+<li><strong>convexify</strong>:
+此参数用于控制是否将<code>Mesh</code>直接进行凸包运算，即等同于<code>mujoco</code>中的默认算法，将<code>Mesh</code>求个凸包。实际碰撞的体积与渲染出来的实际形状会有差异。</li>
+<li><strong>decompose_nonconvex</strong>:
+此参数仅在<code>convexify</code>为<code>False</code>时有效，表示是否使用<code>CoACD</code>对<code>Mesh</code>进行凸分解。</li>
+</ul>
+<p><strong>结果比对</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>不进行凸分解</th>
+<th>凸分解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/a4f3b9013a618e4a96e1f55f4fabcaad.gif"
+                      alt="2025-01-07-23-39-57" style="zoom:50%;" 
+                ></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/22ffb289472b8ee43525964ab9661718.gif"
+                      alt="2025-01-07-23-36-50" style="zoom: 50%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>在实际运行中，当对复杂模型进行凸分解（即<code>decompose_nonconvex</code>设为<code>True</code>），可能会导致穿模的情况。在笔者更换模型后，发现又成功了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/4db91d11532bcf4777a85ff9a5c10f1f.gif"
+                      alt="2025-01-07-23-29-24" style="zoom:50%;" 
+                ></p>
+<p>Anyway，目前还不清楚问题出在<code>CoACD</code>还是<code>genesis</code>。</p>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>genesis</tag>
       </tags>
   </entry>
   <entry>
@@ -2213,123 +2418,6 @@ better average inlier ratio.</p>
       </categories>
       <tags>
         <tag>Panorama Stitching</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Genesis</title>
-    <url>/2024/12/19/12-genesis/</url>
-    <content><![CDATA[<h2 id="introduction">Introduction</h2>
-<p>Genesis
-是一个物理平台，专为通用机器人/嵌入式人工智能/物理人工智能应用而设计。它同时是多种事物：</p>
-<ul>
-<li>从头开始重建的通用物理引擎，能够模拟各种材料和物理现象。</li>
-<li>一个轻量级、超快速、Pythonic 且用户友好的机器人仿真平台。</li>
-<li>强大且快速的逼真渲染系统。</li>
-<li>一种生成数据引擎，可将用户提示的自然语言描述转换为各种数据形式。</li>
-</ul>
-<h2 id="errors-solutions">Errors &amp; Solutions</h2>
-<h3
-id="opengl.error.error-attempt-to-retrieve-context-when-no-valid-context">1.
-OpenGL.error.Error: Attempt to retrieve context when no valid
-context</h3>
-<p>笔者在<code>Windows</code>的<code>WSL</code>虚拟机中安装了<code>Ubuntu</code>系统，在直接运行测试样例时会出现如下的报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/6d69fa4bfe85a80c6f4952d7840f4de9.png"
-                      alt="image-20241219162641596" style="zoom: 67%;" 
-                ></p>
-<p>在<a class="link" 
- href="https://github.com/yt-project/yt_idv/issues/81" >Github<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>上面有类似的问题和解决方案。</p>
-<p><strong>原因</strong>：Ubuntu 的最新版本已默认切换为使用 Wayland
-图形协议（来自 Xorg）。目前，pyglet 不支持 Wayland。虽然单独使用 pyglet
-仍然有效（感谢 xWayland），但使用 pyimgui-pyglet 会导致 PyOpenGL
-选择不正确的图形后端。</p>
-<p><strong>解决方案</strong>：在运行前强制指定PyOpenGL使用Xorg：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PYOPENGL_PLATFORM=<span class="string">&#x27;glx&#x27;</span></span><br></pre></td></tr></table></figure></div>
-<h2 id="unsolved-problems">Unsolved Problems</h2>
-<h3 id="decomposition-deactivates-collision">1. Decomposition
-deactivates collision</h3>
-<p>在genesis中导入的mesh，在导入时可以设置参数进行凸分解。底层还是调用的<code>CoACD</code>工具。笔者试图在genesis对mesh直接进行凸分解，但是发现凸分解之后偶尔会导致碰撞失效。
-<strong>参数设置</strong>：</p>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>不进行凸分解</th>
-<th>凸分解</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/55dcc1efda7f3dd408108f1b16815f7e.png"
-                      alt="image-20250107220338773" style="zoom:67%;" 
-                ></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/89dab658e2494000a882275df1559ec5.png"
-                      alt="image-20250107220752936" style="zoom:67%;" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>在genesis的<code>Mesh</code>类中，有两个参数与凸分解有关：</p>
-<ul>
-<li><strong>convexify</strong>:
-此参数用于控制是否将<code>Mesh</code>直接进行凸包运算，即等同于<code>mujoco</code>中的默认算法，将<code>Mesh</code>求个凸包。实际碰撞的体积与渲染出来的实际形状会有差异。</li>
-<li><strong>decompose_nonconvex</strong>:
-此参数仅在<code>convexify</code>为<code>False</code>时有效，表示是否使用<code>CoACD</code>对<code>Mesh</code>进行凸分解。</li>
-</ul>
-<p><strong>结果比对</strong>：</p>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>不进行凸分解</th>
-<th>凸分解</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/a4f3b9013a618e4a96e1f55f4fabcaad.gif"
-                      alt="2025-01-07-23-39-57" style="zoom:50%;" 
-                ></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/22ffb289472b8ee43525964ab9661718.gif"
-                      alt="2025-01-07-23-36-50" style="zoom: 50%;" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>在实际运行中，当对复杂模型进行凸分解（即<code>decompose_nonconvex</code>设为<code>True</code>），可能会导致穿模的情况。在笔者更换模型后，发现又成功了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/4db91d11532bcf4777a85ff9a5c10f1f.gif"
-                      alt="2025-01-07-23-29-24" style="zoom:50%;" 
-                ></p>
-<p>Anyway，目前还不清楚问题出在<code>CoACD</code>还是<code>genesis</code>。</p>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>genesis</tag>
       </tags>
   </entry>
 </search>
