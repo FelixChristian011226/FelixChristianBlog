@@ -182,20 +182,6 @@
 
   
   <url>
-    <loc>https://felixchristian.top/tags/NeRF/</loc>
-    <lastmod>2025-01-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/3DGS/</loc>
-    <lastmod>2025-01-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/tags/mujoco/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
@@ -224,7 +210,28 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.top/tags/NeRF/</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/3DGS/</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/tags/CoACD/</loc>
+    <lastmod>2025-01-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/2DGS/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -259,14 +266,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/mesh/</loc>
+    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
+    <loc>https://felixchristian.top/tags/mesh/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -280,7 +287,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/2DGS/</loc>
+    <loc>https://felixchristian.top/tags/genesis/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -293,24 +300,17 @@
     <priority>0.2</priority>
   </url>
   
-  <url>
-    <loc>https://felixchristian.top/tags/genesis/</loc>
-    <lastmod>2025-01-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
 
   
   <url>
-    <loc>https://felixchristian.top/categories/%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/</loc>
+    <loc>https://felixchristian.top/categories/%E6%9C%BA%E5%99%A8%E4%BB%BF%E7%9C%9F/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E6%9C%BA%E5%99%A8%E4%BB%BF%E7%9C%9F/</loc>
+    <loc>https://felixchristian.top/categories/%E4%B8%89%E7%BB%B4%E9%87%8D%E5%BB%BA/</loc>
     <lastmod>2025-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
