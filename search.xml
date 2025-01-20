@@ -51,395 +51,6 @@ the world body or to static children of the world.</p>
       </tags>
   </entry>
   <entry>
-    <title>Mujoco - CoACD简略教程</title>
-    <url>/2024/09/29/03-CoACD_notes/</url>
-    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
-<h2 id="一源代码编译">一、源代码编译</h2>
-<h3 id="安装教程">安装教程</h3>
-<h4 id="克隆代码">(1) 克隆代码：</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
-<h4 id="安装依赖">(2) 安装依赖：</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
-</blockquote>
-<h4 id="编译">(3) 编译</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
-<p>​ 然后编译：</p>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
-<blockquote>
-<p>这里出了很多warning，但是好像不影响使用。</p>
-</blockquote>
-<h4 id="使用">(4) 使用</h4>
-<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
-<h3 id="参数说明">参数说明</h3>
-<ul>
-<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
-<li><strong>-c/--max-convex-hull</strong> :
-凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
-<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
-<li><strong>-am/--approximate-mode</strong> :
-近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
-<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
-</ul>
-<p><strong>说明</strong>：</p>
-<ol type="1">
-<li>大多数情况下，只需调整<code>threshold</code>
-（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
-<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
-、
-<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
-</ol>
-<h2 id="二pypi">二、PyPI</h2>
-<h3 id="安装">安装</h3>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install coacd</span><br></pre></td></tr></table></figure></div>
-<h3 id="使用-1">使用</h3>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line">parts = coacd.run_coacd(mesh) <span class="comment"># a list of convex hulls.</span></span><br></pre></td></tr></table></figure></div>
-<h3 id="参数">参数</h3>
-<p>官方文档里没有提到详细的参数列表，通过以下指令自己查询了下：
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"><span class="built_in">print</span>(inspect.getsource(coacd.run_coacd))</span><br></pre></td></tr></table></figure></div></p>
-<p>查询到的参数和对应的解释如下：</p>
-<ul>
-<li><strong>threshold (float)</strong>:
-用于决定分解精度的阈值。较低的阈值意味着更精确的分解，但可能需要更多的计算资源。默认值为
-<code>0.05</code>。</li>
-<li><strong>max_convex_hull (int)</strong>:
-最大凸包数量。如果你希望限制生成的凸包数量，可以设置此值。例如，如果设置为
-5，则最多生成 5 个凸包，默认值为 <code>-1</code>，表示不限制。</li>
-<li><strong>preprocess_mode (str)</strong>:
-预处理模式，<code>"on"</code> 启用，<code>"off"</code>
-禁用，<code>"auto"</code>
-自动选择（推荐）。预处理可能影响分解的速度和结果。</li>
-<li><strong>resolution (int)</strong>:
-处理网格的分辨率，值越高，结果越精确，但计算量也越大。默认值为
-<code>2000</code>。</li>
-<li><strong>mcts_nodes (int)</strong>:
-MCTS（蒙特卡洛树搜索）中每个节点的最大数量。值越大，搜索的深度越高，可能会增加分解的准确度，但会消耗更多的计算资源。</li>
-<li><strong>mcts_iterations (int)</strong>:
-MCTS的迭代次数，更多的迭代次数意味着更高的准确性，但会增加计算负担。</li>
-<li><strong>pca (bool)</strong>:
-是否使用主成分分析（PCA）来减少维度。<code>True</code>
-表示启用，<code>False</code> 表示禁用。</li>
-<li><strong>merge (bool)</strong>: 是否合并小的凸包。如果设置为
-<code>True</code>，可能会减少生成的凸包数量。</li>
-<li><strong>decimate (bool)</strong>:
-是否在生成凸包时进行简化，减少网格面片的数量。</li>
-<li><strong>max_ch_vertex (int)</strong>:
-每个凸包允许的最大顶点数量。</li>
-<li><strong>extrude (bool)</strong>:
-是否对凸包进行拉伸。<code>True</code> 表示拉伸，<code>False</code>
-表示不拉伸。</li>
-<li><strong>extrude_margin (float)</strong>: 如果 <code>extrude</code>
-为 <code>True</code>，设置拉伸的边距。</li>
-<li><strong>apx_mode (str)</strong>: 设置近似方式，<code>"ch"</code>
-代表使用凸包，<code>"box"</code> 表示使用包围盒。</li>
-<li><strong>seed (int)</strong>:
-随机种子，设置它可以帮助重现相同的结果。</li>
-</ul>
-<p>根据参数，一个简要的包含输出的代码如下：</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"><span class="keyword">import</span> trimesh</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">input_file = <span class="string">&quot;input.obj&quot;</span></span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line"></span><br><span class="line">parts = coacd.run_coacd(</span><br><span class="line">    mesh,</span><br><span class="line">    threshold=<span class="number">0.05</span>,  <span class="comment"># 精度阈值，默认: 0.05</span></span><br><span class="line">    max_convex_hull=-<span class="number">1</span>,  <span class="comment"># 最大凸包数量，默认: -1 (无限制)</span></span><br><span class="line">    preprocess_mode=<span class="string">&quot;auto&quot;</span>,  <span class="comment"># 预处理模式，默认: &quot;auto&quot;</span></span><br><span class="line">    preprocess_resolution=<span class="number">30</span>,  <span class="comment"># 预处理分辨率，默认: 30</span></span><br><span class="line">    resolution=<span class="number">2000</span>,  <span class="comment"># 分解分辨率，默认: 2000</span></span><br><span class="line">    mcts_nodes=<span class="number">20</span>,  <span class="comment"># MCTS节点数，默认: 20</span></span><br><span class="line">    mcts_iterations=<span class="number">150</span>,  <span class="comment"># MCTS迭代次数，默认: 150</span></span><br><span class="line">    mcts_max_depth=<span class="number">3</span>,  <span class="comment"># MCTS最大深度，默认: 3</span></span><br><span class="line">    pca=<span class="literal">False</span>,  <span class="comment"># 是否启用PCA降维，默认: False</span></span><br><span class="line">    merge=<span class="literal">True</span>,  <span class="comment"># 是否合并小凸包，默认: True</span></span><br><span class="line">    decimate=<span class="literal">False</span>,  <span class="comment"># 是否简化凸包，默认: False</span></span><br><span class="line">    max_ch_vertex=<span class="number">256</span>,  <span class="comment"># 每个凸包的最大顶点数，默认: 256</span></span><br><span class="line">    extrude=<span class="literal">False</span>,  <span class="comment"># 是否拉伸凸包，默认: False</span></span><br><span class="line">    extrude_margin=<span class="number">0.01</span>,  <span class="comment"># 拉伸边距，默认: 0.01</span></span><br><span class="line">    apx_mode=<span class="string">&quot;ch&quot;</span>,  <span class="comment"># 近似模式，默认: &quot;ch&quot; (凸包)</span></span><br><span class="line">    seed=<span class="number">0</span>  <span class="comment"># 随机种子，默认: 0</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">output_dir = <span class="string">&quot;./output_parts/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(output_dir):</span><br><span class="line">    os.makedirs(output_dir)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, part <span class="keyword">in</span> <span class="built_in">enumerate</span>(parts):</span><br><span class="line">    part_mesh = trimesh.Trimesh(vertices=part[<span class="number">0</span>], faces=part[<span class="number">1</span>])</span><br><span class="line">    part_mesh.export(os.path.join(output_dir, <span class="string">f&quot;part_<span class="subst">&#123;i&#125;</span>.obj&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Exported <span class="subst">&#123;<span class="built_in">len</span>(parts)&#125;</span> convex parts to <span class="subst">&#123;output_dir&#125;</span>&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>CoACD</tag>
-        <tag>convex</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NeRF和3DGS对比</title>
-    <url>/2024/10/30/04-NeRFvs3DGS/</url>
-    <content><![CDATA[<h2 id="nerf">NeRF</h2>
-<h3 id="原理">原理</h3>
-<p>NeRF（Neural Radiance
-Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
-的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
-<p>特点：</p>
-<ul>
-<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
-<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
-</ul>
-<h3 id="流程">流程</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
-                     
-alt="Refer" 
-                >
-<figcaption aria-hidden="true">Refer</figcaption>
-</figure>
-<ol type="1">
-<li><strong>输入信息</strong>：NeRF
-将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
-<li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
-<li><strong>体渲染技术</strong>：NeRF
-使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
-<li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
-<li><strong>生成新视角</strong>：训练完成后，NeRF
-能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
-</ol>
-<h3 id="网络结构">网络结构</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
-                     
-alt="network" 
-                >
-<figcaption aria-hidden="true">network</figcaption>
-</figure>
-<ul>
-<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
-</ul>
-<h3 id="实现细节">实现细节</h3>
-<h4 id="mlp网络">MLP网络</h4>
-<ul>
-<li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
-<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
-features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
-<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
-connection），帮助网络在深层结构中保持空间信息的细节。</li>
-</ul>
-<h4 id="位置编码">位置编码</h4>
-<ul>
-<li>NeRF
-使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
-Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
-<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
-(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
-</ul>
-<h4 id="体渲染">体渲染</h4>
-<p>​
-从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
-bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
-<p>​ 获得像素颜色的公式：</p>
-<p>​ <img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
-                     
-alt="color" 
-                ></p>
-<p>​ 这个式子积分里面是<code>T(t)</code>
-、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
-<h3 id="相关工作">相关工作</h3>
-<h4 id="nerf2mesh">NeRF2Mesh</h4>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
-                     
-alt="NeRF2Mesh" 
-                >
-<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
-</figure>
-<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
-Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
-<ul>
-<li><strong>密度分支 (Density
-field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
-Cubes生成三角网格，再进行优化。</li>
-<li><strong>外观分支 (Appearance
-Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
-</ul>
-<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
-<h3 id="原理-1">原理</h3>
-<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
-空间中的点云，将场景中的点用 3D
-高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
-<p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
-<h3 id="流程-1">流程</h3>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
-                     
-alt="3DGS" 
-                >
-<figcaption aria-hidden="true">3DGS</figcaption>
-</figure>
-<ol type="1">
-<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
-<a class="link" 
- href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-库操作</li>
-<li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
-<li><strong>投影变换</strong>：通过投影操作将 3D
-高斯分布映射到相机视角下的 2D 图像平面。</li>
-<li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
-<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
-Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
-</ol>
-<h3 id="实现细节-1">实现细节</h3>
-<h4 id="三维高斯属性">三维高斯属性</h4>
-<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
-<p>球谐函数的示例：</p>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
-                     
-alt="球谐函数" 
-                >
-<figcaption aria-hidden="true">球谐函数</figcaption>
-</figure>
-<p>（图源：<a class="link" 
- href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
-Survey on 3D Gaussian Splatting - 知乎<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
-<h4 id="自适应密度控制">自适应密度控制</h4>
-<figure>
-<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
-                     
-alt="自适应密度控制" 
-                >
-<figcaption aria-hidden="true">自适应密度控制</figcaption>
-</figure>
-<ul>
-<li><strong>Under-Reconstruction</strong>:
-复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
-<li><strong>Over-Reconstruction</strong>:
-将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
-</ul>
-<h4 id="点的剪枝">点的剪枝</h4>
-<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
-<h4 id="tile">Tile</h4>
-<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
-GPU 核心上同时计算，避免了对同一像素的竞争。</p>
-<h2 id="对比">对比</h2>
-<h3 id="场景绘制">场景绘制</h3>
-<ul>
-<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
-<li>3DGS
-使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
-</ul>
-<h3 id="d重建">3D重建</h3>
-<ul>
-<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
-<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
-</ul>
-<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
-Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
-<table>
-<colgroup>
-<col style="width: 11%" />
-<col style="width: 44%" />
-<col style="width: 44%" />
-</colgroup>
-<thead>
-<tr>
-<th><strong>对比维度</strong></th>
-<th>3DGS (3D Geometry Sensing)</th>
-<th>NeRF (Neural Radiance Fields)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>基本原理</strong></td>
-<td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
-<td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
-</tr>
-<tr>
-<td><strong>输入数据</strong></td>
-<td>多视角图像、深度信息（LiDAR、ToF相机）、位姿数据、点云。</td>
-<td>多视角图像（通常包括相机位姿），不需要显式的几何信息。</td>
-</tr>
-<tr>
-<td><strong>输出结果</strong></td>
-<td>点云、网格、三角形模型、深度图、纹理映射等显式几何结构。</td>
-<td>通过体积渲染生成逼真图像（视角相关），不直接输出几何模型。</td>
-</tr>
-<tr>
-<td><strong>数据处理方式</strong></td>
-<td>使用几何关系（如三角测量、立体视觉等）来显式重建场景结构。</td>
-<td>使用神经网络隐式建模颜色和密度，通过体积渲染生成图像。</td>
-</tr>
-<tr>
-<td><strong>几何信息</strong></td>
-<td>显式获取3D几何信息，可以精确测量物体的距离和形状。</td>
-<td>隐式推断几何信息，主要用于图像渲染，几何结构不直接输出。</td>
-</tr>
-<tr>
-<td><strong>渲染效果</strong></td>
-<td>依赖于重建的几何结构，渲染效果有限，尤其在复杂光线场景下效果一般。</td>
-<td>渲染效果非常逼真，尤其在反射、遮挡、折射等复杂光照场景表现优异。</td>
-</tr>
-<tr>
-<td><strong>计算资源需求</strong></td>
-<td>需要较强的几何计算能力，数据获取通常依赖于多传感器系统（LiDAR等）。</td>
-<td>需要高计算资源，特别是训练神经网络的过程计算量大，通常依赖于GPU。</td>
-</tr>
-<tr>
-<td><strong>渲染速度</strong></td>
-<td>实时性较好，特别是有深度传感器时可实现快速重建。</td>
-<td>渲染速度较慢，尤其在训练阶段耗时长，但有即时渲染版本。</td>
-</tr>
-<tr>
-<td><strong>应用场景</strong></td>
-<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
-<td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
-</tr>
-<tr>
-<td><strong>优点</strong></td>
-<td>可以显式建模、精确几何测量、适用于实时应用；深度传感器辅助时重建精度高。</td>
-<td>渲染质量极高，能处理复杂的光照、遮挡问题；不需要昂贵的深度传感器。</td>
-</tr>
-<tr>
-<td><strong>缺点</strong></td>
-<td>在处理复杂光照（如透明物体、反射面）时效果不佳，依赖昂贵的传感器数据。</td>
-<td>渲染速度慢，训练时间长，初始设计不擅长生成明确的几何信息。</td>
-</tr>
-<tr>
-<td><strong>几何建模精度</strong></td>
-<td>高，适合用于需要精确几何信息的场景（如测量、导航、物理模拟等）。</td>
-<td>几何建模是隐式的，主要依赖于神经网络推断，不适合用于测量等任务。</td>
-</tr>
-<tr>
-<td><strong>光照处理</strong></td>
-<td>处理复杂光线条件较困难，通常需要额外的算法来应对光线反射和折射。</td>
-<td>对复杂光照场景处理效果出色，能够处理反射、折射、遮挡等问题。</td>
-</tr>
-<tr>
-<td><strong>实时性</strong></td>
-<td>实时性较强，特别是在配合LiDAR等传感器时。</td>
-<td>需要较长的时间进行训练和渲染，不适合实时应用（加速版本除外）。</td>
-</tr>
-<tr>
-<td><strong>数据获取成本</strong></td>
-<td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
-<td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
-</tr>
-</tbody>
-</table>
-<p>（表源：<a class="link" 
- href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mujoco - 碰撞凸几何体要求</title>
     <url>/2024/09/29/02-Mujoco_notes/</url>
     <content><![CDATA[<h2 id="collision">Collision</h2>
@@ -482,8 +93,8 @@ MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" 
       </categories>
       <tags>
         <tag>mujoco</tag>
-        <tag>convex</tag>
         <tag>collision</tag>
+        <tag>convex</tag>
       </tags>
   </entry>
   <entry>
@@ -811,6 +422,395 @@ alt="Figure6"
       </tags>
   </entry>
   <entry>
+    <title>NeRF和3DGS对比</title>
+    <url>/2024/10/30/04-NeRFvs3DGS/</url>
+    <content><![CDATA[<h2 id="nerf">NeRF</h2>
+<h3 id="原理">原理</h3>
+<p>NeRF（Neural Radiance
+Fields）是一种新型的3D场景表示方法，通过神经网络来生成逼真的3D场景。NeRF
+的核心思想是利用神经网络来表示一个场景的体素，从而可以实现从不同角度对场景进行渲染，生成高质量的图像。</p>
+<p>特点：</p>
+<ul>
+<li>NeRF中三维模型的信息是以<strong>“隐式”</strong>的方法存储，而非点云、体素、网格等显式的表达方式。</li>
+<li>NeRF使用类似<strong>光线追踪</strong>的方式创建新视角的图像。输入是采样点和观测的方向，输出是对应的RGB值和不透明度。</li>
+</ul>
+<h3 id="流程">流程</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/bcbfe7de8a71226465e395e9aca94b72.png"
+                     
+alt="Refer" 
+                >
+<figcaption aria-hidden="true">Refer</figcaption>
+</figure>
+<ol type="1">
+<li><strong>输入信息</strong>：NeRF
+将3D空间中的点（例如摄像机的位置）和观察方向作为输入。</li>
+<li><strong>神经网络映射</strong>：通过一个MLP（多层感知器）神经网络，将每个3D坐标点和观察方向映射到颜色和体素密度。网络的输出包含颜色（RGB）和体密度（衡量光线穿过该点的透明度）。</li>
+<li><strong>体渲染技术</strong>：NeRF
+使用体渲染公式，即光线穿过场景的过程。具体来说，它沿着光线方向对多个点进行采样，并根据体密度和颜色计算每个点的贡献，进而得出最终的像素值。</li>
+<li><strong>损失函数</strong>：通过多视图监督进行训练，NeRF会在场景中从多个视角捕获图像，将渲染的像素值与真实图像进行对比，并通过优化损失函数不断调整网络参数，逐步逼近真实场景。</li>
+<li><strong>生成新视角</strong>：训练完成后，NeRF
+能够在未见过的视角上生成图像，实现自由的3D视角切换和逼真的场景合成。</li>
+</ol>
+<h3 id="网络结构">网络结构</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/340d8d0e46ba24f221761300ece496f8.png"
+                     
+alt="network" 
+                >
+<figcaption aria-hidden="true">network</figcaption>
+</figure>
+<ul>
+<li><strong>不透明度</strong>只和空间位置有关，<strong>颜色</strong>与空间位置和视角有关。</li>
+</ul>
+<h3 id="实现细节">实现细节</h3>
+<h4 id="mlp网络">MLP网络</h4>
+<ul>
+<li><strong>层数</strong>：NeRF的网络由10个隐藏层组成，前9层包含256个神经元，最后一层包含128个神经元。</li>
+<li><strong>分支结构</strong>：NeRF的MLP有一个特定的分支结构。前8层用于处理空间位置信息(x,y,z)，生成了隐变量（latent
+features）。这些特征被用来预测体密度（density），以表示该点在场景中的不透明度。</li>
+<li><strong>跳跃连接</strong>：位置编码后的输入会与网络中间层（第5层）相连，作为跳跃连接（skip
+connection），帮助网络在深层结构中保持空间信息的细节。</li>
+</ul>
+<h4 id="位置编码">位置编码</h4>
+<ul>
+<li>NeRF
+使用了傅里叶特征来将输入的3D坐标和视角方向进行编码，这种方式称为<strong>位置编码</strong>（Positional
+Encoding）。具体来说，它将输入扩展到高频率空间，这样网络就能够学习更细腻的细节。</li>
+<li>对于坐标 (x,y,z)(x, y, z)(x,y,z) 和方向
+(θ,ϕ)，每个输入维度会生成多个不同频率的正余弦特征，以捕捉场景中的复杂空间结构。</li>
+</ul>
+<h4 id="体渲染">体渲染</h4>
+<p>​
+从焦点到一个像素上连的射线为<code>r(t)=o+td</code>，其中其中<code>o</code>是原点，<code>t</code>是距离。距离起点（near
+bound）和距离终点（far bound）为<code>tn</code>和<code>tf</code>。</p>
+<p>​ 获得像素颜色的公式：</p>
+<p>​ <img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/66ccede850b01c372315e2b505c4ec7b.png"
+                     
+alt="color" 
+                ></p>
+<p>​ 这个式子积分里面是<code>T(t)</code>
+、<code>密度 σ(r(t))</code>和颜色<code>c(r(t),d)</code>的乘积，其中<code>T(t)</code>是累积透光率，表示光线射到这“还剩多少光”。实际渲染过程是把射线平均分成N个小区间，每个区间随机采样一个点，对采样得到的点的颜色进行某种加权求和。</p>
+<h3 id="相关工作">相关工作</h3>
+<h4 id="nerf2mesh">NeRF2Mesh</h4>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9e1ed1cebbf7c2079a3bd129333c9730.png"
+                     
+alt="NeRF2Mesh" 
+                >
+<figcaption aria-hidden="true">NeRF2Mesh</figcaption>
+</figure>
+<p>最左侧的立方体就是Nerf所构建的三维数据，它包含离散点的三维坐标、不透明度（density）以及rgb色彩。
+Nerf2Mesh的整体结构也像图中分为上下两个分支：</p>
+<ul>
+<li><strong>密度分支 (Density
+field)</strong>：首先利用NeRF生成的密度场划分出体素，再用Marching
+Cubes生成三角网格，再进行优化。</li>
+<li><strong>外观分支 (Appearance
+Field)</strong>：Nerf输出的内容（RGB）经过MLP1提取特征，然后分成两个分支分别提取漫反射和镜面反射（镜面反射会多经过一个MLP层）的分量。</li>
+</ul>
+<h2 id="d-gaussian-splatting">3D Gaussian Splatting</h2>
+<h3 id="原理-1">原理</h3>
+<p>3D Gaussian Splatting 的核心思想是用高斯分布来表示 3D
+空间中的点云，将场景中的点用 3D
+高斯函数表示。这些高斯函数即“高斯球”，通过一组参数（均值、协方差矩阵等）来描述位置、方向、大小和形状。相比于单纯的点云，使用高斯分布可以更好地对点的位置和形状进行逼真地表达，使得结果更平滑并且抗噪性更好。</p>
+<p>在渲染过程中，场景以相机视角来观察这些高斯分布的点，生成一个图像。每个像素的颜色和透明度是通过聚合沿视线方向的高斯球信息来计算的。这些高斯分布产生的重叠区域，通过数学上的加权平均可以很好地呈现出自然的模糊边缘，避免了传统点云中颗粒状的视觉问题。</p>
+<h3 id="流程-1">流程</h3>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b957eb22052d10a72d8d78c8416a0af4.png"
+                     
+alt="3DGS" 
+                >
+<figcaption aria-hidden="true">3DGS</figcaption>
+</figure>
+<ol type="1">
+<li><strong>点云采样</strong>：使用SfM从一组图像中估计出点云，可以直接调用
+<a class="link" 
+ href="https://link.zhihu.com/?target=https%3A//colmap.github.io/" >COLMAP<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+库操作</li>
+<li><strong>高斯分布</strong>：将每个点分配一个高斯分布。初始高斯分布通过位置、颜色、透明度和协方差矩阵等参数来定义。</li>
+<li><strong>投影变换</strong>：通过投影操作将 3D
+高斯分布映射到相机视角下的 2D 图像平面。</li>
+<li><strong>光栅化</strong>：对投影后的高斯分布进行渲染。</li>
+<li><strong>优化</strong>：通过计算图像与目标图像之间的损失，反向传播梯度（Gradient
+Flow）来调整高斯参数。以及自适应地调整高斯分布的密度。</li>
+</ol>
+<h3 id="实现细节-1">实现细节</h3>
+<h4 id="三维高斯属性">三维高斯属性</h4>
+<p>用三维高斯分布构建基础元素，属性有中心<code>μ</code>、不透明度<code>α</code>、三维协方差矩阵（表示缩放程度）<code>Σ</code>和颜色<code>c</code>。其中颜色<code>c</code>与视角有关，由球谐函数表示。</p>
+<p>球谐函数的示例：</p>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2b098bcc4d5038318f72a2e4fb51ef3b.jpeg"
+                     
+alt="球谐函数" 
+                >
+<figcaption aria-hidden="true">球谐函数</figcaption>
+</figure>
+<p>（图源：<a class="link" 
+ href="https://zhuanlan.zhihu.com/p/679809915" >3DGS综述以及对3DGS的理解：A
+Survey on 3D Gaussian Splatting - 知乎<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
+<h4 id="自适应密度控制">自适应密度控制</h4>
+<figure>
+<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d8d3a1e3a41d17eeebed3b751bf58459.png"
+                     
+alt="自适应密度控制" 
+                >
+<figcaption aria-hidden="true">自适应密度控制</figcaption>
+</figure>
+<ul>
+<li><strong>Under-Reconstruction</strong>:
+复制一个当前高斯分布的副本，然后沿着位置梯度方向移动它。</li>
+<li><strong>Over-Reconstruction</strong>:
+将当前高斯分布分割成两个较小的高斯分布，再对其进行移动。</li>
+</ul>
+<h4 id="点的剪枝">点的剪枝</h4>
+<p>对于冗余的高斯分布，在迭代过程中会逐渐消除。不透明度太低的高斯分布和过大的高斯分布都会在迭代中逐渐消除。以节省资源。</p>
+<h4 id="tile">Tile</h4>
+<p>为了降低运算成本，3DGS将图像分割为数个不重叠的patch，称为<code>tile</code>，每个<code>tile</code>为<code>16×16</code>像素。在此基础上，3DGS计算投影后的高斯与<code>tile</code>的相交情况。由于高斯可能与多个<code>tile</code>相交，所以对其进行了复制，并为其分配<code>tile</code>的标识符。不同的<code>tile</code>可以在不同的线程或
+GPU 核心上同时计算，避免了对同一像素的竞争。</p>
+<h2 id="对比">对比</h2>
+<h3 id="场景绘制">场景绘制</h3>
+<ul>
+<li>NeRF使用光线追踪来创建新视点的图像。通过模拟从像素位置发射的光线来计算图像中每个像素的颜色，运行速度较慢。但渲染更真实。</li>
+<li>3DGS
+使用光栅化来创建新视点的图像，通过Splatting进行渲染，运算速度更快，但3DGS创建了数百万个gaussion，占用的内存比NeRF多数倍。</li>
+</ul>
+<h3 id="d重建">3D重建</h3>
+<ul>
+<li>NeRF的输出需要借助其他方法转为显式输出，如NeRF2Mesh。</li>
+<li>3DGS训练后最终得到的是一个文件，其中包含每个高斯的高斯参数列表，例如位置、大小、颜色和透明度。3DGS的输出是比较显式的表达。</li>
+</ul>
+<p>在CSDN上有一个3DGS和NeRF的对比表格，但数据来源并未标明，可靠性存疑（而且他的3DGS怎么是3D
+Geometry Sensing的缩写，虽然他给的结构图确实是3D高斯的）：</p>
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 44%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th><strong>对比维度</strong></th>
+<th>3DGS (3D Geometry Sensing)</th>
+<th>NeRF (Neural Radiance Fields)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>基本原理</strong></td>
+<td>基于几何推断，通过多视角图像、深度传感器、LiDAR等获取显式3D几何信息。</td>
+<td>基于神经网络拟合体积辐射场，通过多视角图像学习隐式表示，渲染出场景。</td>
+</tr>
+<tr>
+<td><strong>输入数据</strong></td>
+<td>多视角图像、深度信息（LiDAR、ToF相机）、位姿数据、点云。</td>
+<td>多视角图像（通常包括相机位姿），不需要显式的几何信息。</td>
+</tr>
+<tr>
+<td><strong>输出结果</strong></td>
+<td>点云、网格、三角形模型、深度图、纹理映射等显式几何结构。</td>
+<td>通过体积渲染生成逼真图像（视角相关），不直接输出几何模型。</td>
+</tr>
+<tr>
+<td><strong>数据处理方式</strong></td>
+<td>使用几何关系（如三角测量、立体视觉等）来显式重建场景结构。</td>
+<td>使用神经网络隐式建模颜色和密度，通过体积渲染生成图像。</td>
+</tr>
+<tr>
+<td><strong>几何信息</strong></td>
+<td>显式获取3D几何信息，可以精确测量物体的距离和形状。</td>
+<td>隐式推断几何信息，主要用于图像渲染，几何结构不直接输出。</td>
+</tr>
+<tr>
+<td><strong>渲染效果</strong></td>
+<td>依赖于重建的几何结构，渲染效果有限，尤其在复杂光线场景下效果一般。</td>
+<td>渲染效果非常逼真，尤其在反射、遮挡、折射等复杂光照场景表现优异。</td>
+</tr>
+<tr>
+<td><strong>计算资源需求</strong></td>
+<td>需要较强的几何计算能力，数据获取通常依赖于多传感器系统（LiDAR等）。</td>
+<td>需要高计算资源，特别是训练神经网络的过程计算量大，通常依赖于GPU。</td>
+</tr>
+<tr>
+<td><strong>渲染速度</strong></td>
+<td>实时性较好，特别是有深度传感器时可实现快速重建。</td>
+<td>渲染速度较慢，尤其在训练阶段耗时长，但有即时渲染版本。</td>
+</tr>
+<tr>
+<td><strong>应用场景</strong></td>
+<td>自动驾驶、机器人导航、工业检测、3D建模、AR/VR、精密测量。</td>
+<td>电影视觉特效、虚拟旅游、虚拟现实内容生成、复杂光照场景的渲染。</td>
+</tr>
+<tr>
+<td><strong>优点</strong></td>
+<td>可以显式建模、精确几何测量、适用于实时应用；深度传感器辅助时重建精度高。</td>
+<td>渲染质量极高，能处理复杂的光照、遮挡问题；不需要昂贵的深度传感器。</td>
+</tr>
+<tr>
+<td><strong>缺点</strong></td>
+<td>在处理复杂光照（如透明物体、反射面）时效果不佳，依赖昂贵的传感器数据。</td>
+<td>渲染速度慢，训练时间长，初始设计不擅长生成明确的几何信息。</td>
+</tr>
+<tr>
+<td><strong>几何建模精度</strong></td>
+<td>高，适合用于需要精确几何信息的场景（如测量、导航、物理模拟等）。</td>
+<td>几何建模是隐式的，主要依赖于神经网络推断，不适合用于测量等任务。</td>
+</tr>
+<tr>
+<td><strong>光照处理</strong></td>
+<td>处理复杂光线条件较困难，通常需要额外的算法来应对光线反射和折射。</td>
+<td>对复杂光照场景处理效果出色，能够处理反射、折射、遮挡等问题。</td>
+</tr>
+<tr>
+<td><strong>实时性</strong></td>
+<td>实时性较强，特别是在配合LiDAR等传感器时。</td>
+<td>需要较长的时间进行训练和渲染，不适合实时应用（加速版本除外）。</td>
+</tr>
+<tr>
+<td><strong>数据获取成本</strong></td>
+<td>高，需要多视角相机或昂贵的深度传感器（如LiDAR）。</td>
+<td>低，仅需多视角图像数据，不依赖于专门的传感器。</td>
+</tr>
+</tbody>
+</table>
+<p>（表源：<a class="link" 
+ href="https://blog.csdn.net/Darlingqiang/article/details/142773142" >【3dgs】3DGS与NeRF对比_nerf和3dgs区别-CSDN博客<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - CoACD简略教程</title>
+    <url>/2024/09/29/03-CoACD_notes/</url>
+    <content><![CDATA[<p>CoACD是一个凸分解工具，可以将凹模型粗略粗分解为凸几何体的并集。</p>
+<h2 id="一源代码编译">一、源代码编译</h2>
+<h3 id="安装教程">安装教程</h3>
+<h4 id="克隆代码">(1) 克隆代码：</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">git clone --recurse-submodules https://github.com/SarahWeiii/CoACD.git</span><br></pre></td></tr></table></figure></div>
+<h4 id="安装依赖">(2) 安装依赖：</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake &gt;= 3.24</span><br><span class="line">g++ &gt;= 9, &lt; 12</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>在我的Ubuntu22.04中，apt里的cmake包版本是3.22，不能用。用snap成功安装3.30版本。（源码安装好像也行，不过我懒得添加系统变量，就还是用snap安装了。</p>
+</blockquote>
+<h4 id="编译">(3) 编译</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd CoACD \</span><br><span class="line">&amp;&amp; mkdir build \</span><br><span class="line">&amp;&amp; cd build \</span><br></pre></td></tr></table></figure></div>
+<p>​ 然后编译：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">cmake .. -DCMAKE_BUILD_TYPE=Release \</span><br><span class="line">&amp;&amp; make main -j</span><br></pre></td></tr></table></figure></div>
+<blockquote>
+<p>这里出了很多warning，但是好像不影响使用。</p>
+</blockquote>
+<h4 id="使用">(4) 使用</h4>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="code"><pre><span class="line">./main -i PATH_OF_YOUR_MESH -o PATH_OF_OUTPUT</span><br></pre></td></tr></table></figure></div>
+<h3 id="参数说明">参数说明</h3>
+<ul>
+<li><strong>-nm/--no-merge</strong> : 禁用合并后处理，默认为false。</li>
+<li><strong>-c/--max-convex-hull</strong> :
+凸包上限，默认-1表示无限制。<strong>仅在启用合并时才</strong>有效。</li>
+<li><strong>-ex/--extrude</strong> : 沿着重叠面挤出相邻的凸包。</li>
+<li><strong>-am/--approximate-mode</strong> :
+近似形状类型（“ch”表示凸包，“box”表示立方体）。</li>
+<li><strong>--seed</strong> : 随机种子，默认是random()。</li>
+</ul>
+<p><strong>说明</strong>：</p>
+<ol type="1">
+<li>大多数情况下，只需调整<code>threshold</code>
+（0.01~1）即可平衡细节程度和分解成分的数量。值越高，结果越粗，值越低，结果越细。</li>
+<li>默认参数是快速版本。可以牺牲运行时间获取更多组件数量，增加<code>searching depth (-md)</code>
+、
+<code>searching node (-mn)</code>和<code>searching iteration (-mi)</code>可以获得更好的切割策略。</li>
+</ol>
+<h2 id="二pypi">二、PyPI</h2>
+<h3 id="安装">安装</h3>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">pip install coacd</span><br></pre></td></tr></table></figure></div>
+<h3 id="使用-1">使用</h3>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line">parts = coacd.run_coacd(mesh) <span class="comment"># a list of convex hulls.</span></span><br></pre></td></tr></table></figure></div>
+<h3 id="参数">参数</h3>
+<p>官方文档里没有提到详细的参数列表，通过以下指令自己查询了下：
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> inspect</span><br><span class="line"><span class="built_in">print</span>(inspect.getsource(coacd.run_coacd))</span><br></pre></td></tr></table></figure></div></p>
+<p>查询到的参数和对应的解释如下：</p>
+<ul>
+<li><strong>threshold (float)</strong>:
+用于决定分解精度的阈值。较低的阈值意味着更精确的分解，但可能需要更多的计算资源。默认值为
+<code>0.05</code>。</li>
+<li><strong>max_convex_hull (int)</strong>:
+最大凸包数量。如果你希望限制生成的凸包数量，可以设置此值。例如，如果设置为
+5，则最多生成 5 个凸包，默认值为 <code>-1</code>，表示不限制。</li>
+<li><strong>preprocess_mode (str)</strong>:
+预处理模式，<code>"on"</code> 启用，<code>"off"</code>
+禁用，<code>"auto"</code>
+自动选择（推荐）。预处理可能影响分解的速度和结果。</li>
+<li><strong>resolution (int)</strong>:
+处理网格的分辨率，值越高，结果越精确，但计算量也越大。默认值为
+<code>2000</code>。</li>
+<li><strong>mcts_nodes (int)</strong>:
+MCTS（蒙特卡洛树搜索）中每个节点的最大数量。值越大，搜索的深度越高，可能会增加分解的准确度，但会消耗更多的计算资源。</li>
+<li><strong>mcts_iterations (int)</strong>:
+MCTS的迭代次数，更多的迭代次数意味着更高的准确性，但会增加计算负担。</li>
+<li><strong>pca (bool)</strong>:
+是否使用主成分分析（PCA）来减少维度。<code>True</code>
+表示启用，<code>False</code> 表示禁用。</li>
+<li><strong>merge (bool)</strong>: 是否合并小的凸包。如果设置为
+<code>True</code>，可能会减少生成的凸包数量。</li>
+<li><strong>decimate (bool)</strong>:
+是否在生成凸包时进行简化，减少网格面片的数量。</li>
+<li><strong>max_ch_vertex (int)</strong>:
+每个凸包允许的最大顶点数量。</li>
+<li><strong>extrude (bool)</strong>:
+是否对凸包进行拉伸。<code>True</code> 表示拉伸，<code>False</code>
+表示不拉伸。</li>
+<li><strong>extrude_margin (float)</strong>: 如果 <code>extrude</code>
+为 <code>True</code>，设置拉伸的边距。</li>
+<li><strong>apx_mode (str)</strong>: 设置近似方式，<code>"ch"</code>
+代表使用凸包，<code>"box"</code> 表示使用包围盒。</li>
+<li><strong>seed (int)</strong>:
+随机种子，设置它可以帮助重现相同的结果。</li>
+</ul>
+<p>根据参数，一个简要的包含输出的代码如下：</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> coacd</span><br><span class="line"><span class="keyword">import</span> trimesh</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">input_file = <span class="string">&quot;input.obj&quot;</span></span><br><span class="line"></span><br><span class="line">mesh = trimesh.load(input_file, force=<span class="string">&quot;mesh&quot;</span>)</span><br><span class="line">mesh = coacd.Mesh(mesh.vertices, mesh.faces)</span><br><span class="line"></span><br><span class="line">parts = coacd.run_coacd(</span><br><span class="line">    mesh,</span><br><span class="line">    threshold=<span class="number">0.05</span>,  <span class="comment"># 精度阈值，默认: 0.05</span></span><br><span class="line">    max_convex_hull=-<span class="number">1</span>,  <span class="comment"># 最大凸包数量，默认: -1 (无限制)</span></span><br><span class="line">    preprocess_mode=<span class="string">&quot;auto&quot;</span>,  <span class="comment"># 预处理模式，默认: &quot;auto&quot;</span></span><br><span class="line">    preprocess_resolution=<span class="number">30</span>,  <span class="comment"># 预处理分辨率，默认: 30</span></span><br><span class="line">    resolution=<span class="number">2000</span>,  <span class="comment"># 分解分辨率，默认: 2000</span></span><br><span class="line">    mcts_nodes=<span class="number">20</span>,  <span class="comment"># MCTS节点数，默认: 20</span></span><br><span class="line">    mcts_iterations=<span class="number">150</span>,  <span class="comment"># MCTS迭代次数，默认: 150</span></span><br><span class="line">    mcts_max_depth=<span class="number">3</span>,  <span class="comment"># MCTS最大深度，默认: 3</span></span><br><span class="line">    pca=<span class="literal">False</span>,  <span class="comment"># 是否启用PCA降维，默认: False</span></span><br><span class="line">    merge=<span class="literal">True</span>,  <span class="comment"># 是否合并小凸包，默认: True</span></span><br><span class="line">    decimate=<span class="literal">False</span>,  <span class="comment"># 是否简化凸包，默认: False</span></span><br><span class="line">    max_ch_vertex=<span class="number">256</span>,  <span class="comment"># 每个凸包的最大顶点数，默认: 256</span></span><br><span class="line">    extrude=<span class="literal">False</span>,  <span class="comment"># 是否拉伸凸包，默认: False</span></span><br><span class="line">    extrude_margin=<span class="number">0.01</span>,  <span class="comment"># 拉伸边距，默认: 0.01</span></span><br><span class="line">    apx_mode=<span class="string">&quot;ch&quot;</span>,  <span class="comment"># 近似模式，默认: &quot;ch&quot; (凸包)</span></span><br><span class="line">    seed=<span class="number">0</span>  <span class="comment"># 随机种子，默认: 0</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">output_dir = <span class="string">&quot;./output_parts/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(output_dir):</span><br><span class="line">    os.makedirs(output_dir)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i, part <span class="keyword">in</span> <span class="built_in">enumerate</span>(parts):</span><br><span class="line">    part_mesh = trimesh.Trimesh(vertices=part[<span class="number">0</span>], faces=part[<span class="number">1</span>])</span><br><span class="line">    part_mesh.export(os.path.join(output_dir, <span class="string">f&quot;part_<span class="subst">&#123;i&#125;</span>.obj&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Exported <span class="subst">&#123;<span class="built_in">len</span>(parts)&#125;</span> convex parts to <span class="subst">&#123;output_dir&#125;</span>&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>CoACD</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NeRF Studio简要教程</title>
     <url>/2024/11/12/08-NeRF_Studio/</url>
     <content><![CDATA[<h2 id="准备工作">准备工作</h2>
@@ -1106,6 +1106,60 @@ faces)</strong></td>
       </tags>
   </entry>
   <entry>
+    <title>Mathjax与渲染引擎marked冲突解决方案</title>
+    <url>/2024/11/11/07-Build_blog/</url>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
+<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
+<h3 id="踩坑过程">踩坑过程</h3>
+<h4 id="修改源码失败">1.修改源码（失败）</h4>
+<p>太长了，折叠一下，想看就展开吧👇。</p>
+<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class="content">
+              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
+              </div>
+            </details>
+<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
+<p>最简单的方法，博主最初的妥协。</p>
+<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
+<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
+<p>直接卸载源引擎，更换kramed：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
+<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
+<ol type="1">
+<li><p>安装Pandoc。</p>
+<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
+Installing
+pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
+<li><p>更换引擎。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>mathjax的安装和配置可参考网上的教程。</p></li>
+<li><p>重新构建。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
+]]></content>
+      <categories>
+        <category>博客搭建</category>
+      </categories>
+      <tags>
+        <tag>blog</tag>
+        <tag>mathjax</tag>
+        <tag>marked</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>主流三维重建方法对比</title>
     <url>/2024/11/18/09-Reconstruction/</url>
     <content><![CDATA[<h2 id="meshanything">MeshAnything</h2>
@@ -1364,60 +1418,6 @@ Mip-NeRF360，涵盖不同场景和分辨率。</li>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
         <tag>2DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mathjax与渲染引擎marked冲突解决方案</title>
-    <url>/2024/11/11/07-Build_blog/</url>
-    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class="content">
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
-<ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
-Installing
-pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
-]]></content>
-      <categories>
-        <category>博客搭建</category>
-      </categories>
-      <tags>
-        <tag>blog</tag>
-        <tag>mathjax</tag>
-        <tag>marked</tag>
       </tags>
   </entry>
   <entry>
@@ -1694,6 +1694,12 @@ RGB 的操作策略的模拟与真实之间的差距。
                       alt="image-20250108014904100" style="zoom:50%;" 
                 ></p>
 <p>看看训练结果：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/e5783629e54eccd3830290117eacbd23.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></p>
 <h2 id="errors-solutions">Errors &amp; Solutions</h2>
 <h3
 id="opengl.error.error-attempt-to-retrieve-context-when-no-valid-context">1.
@@ -1791,6 +1797,12 @@ deactivates collision</h3>
                       alt="2025-01-07-23-29-24" style="zoom:50%;" 
                 ></p>
 <p>Anyway，目前还不清楚问题出在<code>CoACD</code>还是<code>genesis</code>。</p>
+<h3 id="mjcf-import-failure">2. MJCF Import Failure</h3>
+<p>genesis中导入mujoco的场景xml时，很容易出现消失的情况。在issue<a class="link" 
+ href="https://github.com/Genesis-Embodied-AI/Genesis/issues/603" >#603<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>和<a class="link" 
+ href="https://github.com/Genesis-Embodied-AI/Genesis/issues/287" >#287<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>里有提到。</p>
+<p>如果需要将xml成功导入，需要给geom设置<code>conaffinity</code>和<code>contype</code>参数为0。但是这样就避免了物体间的碰撞。</p>
+<p>查阅genesis的源码，目前的推测是，genesis里的一个<code>Entity</code>是一个单独的单位，要对他进行<code>material</code>和<code>texture</code>等的设置，所以默认避免了单个<code>Entity</code>导入多个物件。</p>
 ]]></content>
       <categories>
         <category>机器仿真</category>
@@ -2009,8 +2021,8 @@ Meshes can also be embedded directly in the XML.</p>
       </categories>
       <tags>
         <tag>mujoco</tag>
-        <tag>CoACD</tag>
         <tag>NeRF</tag>
+        <tag>CoACD</tag>
         <tag>mesh</tag>
       </tags>
   </entry>
@@ -2162,6 +2174,295 @@ normalized.</p>
       </categories>
       <tags>
         <tag>Photometric Stereo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Panorama Stitching</title>
+    <url>/2024/12/28/13-PanoramaStitching/</url>
+    <content><![CDATA[<h2 id="setting">Setting</h2>
+<blockquote>
+<p>If the camera center is fixed, or if the scene is planar, different
+images of the same scene are related by a homography. In this project,
+you will implement an algorithm to calculate the homography between two
+images. Several images of each scene will be provided. Your program
+should generate image mosaics according to these estimated
+homographies.</p>
+</blockquote>
+<p>To accomplish panorama stitching, the following pipeline is commonly
+used:</p>
+<ol type="1">
+<li>Feature detection.</li>
+<li>Feature matching.</li>
+<li>Homography estimation.</li>
+<li>Panorama stitching.</li>
+</ol>
+<p>The data given has four folders, each including 3-6 photos on
+different perspectives. Note that the sequence of the photos are not
+concerned to the actual shooting angle.</p>
+<h2 id="environment">Environment</h2>
+<ul>
+<li><strong>OS</strong>: Windows 11 24H2</li>
+<li><strong>Lib</strong>: Python 2.7, Opencv 3.4.2.16</li>
+</ul>
+<h2 id="algorithm">Algorithm</h2>
+<h3 id="the-basic-algorithm">1. <strong>The Basic
+Algorithm</strong></h3>
+<h4 id="feature-detection-descriptor-and-matching"><strong>1.1 Feature
+Detection, Descriptor, and Matching</strong></h4>
+<p>The first step in panorama stitching is identifying common features
+between pairs of images. These features allow us to align the images
+correctly. The code uses the <code>Matchers</code> class to perform this
+step, which utilizes the <strong>SURF (Speeded-Up Robust
+Features)</strong> algorithm and <strong>FLANN-based
+matching</strong>.</p>
+<p><strong>Feature Detection and Descriptor Computation: </strong></p>
+<ul>
+<li><p><strong>SURF</strong> is used to detect distinctive keypoints in
+each image and compute descriptors. Keypoints are regions in the image
+that are easily identifiable and remain consistent across different
+views of the scene (such as corners, edges, or blobs). The descriptors
+are mathematical representations of the keypoints that allow for
+comparison between images.</p>
+<p>In the <code>Matchers</code> class, the method
+<code>_get_features(image)</code>:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">keypoints, descriptors = <span class="variable language_">self</span>.surf.detectAndCompute(gray, <span class="literal">None</span>)</span><br></pre></td></tr></table></figure></div>
+<p>converts the image to grayscale, detects keypoints, and computes the
+descriptors for matching.</p></li>
+</ul>
+<p><strong>Matching Keypoints: </strong></p>
+<p>Once the descriptors are extracted, the <code>match</code> method in
+the <code>Matchers</code> class uses the <strong>FLANN (Fast Library for
+Approximate Nearest Neighbors)</strong> matcher to find the best matches
+between keypoints from two images:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">matches = <span class="variable language_">self</span>.flann.knnMatch(features2[<span class="string">'des'</span>], features1[<span class="string">'des'</span>], k=<span class="number">2</span>)</span><br></pre></td></tr></table></figure></div>
+<p>For each keypoint in <code>image2</code>, the two closest matches are
+found in <code>image1</code>. The code then applies the <strong>ratio
+test</strong> (Lowe’s ratio test) to filter out poor matches. Only good
+matches are retained for the homography calculation:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">good_matches.append((m.trainIdx, m.queryIdx))</span><br></pre></td></tr></table></figure></div>
+<h4 id="homography-estimation"><strong>1.2 Homography
+Estimation</strong></h4>
+<p>Once keypoints are matched, the next step is to estimate the
+<strong>homography matrix</strong>, which represents the transformation
+required to align the two images. This transformation is essential to
+align the images in the panorama seamlessly.</p>
+<p><strong>Homography Calculation: </strong></p>
+<p>The <code>match</code> method uses the <strong>RANSAC
+algorithm</strong> (Random Sample Consensus) to calculate the homography
+matrix. RANSAC helps to eliminate outliers, ensuring that only reliable
+matches are used to compute the transformation.</p>
+<ul>
+<li><p>The keypoints of the matching pairs are converted into
+<strong>float32</strong> coordinates:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">points1 = np.float32([features1[<span class="string">'kp'</span>][i].pt <span class="keyword">for</span> (i, _) <span class="keyword">in</span> good_matches])</span><br><span class="line">points2 = np.float32([features2[<span class="string">'kp'</span>][i].pt <span class="keyword">for</span> (_, i) <span class="keyword">in</span> good_matches])</span><br></pre></td></tr></table></figure></div></li>
+<li><p>Then, the <strong>findHomography</strong> function calculates the
+homography matrix <code>H</code>:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">H, _ = cv2.findHomography(points2, points1, cv2.RANSAC, <span class="number">4</span>)</span><br></pre></td></tr></table></figure></div>
+<p>The result is the homography matrix <code>H</code>, which defines how
+to warp one image to align with the other.</p></li>
+</ul>
+<p><strong>Homography Score: </strong></p>
+<p>The quality of the homography matrix can be assessed by calculating
+its norm using the <code>_calculate_homography_score(H)</code>
+method:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> np.linalg.norm(H)</span><br></pre></td></tr></table></figure></div>
+<p>A lower norm indicates a better match.</p>
+<h4 id="image-stitching"><strong>1.3 Image Stitching</strong></h4>
+<p>With the homography matrices in hand, the next step is to
+<strong>stitch</strong> the images together to form the final
+panorama.</p>
+<p><strong>Image Alignment: </strong></p>
+<p>The <code>Stitcher</code> class has two main methods to handle the
+alignment process: <code>_shift_left</code> and
+<code>_shift_right</code>.</p>
+<ul>
+<li><p><strong>Left-side Image Alignment</strong>
+(<code>_shift_left</code>):</p>
+<ul>
+<li><p>Starting from the center image, images on the left are aligned
+one by one by applying their respective homography matrices. The
+transformation is applied using <code>cv2.warpPerspective</code>, which
+warps the image based on the homography matrix <code>H</code>.</p></li>
+<li><p>The code ensures that the resulting image has enough space to
+accommodate the newly aligned image by adjusting the size
+dynamically.</p></li>
+<li><p>Images are gradually merged using pixel-wise blending to avoid
+seams.</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">tmp = cv2.warpPerspective(a, xh, dsize)</span><br></pre></td></tr></table></figure></div></li>
+</ul></li>
+<li><p><strong>Right-side Image Alignment</strong>
+(<code>_shift_right</code>):</p>
+<ul>
+<li>Similarly, images on the right are aligned and stitched into the
+panorama. The right images are warped and blended into the final
+stitched image.</li>
+</ul></li>
+</ul>
+<p><strong>Blending Images: </strong></p>
+<p>To avoid visible seams between adjacent images, the
+<code>_blend_images</code> method is used to combine the images
+smoothly. It creates a weighted average of pixel values at overlapping
+regions:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">blended_image[y, x] = (</span><br><span class="line">    blended_image[y, x].astype(np.float32) * <span class="number">0.5</span> +</span><br><span class="line">    warped_image[y, x].astype(np.float32) * <span class="number">0.5</span></span><br><span class="line">).astype(np.uint8)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+<p>This ensures that the final panorama looks seamless, with no visible
+boundaries between the images.</p>
+<p><strong>Final Panorama Creation: </strong></p>
+<p>Once all images are aligned and blended, the final panorama is
+created, starting from the center image and progressively stitching
+images on the left and right. The <code>stitch()</code> method returns
+the final stitched image:</p>
+<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="variable language_">self</span>.left_image</span><br></pre></td></tr></table></figure></div>
+<h3 id="comparison-of-different-feature-descriptors">2. Comparison of
+different feature descriptors</h3>
+<p><strong>Descriptor Extraction</strong>:</p>
+<ul>
+<li><strong>SIFT</strong>: Extracts scale-invariant keypoints and
+computes descriptors based on local image gradients
+(<code>sift_descriptor</code> function).</li>
+<li><strong>Pixel-based</strong>: Detects keypoints using corner
+detection and creates descriptors from pixel values in local patches
+(<code>pixel_descriptor</code> function).</li>
+</ul>
+<p><strong>Descriptor Matching</strong>: The
+<code>match_descriptors</code> function uses FLANN-based matching to
+find potential matches between the descriptors of the two images.</p>
+<p><strong>Homography Estimation with RANSAC</strong>: The
+<code>estimate_homography</code> function uses RANSAC to estimate a
+transformation between the images and counts inliers (correct matches).
+RANSAC is run multiple times, and the best transformation is chosen
+based on the number of inliers.</p>
+<p><strong>RANSAC Iterations Calculation</strong>: The
+<code>calculate_ransac_iterations</code> function computes how many
+iterations are needed to achieve a specified success probability based
+on the inlier ratio.</p>
+<p><strong>Performance Evaluation</strong>: The
+<code>compare_descriptors</code> function compares the two descriptors
+by calculating the inlier ratio and required RANSAC iterations. It
+visualizes matches and evaluates the descriptors' performance using
+RANSAC on a set of random matches.</p>
+<h2 id="experiments">Experiments</h2>
+<h3 id="image-stitching-1">1. Image Stitching</h3>
+<table>
+<colgroup>
+<col style="width: 10%">
+<col style="width: 89%">
+</colgroup>
+<thead>
+<tr>
+<th>dataset</th>
+<th>result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data1</td>
+<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/69b956eeaece3c7b1e297d10b60488d0.png" alt="image-20241228170443608" style="zoom:80%;"></td>
+</tr>
+<tr>
+<td>data2</td>
+<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/f1ca6d9cbe1ae32a36616313fc6fefa3.png" alt="image-20241228170525920" style="zoom:80%;"></td>
+</tr>
+<tr>
+<td>data3</td>
+<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a492fcffd28bd21961f13f26384d40c8.png" alt="image-20241228170554228" style="zoom:80%;"></td>
+</tr>
+<tr>
+<td>data4</td>
+<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/c59a9cf5500a77a58a3123b8699a46e2.png" alt="image-20241228170622877" style="zoom:80%;"></td>
+</tr>
+</tbody>
+</table>
+<p>Though my algorithm accomplishes panorama stitching, there is
+obviously a way to improve. My result shows that the stitchings are
+starting with the picture on the edge, but it's proper to start from the
+middle. Though I've set the picture which has the most matching with
+other pics as the base picture, it turns out to be the the most marginal
+one. It's confusing. Anyway, the result is sufficent, at least a lot
+better than the code I first wrote.</p>
+<h3 id="comparison-of-feature-descriptors">2. Comparison of feature
+descriptors</h3>
+<p>This is a matching result (taking <code>data4/IMG_7357.JPG</code> and
+<code>data4/IMG_7358.JPG</code> as example):</p>
+<table>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 85%">
+</colgroup>
+<thead>
+<tr>
+<th>descriptor</th>
+<th>matching result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SIFT</td>
+<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/d4d985b6733d84d83858fef515cc6f5e.png" alt="image-20241228172608585" style="zoom:80%;"></td>
+</tr>
+<tr>
+<td>Pixel</td>
+<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/2acb26bb2cecf2a08b4c6fc8ccdd97a5.png" alt="image-20241228172631287" style="zoom:80%;"></td>
+</tr>
+</tbody>
+</table>
+<p>This is the summarizing table:</p>
+<table>
+<colgroup>
+<col style="width: 36%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr>
+<th>dataset</th>
+<th>iteration (SIFT)</th>
+<th>iteration (Pixel)</th>
+<th>average ratio (SIFT)</th>
+<th>average ratio (Pixel)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data1/112_1298.JPG<br>data1/112_1299.JPG</td>
+<td>24</td>
+<td>26</td>
+<td>0.41</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>data2/IMG_0488.JPG<br>data2/IMG_0489.JPG</td>
+<td>22</td>
+<td>26</td>
+<td>0.42</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>data3/IMG_0675<br>data3/IMG_0676</td>
+<td>25</td>
+<td>25</td>
+<td>0.40</td>
+<td>0.40</td>
+</tr>
+<tr>
+<td>data4/IMG_7357<br>data4/IMG_7358</td>
+<td>23</td>
+<td>26</td>
+<td>0.41</td>
+<td>0.40</td>
+</tr>
+</tbody>
+</table>
+<p>It shows that SIFT descriptor contributes to less iterations and
+better average inlier ratio.</p>
+]]></content>
+      <categories>
+        <category>Graduate Course</category>
+        <category>Computer Vision</category>
+      </categories>
+      <tags>
+        <tag>Panorama Stitching</tag>
       </tags>
   </entry>
   <entry>
@@ -3109,295 +3410,6 @@ hibernation 的逻辑rigid_solver。</li>
       <tags>
         <tag>mujoco</tag>
         <tag>genesis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Panorama Stitching</title>
-    <url>/2024/12/28/13-PanoramaStitching/</url>
-    <content><![CDATA[<h2 id="setting">Setting</h2>
-<blockquote>
-<p>If the camera center is fixed, or if the scene is planar, different
-images of the same scene are related by a homography. In this project,
-you will implement an algorithm to calculate the homography between two
-images. Several images of each scene will be provided. Your program
-should generate image mosaics according to these estimated
-homographies.</p>
-</blockquote>
-<p>To accomplish panorama stitching, the following pipeline is commonly
-used:</p>
-<ol type="1">
-<li>Feature detection.</li>
-<li>Feature matching.</li>
-<li>Homography estimation.</li>
-<li>Panorama stitching.</li>
-</ol>
-<p>The data given has four folders, each including 3-6 photos on
-different perspectives. Note that the sequence of the photos are not
-concerned to the actual shooting angle.</p>
-<h2 id="environment">Environment</h2>
-<ul>
-<li><strong>OS</strong>: Windows 11 24H2</li>
-<li><strong>Lib</strong>: Python 2.7, Opencv 3.4.2.16</li>
-</ul>
-<h2 id="algorithm">Algorithm</h2>
-<h3 id="the-basic-algorithm">1. <strong>The Basic
-Algorithm</strong></h3>
-<h4 id="feature-detection-descriptor-and-matching"><strong>1.1 Feature
-Detection, Descriptor, and Matching</strong></h4>
-<p>The first step in panorama stitching is identifying common features
-between pairs of images. These features allow us to align the images
-correctly. The code uses the <code>Matchers</code> class to perform this
-step, which utilizes the <strong>SURF (Speeded-Up Robust
-Features)</strong> algorithm and <strong>FLANN-based
-matching</strong>.</p>
-<p><strong>Feature Detection and Descriptor Computation: </strong></p>
-<ul>
-<li><p><strong>SURF</strong> is used to detect distinctive keypoints in
-each image and compute descriptors. Keypoints are regions in the image
-that are easily identifiable and remain consistent across different
-views of the scene (such as corners, edges, or blobs). The descriptors
-are mathematical representations of the keypoints that allow for
-comparison between images.</p>
-<p>In the <code>Matchers</code> class, the method
-<code>_get_features(image)</code>:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">keypoints, descriptors = <span class="variable language_">self</span>.surf.detectAndCompute(gray, <span class="literal">None</span>)</span><br></pre></td></tr></table></figure></div>
-<p>converts the image to grayscale, detects keypoints, and computes the
-descriptors for matching.</p></li>
-</ul>
-<p><strong>Matching Keypoints: </strong></p>
-<p>Once the descriptors are extracted, the <code>match</code> method in
-the <code>Matchers</code> class uses the <strong>FLANN (Fast Library for
-Approximate Nearest Neighbors)</strong> matcher to find the best matches
-between keypoints from two images:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">matches = <span class="variable language_">self</span>.flann.knnMatch(features2[<span class="string">'des'</span>], features1[<span class="string">'des'</span>], k=<span class="number">2</span>)</span><br></pre></td></tr></table></figure></div>
-<p>For each keypoint in <code>image2</code>, the two closest matches are
-found in <code>image1</code>. The code then applies the <strong>ratio
-test</strong> (Lowe’s ratio test) to filter out poor matches. Only good
-matches are retained for the homography calculation:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">good_matches.append((m.trainIdx, m.queryIdx))</span><br></pre></td></tr></table></figure></div>
-<h4 id="homography-estimation"><strong>1.2 Homography
-Estimation</strong></h4>
-<p>Once keypoints are matched, the next step is to estimate the
-<strong>homography matrix</strong>, which represents the transformation
-required to align the two images. This transformation is essential to
-align the images in the panorama seamlessly.</p>
-<p><strong>Homography Calculation: </strong></p>
-<p>The <code>match</code> method uses the <strong>RANSAC
-algorithm</strong> (Random Sample Consensus) to calculate the homography
-matrix. RANSAC helps to eliminate outliers, ensuring that only reliable
-matches are used to compute the transformation.</p>
-<ul>
-<li><p>The keypoints of the matching pairs are converted into
-<strong>float32</strong> coordinates:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">points1 = np.float32([features1[<span class="string">'kp'</span>][i].pt <span class="keyword">for</span> (i, _) <span class="keyword">in</span> good_matches])</span><br><span class="line">points2 = np.float32([features2[<span class="string">'kp'</span>][i].pt <span class="keyword">for</span> (_, i) <span class="keyword">in</span> good_matches])</span><br></pre></td></tr></table></figure></div></li>
-<li><p>Then, the <strong>findHomography</strong> function calculates the
-homography matrix <code>H</code>:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">H, _ = cv2.findHomography(points2, points1, cv2.RANSAC, <span class="number">4</span>)</span><br></pre></td></tr></table></figure></div>
-<p>The result is the homography matrix <code>H</code>, which defines how
-to warp one image to align with the other.</p></li>
-</ul>
-<p><strong>Homography Score: </strong></p>
-<p>The quality of the homography matrix can be assessed by calculating
-its norm using the <code>_calculate_homography_score(H)</code>
-method:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> np.linalg.norm(H)</span><br></pre></td></tr></table></figure></div>
-<p>A lower norm indicates a better match.</p>
-<h4 id="image-stitching"><strong>1.3 Image Stitching</strong></h4>
-<p>With the homography matrices in hand, the next step is to
-<strong>stitch</strong> the images together to form the final
-panorama.</p>
-<p><strong>Image Alignment: </strong></p>
-<p>The <code>Stitcher</code> class has two main methods to handle the
-alignment process: <code>_shift_left</code> and
-<code>_shift_right</code>.</p>
-<ul>
-<li><p><strong>Left-side Image Alignment</strong>
-(<code>_shift_left</code>):</p>
-<ul>
-<li><p>Starting from the center image, images on the left are aligned
-one by one by applying their respective homography matrices. The
-transformation is applied using <code>cv2.warpPerspective</code>, which
-warps the image based on the homography matrix <code>H</code>.</p></li>
-<li><p>The code ensures that the resulting image has enough space to
-accommodate the newly aligned image by adjusting the size
-dynamically.</p></li>
-<li><p>Images are gradually merged using pixel-wise blending to avoid
-seams.</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">tmp = cv2.warpPerspective(a, xh, dsize)</span><br></pre></td></tr></table></figure></div></li>
-</ul></li>
-<li><p><strong>Right-side Image Alignment</strong>
-(<code>_shift_right</code>):</p>
-<ul>
-<li>Similarly, images on the right are aligned and stitched into the
-panorama. The right images are warped and blended into the final
-stitched image.</li>
-</ul></li>
-</ul>
-<p><strong>Blending Images: </strong></p>
-<p>To avoid visible seams between adjacent images, the
-<code>_blend_images</code> method is used to combine the images
-smoothly. It creates a weighted average of pixel values at overlapping
-regions:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line">blended_image[y, x] = (</span><br><span class="line">    blended_image[y, x].astype(np.float32) * <span class="number">0.5</span> +</span><br><span class="line">    warped_image[y, x].astype(np.float32) * <span class="number">0.5</span></span><br><span class="line">).astype(np.uint8)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
-<p>This ensures that the final panorama looks seamless, with no visible
-boundaries between the images.</p>
-<p><strong>Final Panorama Creation: </strong></p>
-<p>Once all images are aligned and blended, the final panorama is
-created, starting from the center image and progressively stitching
-images on the left and right. The <code>stitch()</code> method returns
-the final stitched image:</p>
-<div class="code-container" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="variable language_">self</span>.left_image</span><br></pre></td></tr></table></figure></div>
-<h3 id="comparison-of-different-feature-descriptors">2. Comparison of
-different feature descriptors</h3>
-<p><strong>Descriptor Extraction</strong>:</p>
-<ul>
-<li><strong>SIFT</strong>: Extracts scale-invariant keypoints and
-computes descriptors based on local image gradients
-(<code>sift_descriptor</code> function).</li>
-<li><strong>Pixel-based</strong>: Detects keypoints using corner
-detection and creates descriptors from pixel values in local patches
-(<code>pixel_descriptor</code> function).</li>
-</ul>
-<p><strong>Descriptor Matching</strong>: The
-<code>match_descriptors</code> function uses FLANN-based matching to
-find potential matches between the descriptors of the two images.</p>
-<p><strong>Homography Estimation with RANSAC</strong>: The
-<code>estimate_homography</code> function uses RANSAC to estimate a
-transformation between the images and counts inliers (correct matches).
-RANSAC is run multiple times, and the best transformation is chosen
-based on the number of inliers.</p>
-<p><strong>RANSAC Iterations Calculation</strong>: The
-<code>calculate_ransac_iterations</code> function computes how many
-iterations are needed to achieve a specified success probability based
-on the inlier ratio.</p>
-<p><strong>Performance Evaluation</strong>: The
-<code>compare_descriptors</code> function compares the two descriptors
-by calculating the inlier ratio and required RANSAC iterations. It
-visualizes matches and evaluates the descriptors' performance using
-RANSAC on a set of random matches.</p>
-<h2 id="experiments">Experiments</h2>
-<h3 id="image-stitching-1">1. Image Stitching</h3>
-<table>
-<colgroup>
-<col style="width: 10%">
-<col style="width: 89%">
-</colgroup>
-<thead>
-<tr>
-<th>dataset</th>
-<th>result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>data1</td>
-<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/69b956eeaece3c7b1e297d10b60488d0.png" alt="image-20241228170443608" style="zoom:80%;"></td>
-</tr>
-<tr>
-<td>data2</td>
-<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/f1ca6d9cbe1ae32a36616313fc6fefa3.png" alt="image-20241228170525920" style="zoom:80%;"></td>
-</tr>
-<tr>
-<td>data3</td>
-<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/a492fcffd28bd21961f13f26384d40c8.png" alt="image-20241228170554228" style="zoom:80%;"></td>
-</tr>
-<tr>
-<td>data4</td>
-<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/c59a9cf5500a77a58a3123b8699a46e2.png" alt="image-20241228170622877" style="zoom:80%;"></td>
-</tr>
-</tbody>
-</table>
-<p>Though my algorithm accomplishes panorama stitching, there is
-obviously a way to improve. My result shows that the stitchings are
-starting with the picture on the edge, but it's proper to start from the
-middle. Though I've set the picture which has the most matching with
-other pics as the base picture, it turns out to be the the most marginal
-one. It's confusing. Anyway, the result is sufficent, at least a lot
-better than the code I first wrote.</p>
-<h3 id="comparison-of-feature-descriptors">2. Comparison of feature
-descriptors</h3>
-<p>This is a matching result (taking <code>data4/IMG_7357.JPG</code> and
-<code>data4/IMG_7358.JPG</code> as example):</p>
-<table>
-<colgroup>
-<col style="width: 14%">
-<col style="width: 85%">
-</colgroup>
-<thead>
-<tr>
-<th>descriptor</th>
-<th>matching result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SIFT</td>
-<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/d4d985b6733d84d83858fef515cc6f5e.png" alt="image-20241228172608585" style="zoom:80%;"></td>
-</tr>
-<tr>
-<td>Pixel</td>
-<td><img lazyload="" src="/images/loading.svg" data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/2acb26bb2cecf2a08b4c6fc8ccdd97a5.png" alt="image-20241228172631287" style="zoom:80%;"></td>
-</tr>
-</tbody>
-</table>
-<p>This is the summarizing table:</p>
-<table>
-<colgroup>
-<col style="width: 36%">
-<col style="width: 13%">
-<col style="width: 14%">
-<col style="width: 17%">
-<col style="width: 18%">
-</colgroup>
-<thead>
-<tr>
-<th>dataset</th>
-<th>iteration (SIFT)</th>
-<th>iteration (Pixel)</th>
-<th>average ratio (SIFT)</th>
-<th>average ratio (Pixel)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>data1/112_1298.JPG<br>data1/112_1299.JPG</td>
-<td>24</td>
-<td>26</td>
-<td>0.41</td>
-<td>0.40</td>
-</tr>
-<tr>
-<td>data2/IMG_0488.JPG<br>data2/IMG_0489.JPG</td>
-<td>22</td>
-<td>26</td>
-<td>0.42</td>
-<td>0.40</td>
-</tr>
-<tr>
-<td>data3/IMG_0675<br>data3/IMG_0676</td>
-<td>25</td>
-<td>25</td>
-<td>0.40</td>
-<td>0.40</td>
-</tr>
-<tr>
-<td>data4/IMG_7357<br>data4/IMG_7358</td>
-<td>23</td>
-<td>26</td>
-<td>0.41</td>
-<td>0.40</td>
-</tr>
-</tbody>
-</table>
-<p>It shows that SIFT descriptor contributes to less iterations and
-better average inlier ratio.</p>
-]]></content>
-      <categories>
-        <category>Graduate Course</category>
-        <category>Computer Vision</category>
-      </categories>
-      <tags>
-        <tag>Panorama Stitching</tag>
       </tags>
   </entry>
 </search>
