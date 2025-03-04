@@ -1,53 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Mujoco - 碰撞凸几何体要求</title>
-    <url>/2024/09/29/02-Mujoco_notes/</url>
-    <content><![CDATA[<h2 id="collision">Collision</h2>
-<p><a class="link" 
- href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
-- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
-<blockquote>
-<p>We have chosen to limit collision detection to <em>convex</em> geoms.
-All primitive types are convex. Height fields are not convex but
-internally they are treated as unions of triangular prisms (using custom
-collision pruning beyond the filters described above). Meshes specified
-by the user can be non-convex, and are rendered as such. For collision
-purposes however they are replaced with their convex hulls.</p>
-</blockquote>
-<ul>
-<li>碰撞检测限制在<em>凸</em>几何体</li>
-<li>所有原始类型都是凸的</li>
-<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
-<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
-</ul>
-<blockquote>
-<p>In order to model a non-convex object other than a height field, the
-user must decompose it into a union of convex geoms (which can be
-primitive shapes or meshes) and attach them to the same body. Open tools
-like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
-can be used outside MuJoCo to automate this process. Finally, all
-built-in collision functions can be replaced with custom callbacks. This
-can be used to incorporate a general-purpose “triangle soup” collision
-detector for example. However we do not recommend such an approach.
-Pre-processing the geometry and representing it as a union of convex
-geoms takes some work, but it pays off at runtime and yields both faster
-and more stable simulation.</p>
-<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
-MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
-库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>mujoco</tag>
-        <tag>collision</tag>
-        <tag>convex</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Mujoco - 高场hfield相关</title>
     <url>/2024/09/26/01-Hfield/</url>
     <content><![CDATA[<blockquote>
@@ -191,8 +144,333 @@ MCTS的迭代次数，更多的迭代次数意味着更高的准确性，但会�
       </categories>
       <tags>
         <tag>mujoco</tag>
-        <tag>convex</tag>
         <tag>CoACD</tag>
+        <tag>convex</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mujoco - 碰撞凸几何体要求</title>
+    <url>/2024/09/29/02-Mujoco_notes/</url>
+    <content><![CDATA[<h2 id="collision">Collision</h2>
+<p><a class="link" 
+ href="https://mujoco.readthedocs.io/en/stable/computation/index.html#collision" >Computation
+- MuJoCo Documentation<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<blockquote>
+<p>We have chosen to limit collision detection to <em>convex</em> geoms.
+All primitive types are convex. Height fields are not convex but
+internally they are treated as unions of triangular prisms (using custom
+collision pruning beyond the filters described above). Meshes specified
+by the user can be non-convex, and are rendered as such. For collision
+purposes however they are replaced with their convex hulls.</p>
+</blockquote>
+<ul>
+<li>碰撞检测限制在<em>凸</em>几何体</li>
+<li>所有原始类型都是凸的</li>
+<li>高度字段不是凸的，但在内部它们被视为三棱柱的并集</li>
+<li>网格可以是非凸的，并且如此渲染。然而，出于碰撞目的，它们被替换为凸包</li>
+</ul>
+<blockquote>
+<p>In order to model a non-convex object other than a height field, the
+user must decompose it into a union of convex geoms (which can be
+primitive shapes or meshes) and attach them to the same body. Open tools
+like the <a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD library<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>
+can be used outside MuJoCo to automate this process. Finally, all
+built-in collision functions can be replaced with custom callbacks. This
+can be used to incorporate a general-purpose “triangle soup” collision
+detector for example. However we do not recommend such an approach.
+Pre-processing the geometry and representing it as a union of convex
+geoms takes some work, but it pays off at runtime and yields both faster
+and more stable simulation.</p>
+<p>为了对高度场以外的非凸对象进行建模，用户必须将其分解为凸几何体（可以是原始形状或网格）的并集并将它们附加到同一实体。可以在
+MuJoCo 外部使用<a class="link"   href="https://github.com/SarahWeiii/CoACD" >CoACD
+库<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>等开放工具来自动化此过程。最后，所有内置碰撞函数都可以替换为自定义回调。例如，这可用于合并通用“三角汤”碰撞检测器。但是我们不推荐这种方法。预处理几何体并将其表示为凸几何体的联合需要一些工作，但它在运行时得到回报，并产生更快、更稳定的模拟。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>mujoco</tag>
+        <tag>convex</tag>
+        <tag>collision</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GauU-Scene V2 论文解读</title>
+    <url>/2024/11/05/05-GauU_Scene_V2/</url>
+    <content><![CDATA[<p>论文：</p>
+<blockquote>
+<p>GauU-Scene V2: Assessing the Reliability of Image-Based Metrics with
+Expansive Lidar Image Dataset Using 3DGS and NeRF</p>
+</blockquote>
+<h2 id="数据集">数据集</h2>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png"
+                      
+                ></p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 41%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th>方法</th>
+<th>做法</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bungeenerf</td>
+<td>卫星捕获图像</td>
+<td>时间差异、无地面实况</td>
+</tr>
+<tr>
+<td>KITTI</td>
+<td>汽车雷达捕获点云数据</td>
+<td>屋顶、高层建筑捕获存在不足</td>
+</tr>
+<tr>
+<td>blockNeRF</td>
+<td>Style Transformation解决时间差异</td>
+<td>不提供公开可用的点云数据集</td>
+</tr>
+<tr>
+<td>UrbanBIS</td>
+<td>多视图相机捕获点云</td>
+<td>未用高精度激光雷达</td>
+</tr>
+<tr>
+<td>Urbanscene3D</td>
+<td>无人机配合激光雷达</td>
+<td>坐标差异，雷达点云和图像关系不明确</td>
+</tr>
+</tbody>
+</table>
+<p><strong>优势：</strong></p>
+<ul>
+<li>利用Zenmuse L1来获取地面真实几何，而大多数数据集（ blocknerf ）（
+megaNeRF ）（ UrbanBIS
+）依赖单目或多视图相机进行数据采集，这更适合新视图合成而不是场景重建。</li>
+<li>提供了城市规模的信息，包括高层建筑、湖泊、山脉和屋顶，而其他数据集很少提供。</li>
+<li>double-return技术，去除移动物体，确保更稳定的光照效果。</li>
+<li>去除飞行路线中连续图像之间的冗余信息，图像更少，但信息量仍然具有可比性。</li>
+</ul>
+<h2 id="评估指标">评估指标</h2>
+<h3 id="psnr">PSNR</h3>
+<p>PSNR(Peak signal-to-noise ratio 峰值信噪比)
+用于表示信号的最大可能功率与影响其表示的保真度的破坏噪声的功率之间的比率，通常使用分贝标度表示为对数量。</p>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d6245af1d4a65be444fc779e62074667.png"
+                      
+                ></p>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d0eb05ab65303b4ae37eabbfc43212b7.png"
+                      
+                ></p>
+<h3 id="ssim">SSIM</h3>
+<p>SSIM全称为Structural
+Similarity，即结构相似性。算法会提取以下三个特征。</p>
+<ul>
+<li><strong>亮度</strong></li>
+<li><strong>对比度</strong></li>
+<li><strong>结构</strong></li>
+</ul>
+<p>亮度的估计与平均灰度有关：<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/cfd417d0ced2bd8f64a88b7fa799f8c5.png"
+                      
+                ></p>
+<p>对比度的估计则用标准差衡量：<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/ff69fd63d0e036d0866f420595dc2668.png"
+                      
+                ></p>
+<p>结构比较是通过使用一个合并公式来完成。</p>
+<p>三个对比函数分别如下：</p>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>公式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>亮度</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9615320354732921de0c9a7268823ca3.png"
+                     
+alt="亮度" 
+                ></td>
+</tr>
+<tr>
+<td><strong>对比度</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f82417d40a829e317089fc1240823192.png"
+                     
+alt="对比度" 
+                ></td>
+</tr>
+<tr>
+<td><strong>结构</strong></td>
+<td><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3765b0064f96885e010bb8eb3725455a.png"
+                     
+alt="结构" 
+                >其中<img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/6ba650fa5b1715045873b1422610d366.png"
+                     
+alt="协方差" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>结合即得到SSIM函数：</p>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fdd23e8d54ad6380ebc851cd06a0a12d.png"
+                      
+                ></p>
+<h3 id="lpips">LPIPS</h3>
+<p>学习感知图像块相似度(Learned Perceptual Image Patch Similarity,
+LPIPS)，通过深度学习模型来评估两个图像之间的感知差异。使用预训练的深度网络（如
+VGG、AlexNet）来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度。</p>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg"
+                      
+                ></p>
+<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2/PSNR,
+SSIM,
+FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
+<h3 id="倒角距离">倒角距离</h3>
+<p>出自：</p>
+<blockquote>
+<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
+object reconstruction from a single image,” <a class="link" 
+ href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>,
+2017.</p>
+</blockquote>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2c25811a255e9fb0702799148f56c8ed.png"
+                      
+                ></p>
+<p>算法：</p>
+<ol type="1">
+<li>对S1中任意一点x，计算它与S2中所有点的距离，取最小距离的平方。</li>
+<li>遍历S1中的点，重复1中过程，求和所有距离平方。</li>
+<li>同样的步骤，对S2中所有点遍历，重复1、2过程。</li>
+<li>将两个求和结果相加，作为倒角距离。</li>
+</ol>
+<p>倒角距离用于衡量两个点云之间的相似度。如果该距离较大，则说明两组点云区别较大；如果距离较小，则说明重建效果较好。</p>
+<h2 id="实验">实验</h2>
+<h3 id="实验环境">实验环境</h3>
+<ul>
+<li><strong>Vanilla Gaussian Splatting</strong>: RTX 3090 * 1</li>
+<li><strong>NeRF-based models</strong>: RTX 3090 * 4</li>
+</ul>
+<h3 id="实验结果">实验结果</h3>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f83245b067971c4b84de5cd9895d823.png"
+                      
+                ></p>
+<ul>
+<li>3DGS和SuGaR在图像的渲染中，有更优的效果（三个参数都更优），且训练时间更短。</li>
+</ul>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b6069787b5c845e9080f4ef1d4751090.png"
+                      
+                ></p>
+<ul>
+<li>NeRF: 使用ns-export生成3D点云。</li>
+<li>3DGS: 每个Gaussian Splatting的均值作为一个点，输出点云。</li>
+<li>神经辐射场生成的点云，通常包含很多与场景无关的异常值。</li>
+<li>3DGS也存在边缘效应，边缘会模糊。</li>
+</ul>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png"
+                      
+                ></p>
+<p>（图源项目网址：<a class="link" 
+ href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
+<ul>
+<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
+<li>SuGaR
+是一种专为几何对齐设计的方法，排名却倒数。再对SuGaR进行定量分析，发现SuGaR在几何重建方面确实有更好的表现。</li>
+</ul>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3472d29a30085a95fb9679362e2c9f49.png"
+                      
+                ></p>
+<p>图中的蓝点在其他方法中很常见，而绿色甚至略带红色的点在其他方法中却很少见。更何况SuGaR中绿色点如此之多。
+从定量的角度来看，如果我们忽略这里显示的异常值，SuGaR
+的确是最好的方法。</p>
+<p><img 
+
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png"
+                      
+                ></p>
+<p>对高斯泼溅的alpha值进行了简单分析，其中几乎三分之二的alpha值几乎是透明的。通过删除这些值，渲染的图像变得更加清晰，几乎没有信息丢失。这些近乎透明的高斯飞溅实例漂浮在3D空间中。尽管它们在渲染图像中看不到，但它们会导致几何测量指标的退化。</p>
+]]></content>
+      <categories>
+        <category>三维重建</category>
+      </categories>
+      <tags>
+        <tag>NeRF</tag>
+        <tag>3DGS</tag>
       </tags>
   </entry>
   <entry>
@@ -603,338 +881,6 @@ RGB 的操作策略的模拟与真实之间的差距。
       </tags>
   </entry>
   <entry>
-    <title>GauU-Scene V2 论文解读</title>
-    <url>/2024/11/05/05-GauU_Scene_V2/</url>
-    <content><![CDATA[<p>论文：</p>
-<blockquote>
-<p>GauU-Scene V2: Assessing the Reliability of Image-Based Metrics with
-Expansive Lidar Image Dataset Using 3DGS and NeRF</p>
-</blockquote>
-<h2 id="数据集">数据集</h2>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/db7529b3c3e21b5e4cb4c591de2c70cb.png"
-                      
-                ></p>
-<table>
-<colgroup>
-<col style="width: 15%" />
-<col style="width: 41%" />
-<col style="width: 43%" />
-</colgroup>
-<thead>
-<tr>
-<th>方法</th>
-<th>做法</th>
-<th>缺点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>bungeenerf</td>
-<td>卫星捕获图像</td>
-<td>时间差异、无地面实况</td>
-</tr>
-<tr>
-<td>KITTI</td>
-<td>汽车雷达捕获点云数据</td>
-<td>屋顶、高层建筑捕获存在不足</td>
-</tr>
-<tr>
-<td>blockNeRF</td>
-<td>Style Transformation解决时间差异</td>
-<td>不提供公开可用的点云数据集</td>
-</tr>
-<tr>
-<td>UrbanBIS</td>
-<td>多视图相机捕获点云</td>
-<td>未用高精度激光雷达</td>
-</tr>
-<tr>
-<td>Urbanscene3D</td>
-<td>无人机配合激光雷达</td>
-<td>坐标差异，雷达点云和图像关系不明确</td>
-</tr>
-</tbody>
-</table>
-<p><strong>优势：</strong></p>
-<ul>
-<li>利用Zenmuse L1来获取地面真实几何，而大多数数据集（ blocknerf ）（
-megaNeRF ）（ UrbanBIS
-）依赖单目或多视图相机进行数据采集，这更适合新视图合成而不是场景重建。</li>
-<li>提供了城市规模的信息，包括高层建筑、湖泊、山脉和屋顶，而其他数据集很少提供。</li>
-<li>double-return技术，去除移动物体，确保更稳定的光照效果。</li>
-<li>去除飞行路线中连续图像之间的冗余信息，图像更少，但信息量仍然具有可比性。</li>
-</ul>
-<h2 id="评估指标">评估指标</h2>
-<h3 id="psnr">PSNR</h3>
-<p>PSNR(Peak signal-to-noise ratio 峰值信噪比)
-用于表示信号的最大可能功率与影响其表示的保真度的破坏噪声的功率之间的比率，通常使用分贝标度表示为对数量。</p>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d6245af1d4a65be444fc779e62074667.png"
-                      
-                ></p>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/d0eb05ab65303b4ae37eabbfc43212b7.png"
-                      
-                ></p>
-<h3 id="ssim">SSIM</h3>
-<p>SSIM全称为Structural
-Similarity，即结构相似性。算法会提取以下三个特征。</p>
-<ul>
-<li><strong>亮度</strong></li>
-<li><strong>对比度</strong></li>
-<li><strong>结构</strong></li>
-</ul>
-<p>亮度的估计与平均灰度有关：<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/cfd417d0ced2bd8f64a88b7fa799f8c5.png"
-                      
-                ></p>
-<p>对比度的估计则用标准差衡量：<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/ff69fd63d0e036d0866f420595dc2668.png"
-                      
-                ></p>
-<p>结构比较是通过使用一个合并公式来完成。</p>
-<p>三个对比函数分别如下：</p>
-<table>
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 85%" />
-</colgroup>
-<thead>
-<tr>
-<th></th>
-<th>公式</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>亮度</strong></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/9615320354732921de0c9a7268823ca3.png"
-                     
-alt="亮度" 
-                ></td>
-</tr>
-<tr>
-<td><strong>对比度</strong></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/f82417d40a829e317089fc1240823192.png"
-                     
-alt="对比度" 
-                ></td>
-</tr>
-<tr>
-<td><strong>结构</strong></td>
-<td><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3765b0064f96885e010bb8eb3725455a.png"
-                     
-alt="结构" 
-                >其中<img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/6ba650fa5b1715045873b1422610d366.png"
-                     
-alt="协方差" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>结合即得到SSIM函数：</p>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/fdd23e8d54ad6380ebc851cd06a0a12d.png"
-                      
-                ></p>
-<h3 id="lpips">LPIPS</h3>
-<p>学习感知图像块相似度(Learned Perceptual Image Patch Similarity,
-LPIPS)，通过深度学习模型来评估两个图像之间的感知差异。使用预训练的深度网络（如
-VGG、AlexNet）来提取图像特征，然后计算这些特征之间的距离，以评估图像之间的感知相似度。</p>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/e63001489b8b365f3bd6a46a08578664.jpeg"
-                      
-                ></p>
-<p>图示是将左右两幅图像与中间图像对比的结果。可以看到，传统方法（L2/PSNR,
-SSIM,
-FSIM）的结果与人的感知相反。而后三行通过神经网络提取特征的方法，能更符合人的感知，来评判图片的相似度。</p>
-<h3 id="倒角距离">倒角距离</h3>
-<p>出自：</p>
-<blockquote>
-<p>H. Fan, S. Hao, and L. Guibas, “A point set generation network for 3D
-object reconstruction from a single image,” <a class="link" 
- href="https://so.csdn.net/so/search?q=CVPR&amp;spm=1001.2101.3001.7020" >CVPR<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>,
-2017.</p>
-</blockquote>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/2c25811a255e9fb0702799148f56c8ed.png"
-                      
-                ></p>
-<p>算法：</p>
-<ol type="1">
-<li>对S1中任意一点x，计算它与S2中所有点的距离，取最小距离的平方。</li>
-<li>遍历S1中的点，重复1中过程，求和所有距离平方。</li>
-<li>同样的步骤，对S2中所有点遍历，重复1、2过程。</li>
-<li>将两个求和结果相加，作为倒角距离。</li>
-</ol>
-<p>倒角距离用于衡量两个点云之间的相似度。如果该距离较大，则说明两组点云区别较大；如果距离较小，则说明重建效果较好。</p>
-<h2 id="实验">实验</h2>
-<h3 id="实验环境">实验环境</h3>
-<ul>
-<li><strong>Vanilla Gaussian Splatting</strong>: RTX 3090 * 1</li>
-<li><strong>NeRF-based models</strong>: RTX 3090 * 4</li>
-</ul>
-<h3 id="实验结果">实验结果</h3>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3f83245b067971c4b84de5cd9895d823.png"
-                      
-                ></p>
-<ul>
-<li>3DGS和SuGaR在图像的渲染中，有更优的效果（三个参数都更优），且训练时间更短。</li>
-</ul>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b6069787b5c845e9080f4ef1d4751090.png"
-                      
-                ></p>
-<ul>
-<li>NeRF: 使用ns-export生成3D点云。</li>
-<li>3DGS: 每个Gaussian Splatting的均值作为一个点，输出点云。</li>
-<li>神经辐射场生成的点云，通常包含很多与场景无关的异常值。</li>
-<li>3DGS也存在边缘效应，边缘会模糊。</li>
-</ul>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/b9ceed006fcc21ee2617014e59db17c1.png"
-                      
-                ></p>
-<p>（图源项目网址：<a class="link" 
- href="https://saliteta.github.io/CUHKSZ_SMBU/" >GauU-Scene<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
-<ul>
-<li>NeRFacto，虽然在图像生成得分最低，但是倒角距离最小。而Instant-NGP和SuGaR分别是倒数第一和倒数第二。这一实验结果揭示了基于图像的测量无法代表底层几何结构的基本事实。</li>
-<li>SuGaR
-是一种专为几何对齐设计的方法，排名却倒数。再对SuGaR进行定量分析，发现SuGaR在几何重建方面确实有更好的表现。</li>
-</ul>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/3472d29a30085a95fb9679362e2c9f49.png"
-                      
-                ></p>
-<p>图中的蓝点在其他方法中很常见，而绿色甚至略带红色的点在其他方法中却很少见。更何况SuGaR中绿色点如此之多。
-从定量的角度来看，如果我们忽略这里显示的异常值，SuGaR
-的确是最好的方法。</p>
-<p><img 
-
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/11/0a3a7c7970e0d897124e5fa0d668a98d.png"
-                      
-                ></p>
-<p>对高斯泼溅的alpha值进行了简单分析，其中几乎三分之二的alpha值几乎是透明的。通过删除这些值，渲染的图像变得更加清晰，几乎没有信息丢失。这些近乎透明的高斯飞溅实例漂浮在3D空间中。尽管它们在渲染图像中看不到，但它们会导致几何测量指标的退化。</p>
-]]></content>
-      <categories>
-        <category>三维重建</category>
-      </categories>
-      <tags>
-        <tag>NeRF</tag>
-        <tag>3DGS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mathjax与渲染引擎marked冲突解决方案</title>
-    <url>/2024/11/11/07-Build_blog/</url>
-    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
-<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
-<h3 id="踩坑过程">踩坑过程</h3>
-<h4 id="修改源码失败">1.修改源码（失败）</h4>
-<p>太长了，折叠一下，想看就展开吧👇。</p>
-<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
-              <div class="content">
-              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
-              </div>
-            </details>
-<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
-<p>最简单的方法，博主最初的妥协。</p>
-<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
-<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
-<p>直接卸载源引擎，更换kramed：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
-<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
-<p>将</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>更改为</p>
-<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
-<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
-<h3 id="解决方案">解决方案</h3>
-<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
-<ol type="1">
-<li><p>安装Pandoc。</p>
-<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
-Installing
-pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
-<li><p>更换引擎。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
-<p>mathjax的安装和配置可参考网上的教程。</p></li>
-<li><p>重新构建。</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
-</ol>
-<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
-]]></content>
-      <categories>
-        <category>博客搭建</category>
-      </categories>
-      <tags>
-        <tag>blog</tag>
-        <tag>mathjax</tag>
-        <tag>marked</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NeRF Studio简要教程</title>
     <url>/2024/11/12/08-NeRF_Studio/</url>
     <content><![CDATA[<h2 id="准备工作">准备工作</h2>
@@ -1227,6 +1173,60 @@ faces)</strong></td>
       <tags>
         <tag>NeRF</tag>
         <tag>3DGS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mathjax与渲染引擎marked冲突解决方案</title>
+    <url>/2024/11/11/07-Build_blog/</url>
+    <content><![CDATA[<h3 id="问题说明">问题说明</h3>
+<p><code>hexo</code>在解析markdown的时候，会对一些符号如<code>_</code>进行转义，将其转为<code>&lt;em&gt;</code>标签。而在公式块中，<code>_</code>是作为渲染下标所用的符号。但是<code>hexo</code>的优先级比<code>mathjax</code>更高，且不会判断<code>_</code>是否在公式内，所以很容易造成冲突，导致公式没法正常渲染。比如笔者在编写博客时，发现两个相邻公式中的<code>_</code>被当成斜体渲染，导致两个公式都没正常渲染出来。</p>
+<h3 id="踩坑过程">踩坑过程</h3>
+<h4 id="修改源码失败">1.修改源码（失败）</h4>
+<p>太长了，折叠一下，想看就展开吧👇。</p>
+<details class="orange" data-header-exclude=""><summary><i class="fa-solid fa-chevron-right"></i>Folding 点击查看更多 </summary>
+              <div class="content">
+              <p>搜到的大部分解决方案，都是让更改marked源码，即将<code>nodes_modules/lib/marked/lib/marked.js</code>文件进行更改：</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([\\`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="regexp">/^\\([`*{}\[\]()# +\-.!_&gt;])/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>\\</code>的转义。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:[^_]|__)+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>:<span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div><p>从而去除<code>_</code>的斜体转义。</p><p>然而不知道是博主使用的版本问题还是什么原因，并没有找到该文件。虽然后面在<code>nodes_modules/marked/bin</code>里找到了<code>marked.js</code>，它通过调用了一个库<code>marked.esm.js</code> 来执行具体的 Markdown解析操作。因此博主在<code>marked.esm.js</code>进行了相应的更改。</p><p>将</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/</span>,</span><br><span class="line"> </span><br><span class="line">  <span class="comment">//        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.</span></span><br><span class="line">  <span class="comment">//          () Skip orphan inside strong                                      () Consume to delim     (1) #***                (2) a***#, a***                             (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\*\*(?:[^_*\\]|\\.)*?\_(?:[^_*\\]|\\.)*?(?=\*\*)|(?:[^_\\]|\\.)+(?=[^_])|[punct*](\_+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/</span> <span class="comment">// ^- Not allowed for _</span></span><br><span class="line">},</span><br></pre></td></tr></table></figure></div><p>替换为</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">emStrong</span>: {</span><br><span class="line">  <span class="comment">// 仅匹配 * 而不匹配 _</span></span><br><span class="line">  <span class="attr">lDelim</span>: <span class="regexp">/^(?:\*+(?:([punct*])|[^\s*]))/</span>, </span><br><span class="line">  <span class="comment">// 保持原有的 * 匹配</span></span><br><span class="line">  <span class="attr">rDelimAst</span>: <span class="regexp">/^(?:[^_*\\]|\\.)*?\_\_(?:[^_*\\]|\\.)*?\*(?:[^_*\\]|\\.)*?(?=\_\_)|(?:[^*\\]|\\.)+(?=[^*])|[punct_](\*+)(?=[\s]|$)|(?:[^punct*_\s\\]|\\.)(\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|(?:[^punct*_\s\\]|\\.)(\*+)(?=[^punct*_\s])/</span>,</span><br><span class="line">  <span class="comment">// 禁用对下划线的右界定符匹配</span></span><br><span class="line">  <span class="attr">rDelimUnd</span>: <span class="literal">null</span></span><br><span class="line">}</span><br></pre></td></tr></table></figure></div><p>然而后面看到该文件开头有这样一句：</p><div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DO NOT EDIT THIS FILE</span></span><br><span class="line"><span class="comment"> * The code in this file is generated from files in ./src/</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></div><p>好嘛，原来这个文件是通过其他源文件生成的，于是又转头更改<code>nodes_modules/marked/src/rules.js</code>。同上面的规则更改<code>emStrong</code>。</p><p>然而，并无卵用。基本宣告这条路失败。</p>
+              </div>
+            </details>
+<h4 id="手动escape成功但丑陋">2.手动escape（成功但丑陋）</h4>
+<p>最简单的方法，博主最初的妥协。</p>
+<p>就是将公式中的<code>_</code>前面加上<code>\</code>进行转义。这样的结果就是网站上能正常显示，然而用自己的markdown编辑软件，下标就会消失，变成真正的下横线。如果单纯只对网站更改，这个方法无疑是最方便的，但是但凡要在本地编辑，就会很难受。</p>
+<h4 id="更换kramed引擎没用">3.更换kramed引擎（没用）</h4>
+<p>直接卸载源引擎，更换kramed：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>然而kramed引擎还是存在相同的问题。（所以为什么要让我改啊！改了还容易报一堆错）</p>
+<p>还是需要修改<code>node_modules/kramed/lib/rules/inline.js</code>文件。</p>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">em</span>: <span class="regexp">/^\*((?:\*\*|[\s\S])+?)\*(?!\*)/</span>,</span><br></pre></td></tr></table></figure></div>
+<p>将</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~|])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>更改为</p>
+<div class="code-container" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="code"><pre><span class="line"><span class="attr">escape</span>: <span class="title function_">replace</span>(inline.<span class="property">escape</span>)(<span class="string">'])'</span>, <span class="string">'~])'</span>)(),</span><br></pre></td></tr></table></figure></div>
+<p>这不是和上面一样的吗，而且博主依然没找到这个文件。不知道是不是版本迭代更改了结构。</p>
+<h3 id="解决方案">解决方案</h3>
+<p>最终的解决方案，是博主最开始最不愿意的方案，就是替换成pandoc引擎。</p>
+<ol type="1">
+<li><p>安装Pandoc。</p>
+<p>在官网<a class="link" href="https://pandoc.org/installing.html">Pandoc -
+Installing
+pandoc<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>下载安装<code>pandoc</code>，博主是在<code>windows</code>上部署的博客，直接下载了msi安装包进行安装，安装完成后重启电脑后才生效。</p></li>
+<li><p>更换引擎。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">npm uninstall hexo-renderer-marked --save</span><br><span class="line">npm install hexo-renderer-pandoc --save</span><br></pre></td></tr></table></figure></div>
+<p>mathjax的安装和配置可参考网上的教程。</p></li>
+<li><p>重新构建。</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line">hexo cl</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure></div></li>
+</ol>
+<p>然后应该就能正常显示公式了，这下舒服了。不得不说，<code>pandoc</code>，你是我的神！</p>
+]]></content>
+      <categories>
+        <category>博客搭建</category>
+      </categories>
+      <tags>
+        <tag>blog</tag>
+        <tag>mathjax</tag>
+        <tag>marked</tag>
       </tags>
   </entry>
   <entry>
@@ -1860,6 +1860,256 @@ Meshes can also be embedded directly in the XML.</p>
       </tags>
   </entry>
   <entry>
+    <title>Genesis简要介绍与样例展示</title>
+    <url>/2024/12/19/12-GenesisIntroduction/</url>
+    <content><![CDATA[<h2 id="introduction">Introduction</h2>
+<p>Genesis
+是一个物理平台，专为通用机器人/嵌入式人工智能/物理人工智能应用而设计。它同时是多种事物：</p>
+<ul>
+<li>从头开始重建的通用物理引擎，能够模拟各种材料和物理现象。</li>
+<li>一个轻量级、超快速、Pythonic 且用户友好的机器人仿真平台。</li>
+<li>强大且快速的逼真渲染系统。</li>
+<li>一种生成数据引擎，可将用户提示的自然语言描述转换为各种数据形式。</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<p>分别测试现有的<code>examples</code>中的场景，结果如下：</p>
+<h3 id="simulation">1. Simulation</h3>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr>
+<th>File</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cloth_on_rigid.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/cbf169adaa98f0d5a7dadcea030fa4aa.gif"
+                      alt="2025-01-07-23-51-16" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>cut_dragon.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/5eeb2157a3a3e0e65b8a637f6a7606e3.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>flush_cubes.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/26a959a4222e4081cf3d1a857826f54d.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>grasp_soft_cube.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0bcd1e4a3f57d947106226115420ec5f.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>sand_wheel.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0cf95542a6a2c8ca4d92bd467fbdeb3a.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>sph_mpm.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/6f40c4612af0b57fb0622993b8f94254.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>sph_rigid.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0021b8d6814eda6e28cc377649cb104c.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+<tr>
+<td>water_wheel.py</td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/682cd236c42bb05631c3979e68929646.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>(目前就找到这些)</p>
+<h3 id="training">2. Training</h3>
+<h4 id="drone-hover">(1). drone (hover)</h4>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/9de392f46f1b13ec529f76e9bbfcf5ea.gif"
+                      alt="动画" style="zoom: 80%;" 
+                ></p>
+<h4 id="locomotion-go2">(2). locomotion (go2)</h4>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/565f6bdacbdf790476442036a3331466.gif"
+                      alt="动画" style="zoom:80%;" 
+                ></p>
+<h4 id="modified-locomotion-go2">(3). modified locomotion (go2)</h4>
+<p>本来尝试对<code>go2_env</code>增加一个mesh的障碍，但是训练中发现<code>go2</code>直接穿模了。于是用最简单的<code>Box</code>代替，做了个简单的围墙：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0bf6b0c53b8d6cfad07a4e598f84b15f.png"
+                      alt="image-20250108014803652" style="zoom:50%;" 
+                ></p>
+<p>对其进行了<code>10000</code>个<code>iteration</code>的训练：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/bec10fefd8553fcf202c29ba5e271f54.png"
+                      alt="image-20250108014904100" style="zoom:50%;" 
+                ></p>
+<p>看看训练结果：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/e5783629e54eccd3830290117eacbd23.gif"
+                      alt="动画" style="zoom:50%;" 
+                ></p>
+<h2 id="errors-solutions">Errors &amp; Solutions</h2>
+<h3
+id="opengl.error.error-attempt-to-retrieve-context-when-no-valid-context">1.
+OpenGL.error.Error: Attempt to retrieve context when no valid
+context</h3>
+<p>在<code>Windows</code>的<code>WSL</code>虚拟机中安装了<code>Ubuntu</code>系统，在直接运行测试样例时会出现如下的报错：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/6d69fa4bfe85a80c6f4952d7840f4de9.png"
+                      alt="image-20241219162641596" style="zoom: 67%;" 
+                ></p>
+<p>在<a class="link" 
+ href="https://github.com/yt-project/yt_idv/issues/81" >Github<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>上面有类似的问题和解决方案。</p>
+<p><strong>原因</strong>：Ubuntu 的最新版本已默认切换为使用 Wayland
+图形协议（来自 Xorg）。目前，pyglet 不支持 Wayland。虽然单独使用 pyglet
+仍然有效（感谢 xWayland），但使用 pyimgui-pyglet 会导致 PyOpenGL
+选择不正确的图形后端。</p>
+<p><strong>解决方案</strong>：在运行前强制指定PyOpenGL使用Xorg：</p>
+<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PYOPENGL_PLATFORM=<span class="string">&#x27;glx&#x27;</span></span><br></pre></td></tr></table></figure></div>
+<h2 id="unsolved-problems">Unsolved Problems</h2>
+<h3 id="decomposition-deactivates-collision">1. Decomposition
+deactivates collision</h3>
+<p>在genesis中导入的mesh，在导入时可以设置参数进行凸分解。底层还是调用的<code>CoACD</code>工具。试图在genesis对mesh直接进行凸分解，但是发现凸分解之后偶尔会导致碰撞失效。
+<strong>参数设置</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>不进行凸分解</th>
+<th>凸分解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/55dcc1efda7f3dd408108f1b16815f7e.png"
+                      alt="image-20250107220338773" style="zoom:67%;" 
+                ></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/89dab658e2494000a882275df1559ec5.png"
+                      alt="image-20250107220752936" style="zoom:67%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>在genesis的<code>Mesh</code>类中，有两个参数与凸分解有关：</p>
+<ul>
+<li><strong>convexify</strong>:
+此参数用于控制是否将<code>Mesh</code>直接进行凸包运算，即等同于<code>mujoco</code>中的默认算法，将<code>Mesh</code>求个凸包。实际碰撞的体积与渲染出来的实际形状会有差异。</li>
+<li><strong>decompose_nonconvex</strong>:
+此参数仅在<code>convexify</code>为<code>False</code>时有效，表示是否使用<code>CoACD</code>对<code>Mesh</code>进行凸分解。</li>
+</ul>
+<p><strong>结果比对</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>不进行凸分解</th>
+<th>凸分解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/a4f3b9013a618e4a96e1f55f4fabcaad.gif"
+                      alt="2025-01-07-23-39-57" style="zoom:50%;" 
+                ></td>
+<td><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/22ffb289472b8ee43525964ab9661718.gif"
+                      alt="2025-01-07-23-36-50" style="zoom: 50%;" 
+                ></td>
+</tr>
+</tbody>
+</table>
+<p>在实际运行中，当对复杂模型进行凸分解（即<code>decompose_nonconvex</code>设为<code>True</code>），可能会导致穿模的情况。更换模型后，发现又成功了：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/4db91d11532bcf4777a85ff9a5c10f1f.gif"
+                      alt="2025-01-07-23-29-24" style="zoom:50%;" 
+                ></p>
+<p>Anyway，目前还不清楚问题出在<code>CoACD</code>还是<code>genesis</code>。</p>
+<h3 id="mjcf-import-failure">2. MJCF Import Failure</h3>
+<p>genesis中导入mujoco的场景xml时，很容易出现消失的情况。在issue<a class="link" 
+ href="https://github.com/Genesis-Embodied-AI/Genesis/issues/603" >#603<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>和<a class="link" 
+ href="https://github.com/Genesis-Embodied-AI/Genesis/issues/287" >#287<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>里有提到。</p>
+<p>如果需要将xml成功导入，需要给geom设置<code>conaffinity</code>和<code>contype</code>参数为0。但是这样就避免了物体间的碰撞。</p>
+<p>查阅genesis的源码，目前的推测是，genesis里的一个<code>Entity</code>是一个单独的单位，要对他进行<code>material</code>和<code>texture</code>等的设置，所以默认避免了单个<code>Entity</code>导入多个物件。</p>
+]]></content>
+      <categories>
+        <category>机器仿真</category>
+      </categories>
+      <tags>
+        <tag>genesis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Scene Recognition with Bag of Words</title>
     <url>/2025/01/09/14-SceneRecognition/</url>
     <content><![CDATA[<h2 id="setting">1. Setting</h2>
@@ -2205,256 +2455,6 @@ KNN</strong>, especially when a larger vocabulary is used.</p>
       </categories>
       <tags>
         <tag>Scene Recognition</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Genesis简要介绍与样例展示</title>
-    <url>/2024/12/19/12-GenesisIntroduction/</url>
-    <content><![CDATA[<h2 id="introduction">Introduction</h2>
-<p>Genesis
-是一个物理平台，专为通用机器人/嵌入式人工智能/物理人工智能应用而设计。它同时是多种事物：</p>
-<ul>
-<li>从头开始重建的通用物理引擎，能够模拟各种材料和物理现象。</li>
-<li>一个轻量级、超快速、Pythonic 且用户友好的机器人仿真平台。</li>
-<li>强大且快速的逼真渲染系统。</li>
-<li>一种生成数据引擎，可将用户提示的自然语言描述转换为各种数据形式。</li>
-</ul>
-<h2 id="examples">Examples</h2>
-<p>分别测试现有的<code>examples</code>中的场景，结果如下：</p>
-<h3 id="simulation">1. Simulation</h3>
-<table>
-<colgroup>
-<col style="width: 23%" />
-<col style="width: 76%" />
-</colgroup>
-<thead>
-<tr>
-<th>File</th>
-<th>Result</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>cloth_on_rigid.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/cbf169adaa98f0d5a7dadcea030fa4aa.gif"
-                      alt="2025-01-07-23-51-16" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>cut_dragon.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/5eeb2157a3a3e0e65b8a637f6a7606e3.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>flush_cubes.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/26a959a4222e4081cf3d1a857826f54d.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>grasp_soft_cube.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0bcd1e4a3f57d947106226115420ec5f.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>sand_wheel.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0cf95542a6a2c8ca4d92bd467fbdeb3a.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>sph_mpm.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/6f40c4612af0b57fb0622993b8f94254.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>sph_rigid.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0021b8d6814eda6e28cc377649cb104c.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-<tr>
-<td>water_wheel.py</td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/682cd236c42bb05631c3979e68929646.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>(目前就找到这些)</p>
-<h3 id="training">2. Training</h3>
-<h4 id="drone-hover">(1). drone (hover)</h4>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/9de392f46f1b13ec529f76e9bbfcf5ea.gif"
-                      alt="动画" style="zoom: 80%;" 
-                ></p>
-<h4 id="locomotion-go2">(2). locomotion (go2)</h4>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/565f6bdacbdf790476442036a3331466.gif"
-                      alt="动画" style="zoom:80%;" 
-                ></p>
-<h4 id="modified-locomotion-go2">(3). modified locomotion (go2)</h4>
-<p>本来尝试对<code>go2_env</code>增加一个mesh的障碍，但是训练中发现<code>go2</code>直接穿模了。于是用最简单的<code>Box</code>代替，做了个简单的围墙：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/0bf6b0c53b8d6cfad07a4e598f84b15f.png"
-                      alt="image-20250108014803652" style="zoom:50%;" 
-                ></p>
-<p>对其进行了<code>10000</code>个<code>iteration</code>的训练：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/bec10fefd8553fcf202c29ba5e271f54.png"
-                      alt="image-20250108014904100" style="zoom:50%;" 
-                ></p>
-<p>看看训练结果：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/e5783629e54eccd3830290117eacbd23.gif"
-                      alt="动画" style="zoom:50%;" 
-                ></p>
-<h2 id="errors-solutions">Errors &amp; Solutions</h2>
-<h3
-id="opengl.error.error-attempt-to-retrieve-context-when-no-valid-context">1.
-OpenGL.error.Error: Attempt to retrieve context when no valid
-context</h3>
-<p>在<code>Windows</code>的<code>WSL</code>虚拟机中安装了<code>Ubuntu</code>系统，在直接运行测试样例时会出现如下的报错：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2024/12/6d69fa4bfe85a80c6f4952d7840f4de9.png"
-                      alt="image-20241219162641596" style="zoom: 67%;" 
-                ></p>
-<p>在<a class="link" 
- href="https://github.com/yt-project/yt_idv/issues/81" >Github<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>上面有类似的问题和解决方案。</p>
-<p><strong>原因</strong>：Ubuntu 的最新版本已默认切换为使用 Wayland
-图形协议（来自 Xorg）。目前，pyglet 不支持 Wayland。虽然单独使用 pyglet
-仍然有效（感谢 xWayland），但使用 pyimgui-pyglet 会导致 PyOpenGL
-选择不正确的图形后端。</p>
-<p><strong>解决方案</strong>：在运行前强制指定PyOpenGL使用Xorg：</p>
-<div class="code-container" data-rel="Bash"><figure class="iseeu highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> PYOPENGL_PLATFORM=<span class="string">&#x27;glx&#x27;</span></span><br></pre></td></tr></table></figure></div>
-<h2 id="unsolved-problems">Unsolved Problems</h2>
-<h3 id="decomposition-deactivates-collision">1. Decomposition
-deactivates collision</h3>
-<p>在genesis中导入的mesh，在导入时可以设置参数进行凸分解。底层还是调用的<code>CoACD</code>工具。试图在genesis对mesh直接进行凸分解，但是发现凸分解之后偶尔会导致碰撞失效。
-<strong>参数设置</strong>：</p>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>不进行凸分解</th>
-<th>凸分解</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/55dcc1efda7f3dd408108f1b16815f7e.png"
-                      alt="image-20250107220338773" style="zoom:67%;" 
-                ></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/89dab658e2494000a882275df1559ec5.png"
-                      alt="image-20250107220752936" style="zoom:67%;" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>在genesis的<code>Mesh</code>类中，有两个参数与凸分解有关：</p>
-<ul>
-<li><strong>convexify</strong>:
-此参数用于控制是否将<code>Mesh</code>直接进行凸包运算，即等同于<code>mujoco</code>中的默认算法，将<code>Mesh</code>求个凸包。实际碰撞的体积与渲染出来的实际形状会有差异。</li>
-<li><strong>decompose_nonconvex</strong>:
-此参数仅在<code>convexify</code>为<code>False</code>时有效，表示是否使用<code>CoACD</code>对<code>Mesh</code>进行凸分解。</li>
-</ul>
-<p><strong>结果比对</strong>：</p>
-<table>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
-<thead>
-<tr>
-<th>不进行凸分解</th>
-<th>凸分解</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/a4f3b9013a618e4a96e1f55f4fabcaad.gif"
-                      alt="2025-01-07-23-39-57" style="zoom:50%;" 
-                ></td>
-<td><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/22ffb289472b8ee43525964ab9661718.gif"
-                      alt="2025-01-07-23-36-50" style="zoom: 50%;" 
-                ></td>
-</tr>
-</tbody>
-</table>
-<p>在实际运行中，当对复杂模型进行凸分解（即<code>decompose_nonconvex</code>设为<code>True</code>），可能会导致穿模的情况。更换模型后，发现又成功了：</p>
-<p><img  
-                     lazyload
-                     src="/images/loading.svg"
-                     data-src="https://pub-70fb49a5419e4021a1be66effc7bcf9e.r2.dev/2025/01/4db91d11532bcf4777a85ff9a5c10f1f.gif"
-                      alt="2025-01-07-23-29-24" style="zoom:50%;" 
-                ></p>
-<p>Anyway，目前还不清楚问题出在<code>CoACD</code>还是<code>genesis</code>。</p>
-<h3 id="mjcf-import-failure">2. MJCF Import Failure</h3>
-<p>genesis中导入mujoco的场景xml时，很容易出现消失的情况。在issue<a class="link" 
- href="https://github.com/Genesis-Embodied-AI/Genesis/issues/603" >#603<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>和<a class="link" 
- href="https://github.com/Genesis-Embodied-AI/Genesis/issues/287" >#287<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>里有提到。</p>
-<p>如果需要将xml成功导入，需要给geom设置<code>conaffinity</code>和<code>contype</code>参数为0。但是这样就避免了物体间的碰撞。</p>
-<p>查阅genesis的源码，目前的推测是，genesis里的一个<code>Entity</code>是一个单独的单位，要对他进行<code>material</code>和<code>texture</code>等的设置，所以默认避免了单个<code>Entity</code>导入多个物件。</p>
-]]></content>
-      <categories>
-        <category>机器仿真</category>
-      </categories>
-      <tags>
-        <tag>genesis</tag>
       </tags>
   </entry>
   <entry>
