@@ -235,7 +235,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/NeRF/</loc>
+    <loc>https://felixchristian.top/tags/Sim2Real/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -249,7 +249,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Sim2Real/</loc>
+    <loc>https://felixchristian.top/tags/NeRF/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -291,13 +291,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/genesis/</loc>
-    <lastmod>2025-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/tags/mesh/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
@@ -305,7 +298,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
+    <loc>https://felixchristian.top/tags/genesis/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -313,6 +306,13 @@
   
   <url>
     <loc>https://felixchristian.top/tags/Scene-Recognition/</loc>
+    <lastmod>2025-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
