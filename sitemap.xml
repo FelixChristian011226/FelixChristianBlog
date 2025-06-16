@@ -214,7 +214,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/collision/</loc>
+    <loc>https://felixchristian.top/tags/CoACD/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -228,14 +228,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/CoACD/</loc>
-    <lastmod>2025-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/NeRF/</loc>
+    <loc>https://felixchristian.top/tags/Sim2Real/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -249,7 +242,42 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Sim2Real/</loc>
+    <loc>https://felixchristian.top/tags/collision/</loc>
+    <lastmod>2025-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/NeRF/</loc>
+    <lastmod>2025-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/2DGS/</loc>
+    <lastmod>2025-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
+    <lastmod>2025-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/genesis/</loc>
+    <lastmod>2025-06-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -277,35 +305,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
-    <lastmod>2025-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/2DGS/</loc>
-    <lastmod>2025-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/tags/mesh/</loc>
-    <lastmod>2025-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/genesis/</loc>
-    <lastmod>2025-06-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/Scene-Recognition/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -319,7 +319,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
+    <loc>https://felixchristian.top/tags/Scene-Recognition/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -342,14 +342,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</loc>
+    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/</loc>
+    <loc>https://felixchristian.top/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</loc>
     <lastmod>2025-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
