@@ -216,7 +216,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/collision/</loc>
+    <loc>https://felixchristian.top/tags/hfield/</loc>
+    <lastmod>2025-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/CoACD/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -224,6 +231,13 @@
   
   <url>
     <loc>https://felixchristian.top/tags/convex/</loc>
+    <lastmod>2025-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/collision/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -238,20 +252,6 @@
   
   <url>
     <loc>https://felixchristian.top/tags/3DGS/</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/hfield/</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/CoACD/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -279,13 +279,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/2DGS/</loc>
-    <lastmod>2025-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/tags/Sim2Real/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
@@ -294,6 +287,13 @@
   
   <url>
     <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
+    <lastmod>2025-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/2DGS/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -365,14 +365,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/</loc>
+    <loc>https://felixchristian.top/categories/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/</loc>
+    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/</loc>
     <lastmod>2025-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
