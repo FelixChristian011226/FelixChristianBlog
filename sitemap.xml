@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://felixchristian.top/2025/07/14/21-DeepRL_lecture6/</loc>
+    
+    <lastmod>2025-07-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/2025/07/14/20-DeepRL_lecture5/</loc>
     
     <lastmod>2025-07-13</lastmod>
@@ -243,6 +252,13 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.top/tags/hfield/</loc>
+    <lastmod>2025-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/tags/CoACD/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -251,13 +267,6 @@
   
   <url>
     <loc>https://felixchristian.top/tags/convex/</loc>
-    <lastmod>2025-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/hfield/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -286,13 +295,6 @@
   
   <url>
     <loc>https://felixchristian.top/tags/Sim2Real/</loc>
-    <lastmod>2025-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/mesh/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -334,7 +336,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
+    <loc>https://felixchristian.top/tags/genesis/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -348,7 +350,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/genesis/</loc>
+    <loc>https://felixchristian.top/tags/mesh/</loc>
+    <lastmod>2025-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
