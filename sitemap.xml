@@ -2,34 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://felixchristian.top/2025/06/16/16-DeepRL_lecture1/</loc>
-    
-    <lastmod>2025-07-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/2025/06/17/17-DeepRL_lecture2/</loc>
-    
-    <lastmod>2025-07-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/2025/07/01/18-DeepRL_lecture3/</loc>
-    
-    <lastmod>2025-07-13</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/2025/07/14/19-DeepRL_lecture4/</loc>
+    <loc>https://felixchristian.top/2025/07/14/21-DeepRL_lecture6/</loc>
     
     <lastmod>2025-07-13</lastmod>
     
@@ -47,7 +20,34 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/2025/07/14/21-DeepRL_lecture6/</loc>
+    <loc>https://felixchristian.top/2025/07/14/19-DeepRL_lecture4/</loc>
+    
+    <lastmod>2025-07-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/2025/07/01/18-DeepRL_lecture3/</loc>
+    
+    <lastmod>2025-07-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/2025/06/17/17-DeepRL_lecture2/</loc>
+    
+    <lastmod>2025-07-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/2025/06/16/16-DeepRL_lecture1/</loc>
     
     <lastmod>2025-07-13</lastmod>
     
@@ -273,6 +273,13 @@
   </url>
   
   <url>
+    <loc>https://felixchristian.top/tags/collision/</loc>
+    <lastmod>2025-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://felixchristian.top/tags/NeRF/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -281,27 +288,6 @@
   
   <url>
     <loc>https://felixchristian.top/tags/3DGS/</loc>
-    <lastmod>2025-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/collision/</loc>
-    <lastmod>2025-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/Sim2Real/</loc>
-    <lastmod>2025-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -329,14 +315,14 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/mesh/</loc>
+    <loc>https://felixchristian.top/tags/Photometric-Stereo/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/genesis/</loc>
+    <loc>https://felixchristian.top/tags/Sim2Real/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -350,7 +336,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/tags/Scene-Recognition/</loc>
+    <loc>https://felixchristian.top/tags/mesh/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -358,6 +344,20 @@
   
   <url>
     <loc>https://felixchristian.top/tags/Panorama-Stitching/</loc>
+    <lastmod>2025-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/genesis/</loc>
+    <lastmod>2025-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/tags/Scene-Recognition/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -387,13 +387,6 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/</loc>
-    <lastmod>2025-07-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://felixchristian.top/categories/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -401,7 +394,7 @@
   </url>
   
   <url>
-    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/</loc>
+    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -409,6 +402,13 @@
   
   <url>
     <loc>https://felixchristian.top/categories/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/</loc>
+    <lastmod>2025-07-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://felixchristian.top/categories/%E7%A0%94%E7%A9%B6%E7%94%9F%E8%AF%BE%E7%A8%8B/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%A7%86%E8%A7%89/</loc>
     <lastmod>2025-07-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
